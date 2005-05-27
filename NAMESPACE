@@ -1,0 +1,24 @@
+importFrom(MASS, glm.nb)
+importFrom(stats, logLik)
+
+export(hurdle, odTest, predprob, vuong, zeroinfl) 
+
+S3method(predprob, glm)
+S3method(predprob, zeroinfl)
+
+S3method(predict, zeroinfl)
+
+S3method(print, zeroinfl)
+S3method(print, hurdle)
+S3method(print, summary.zeroinfl)
+S3method(print, summary.hurdle)
+
+S3method(summary, zeroinfl)
+S3method(summary, hurdle)
+
+S3method(coef, zeroinfl)
+S3method(coef, hurdle)
+
+
+S3method(logLik, zeroinfl)
+S3method(logLik, hurdle)
