@@ -41,7 +41,7 @@ function(x,digits = max(3, getOption("digits") - 3),...)
   if(x$dist=="negbin"){
     cat("\nCount Model (Negative Binomial)\n")
     cat("Coefficients:\n")
-    print.matrix(x$coefficients[(kz+kx)+1,],
+    print.matrix(x$coefficients[(kz+1):((kz+kx)+1),],
                   digits = digits,
                   ##signif.stars = signif.stars, 
                   ...)

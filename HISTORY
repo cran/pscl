@@ -1,0 +1,3 @@
+0.51	fixed error in print.summary.zeroinfl (thanks to Dave Atkins; datkins@fuller.edu)
+
+0.5	initial relase to CRAN

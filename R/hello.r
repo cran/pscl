@@ -1,5 +1,5 @@
 .onAttach <- function(...){
-    cat(paste("    pscl",
+    cat(paste("   pscl",
               paste(rep(".",floor(getOption("width")*.90 - 4)),collapse=""),
               "\n",
               sep="")

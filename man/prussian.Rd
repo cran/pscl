@@ -7,26 +7,20 @@
 }
 \usage{data(prussian)}
 \format{
-  A data frame with 20 observations on the following 14 variables.  Each
-  variable contains the annual counts for a corp.
+  A data frame with 280 observations on the following 3 variables.
   \describe{
-    \item{\code{G}}{a numeric vector}
-    \item{\code{I}}{a numeric vector}
-    \item{\code{II}}{a numeric vector}
-    \item{\code{III}}{a numeric vector}
-    \item{\code{IV}}{a numeric vector}
-    \item{\code{V}}{a numeric vector}
-    \item{\code{VI}}{a numeric vector}
-    \item{\code{VII}}{a numeric vector}
-    \item{\code{VIII}}{a numeric vector}
-    \item{\code{IX}}{a numeric vector}
-    \item{\code{X}}{a numeric vector}
-    \item{\code{XI}}{a numeric vector}
-    \item{\code{XIV}}{a numeric vector}
-    \item{\code{XV}}{a numeric vector}
+    \item{\code{y}}{a numeric vector, count of deaths}
+    \item{\code{year}}{a numeric vector, 18XX, year of observation}
+    \item{\code{corp}}{a factor, corp of Prussian Army generating
+      observation}
   }
 }
 \source{
   von Bortkiewicz, L. 1898. \emph{Das Gesetz der Kleinen Zahlen.} Leipzig: Teubner. 
+}
+\examples{
+data(prussian)
+corpP <- glm(y ~ corp, family=poisson,data=prussian)
+summary(corpP)
 }
 \keyword{datasets}
