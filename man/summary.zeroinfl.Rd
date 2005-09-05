@@ -11,8 +11,8 @@
   \method{summary}{zeroinfl}(object, ...)
 
   \method{print}{summary.zeroinfl}(x,
-                                   digits = max(3, getOption("digits") - 3),
-                                   ...)
+                digits = max(3, getOption("digits") - 3),
+                ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

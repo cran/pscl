@@ -1,3 +1,10 @@
-0.51	fixed error in print.summary.zeroinfl (thanks to Dave Atkins; datkins@fuller.edu)
+0.52	changed print.matrix references to print, since print.matrix
+	depreacted in R > 2.1
+	added ntable from Jim Fearon
+	added betaHPD
+
+0.51	fixed error in print.summary.zeroinfl (thanks to Dave Atkins; 
+	datkins@fuller.edu)
+
 
 0.5	initial relase to CRAN

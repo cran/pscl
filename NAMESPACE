@@ -1,7 +1,7 @@
 importFrom(MASS, glm.nb)
 importFrom(stats, logLik)
 
-export(hurdle, odTest, predprob, vuong, zeroinfl) 
+export(hurdle, odTest, predprob, vuong, zeroinfl, ntable, betaHPD) 
 
 S3method(predprob, glm)
 S3method(predprob, zeroinfl)

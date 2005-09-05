@@ -8,9 +8,11 @@
   Fit zero-inflated regression models for count data via maximum likelihood
 }
 \usage{
-zeroinfl(count = y ~ ., x = ~1, z = ~1, data = list(), link = "logit",
-        dist = "poisson", method = "BFGS", trace = FALSE,
-        maxit = 50000, na.action = na.omit)
+zeroinfl(count = y ~ ., x = ~1, z = ~1,
+        data = list(),
+        link = "logit", dist = "poisson",
+        method = "BFGS", trace = FALSE, maxit = 50000,
+        na.action = na.omit)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

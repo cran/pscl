@@ -30,10 +30,10 @@ print.hurdle <- function(x,digits=max(3,getOption("digits")-3), ...){
         if(x$dist=="negbin"){
             cat("Count Model (Negative Binomial)\n")
             cat("Coefficients:\n")
-            print.matrix(x$coefficients[(x$kz+x$kx)+1,],
-                         digits = digits,
-                         ##signif.stars = signif.stars, 
-                         ...)
+            print(x$coefficients[(x$kz+x$kx)+1,],
+                  digits = digits,
+                  ##signif.stars = signif.stars, 
+                  ...)
             cat(paste("\nTheta =",
                       round(x$theta,digits),
                       "\n"))
@@ -41,7 +41,7 @@ print.hurdle <- function(x,digits=max(3,getOption("digits")-3), ...){
         
     }
     else cat("No coefficients for count component of  model\n")
-
+    
     cat(paste("Number of Observations:",length(x$y),"\n"))
     cat(paste("Log-Likelihood:\t  ",format(round(x$llh,digits)),"\n"))
 

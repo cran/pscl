@@ -9,7 +9,8 @@
 }
 \usage{
 \method{predict}{zeroinfl}(object, newdata, se.fit = FALSE, conf = 0.95,
-              MC = 1000, type = c("response", "prob"), na.action = na.pass, ...)
+              MC = 1000, type = c("response", "prob"),
+              na.action = na.pass, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

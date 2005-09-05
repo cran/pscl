@@ -23,28 +23,28 @@ function(x,digits = max(3, getOption("digits") - 3),...)
   kz <- x$kz
   
   cat("Coefficients:\n") 
-  print.matrix(x$coefficients[1:kz,],
-               digits = digits,
-               ##signif.stars = signif.stars, 
-                ...)
+    print(x$coefficients[1:kz,],
+          digits = digits,
+          ##signif.stars = signif.stars, 
+          ...)
   cat("---------------------------------------------------------------------------\n")
   
   if(x$dist=="poisson"){
     cat("\nCount Model (Poisson)\n")
     cat("Coefficients:\n")
-    print.matrix(x$coefficients[(kz+1):(kz+kx),],
-                 digits = digits,
-                 ##signif.stars = signif.stars, 
-                  ...)
-  }
+    print(x$coefficients[(kz+1):(kz+kx),],
+          digits = digits,
+          ##signif.stars = signif.stars, 
+          ...)
+}
 
   if(x$dist=="negbin"){
     cat("\nCount Model (Negative Binomial)\n")
     cat("Coefficients:\n")
-    print.matrix(x$coefficients[(kz+1):((kz+kx)+1),],
-                  digits = digits,
-                  ##signif.stars = signif.stars, 
-                  ...)
+    print(x$coefficients[(kz+1):((kz+kx)+1),],
+          digits = digits,
+          ##signif.stars = signif.stars, 
+          ...)
     cat(paste("\nTheta =",
               round(x$theta,digits),
               "\n"))
