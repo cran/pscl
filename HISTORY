@@ -1,3 +1,7 @@
+0.54 fixed errors in documentation for summary.zeroinfl
+
+0.53 edited documentation for odTest
+
 0.52	changed print.matrix references to print, since print.matrix
 	depreacted in R > 2.1
 	added ntable from Jim Fearon

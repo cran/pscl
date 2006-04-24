@@ -58,6 +58,6 @@ summary(zip)
 coef(zip)
 logLik(zip)
 }
-\Keyword{methods}% at least one, from doc/KEYWORDS
+\keyword{methods}% at least one, from doc/KEYWORDS
 \keyword{models}% __ONLY ONE__ keyword per line
 \keyword{regression}% __ONLY ONE__ keyword per line

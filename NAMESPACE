@@ -2,6 +2,7 @@ importFrom(MASS, glm.nb)
 importFrom(stats, logLik)
 
 export(hurdle, odTest, predprob, vuong, zeroinfl, ntable, betaHPD) 
+export(densigamma, pigamma, qigamma, rigamma, igammaHDR)
 
 S3method(predprob, glm)
 S3method(predprob, zeroinfl)

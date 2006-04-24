@@ -24,7 +24,7 @@
   parameters \eqn{\alpha > 1} and \eqn{\beta > 1}, the Beta density is
   unimodal.
 
-  In general, a highest density region of \eqn{f(\theta)} with content
+  In general, a highest density region (HDR) of \eqn{f(\theta)} with content
   \eqn{p \in [0,1]} is a set of regions \eqn{\mathcal{Q}} of the
   parameter space with the following properties:
   \deqn{\int_\mathcal{Q} f(\theta) d\theta = p}
@@ -34,10 +34,10 @@
     \theta^* \not\in \mathcal{Q}}
   For a continuous, unimodal density defined with respect to a single
   parameter (like the Beta case considered here), a HDR region is a
-  contiguous interval in \eqn{[0,1]}.
+  unique, contiguous interval in \eqn{[0,1]}.
   
   This function uses numerical methods are used to solve for the
-  boundaries of a HDR region for the Beta density, via repeated calls
+  boundaries of a HDR for the Beta density, via repeated calls
   the functions \code{\link{dbeta}}, \code{\link{pbeta}} and
   \code{\link{qbeta}}. The function \code{\link{uniroot}} is used to
   find points \eqn{v} and \eqn{w} such that \deqn{f(v) = f(w)} subject

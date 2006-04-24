@@ -11,8 +11,8 @@ odTest(glmobj, digits = max(3, getOption("digits") - 3))
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{glmobj}{ an object of class negbin produced by glm.nb}
-  \item{digits}{ number of digits in printed output}
+   \item{glmobj}{ an object of class \code{negbin} produced by \code{\link{glm.nb}}}  
+   \item{digits}{ number of digits in printed output}
 }
 
 \details{The negative binomial model relaxes the assumption in the
@@ -25,13 +25,15 @@ odTest(glmobj, digits = max(3, getOption("digits") - 3))
   positive.  The asymptotic distribution of the LR test-statistic has
   probability mass of one half at zero, and a half
   \eqn{\chi^2_1}{chi-square (1)} distribution above zero.  This means
-  that if testing at the \eqn{p} = .05 level, we should not reject the
-  null unless the LR test-statistic exceeds the critical value
+  that if testing at the \eqn{p} = .05 level, one should not reject the
+  null unless the LR test statistic exceeds the critical value
   associated with the \eqn{p} = .025 level; this LR test involves just
   one parameter restriction, so the critical value of the test statistic
-  at the \eqn{p} = .05 test statistic is 5.02, instead of the usual 3.8
+  at the \eqn{p} = .05 level is 5.02, instead of the usual 3.8
   (i.e., the .975 quantile of the \eqn{\chi^2_1}{chi-square (1)}
-  distribution, versus the .95 quantile).
+  distribution, versus the .95 quantile).  This function simply
+  reports the tail area (probability mass) to the right of the test
+  statistic under the \eqn{\chi^2_1}{chi-square (1)} distribution.
 
   A Poisson model is run using \code{\link{glm}} with family set to \code{link{poisson}}, using the
   \code{\link{formula}} in the negbin model object passed as input.  The
