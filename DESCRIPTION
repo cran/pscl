@@ -1,5 +1,5 @@
 Package: pscl
-Version: 0.58
+Version: 0.59
 Type: Package
 Date: 2006-07-11
 Title: Political Science Computational Laboratory, Stanford University
@@ -10,4 +10,4 @@ Description: Bayesian analysis of item-response theory (IRT) models, roll call a
 SaveImage: yes
 License: GPL version 2 or newer
 URL: http://pscl.stanford.edu
-Packaged: Wed Jul 12 08:25:55 2006; hornik
+Packaged: Tue Jul 18 10:34:08 2006; tahk

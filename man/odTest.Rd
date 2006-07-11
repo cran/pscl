@@ -11,7 +11,7 @@ odTest(glmobj, digits = max(3, getOption("digits") - 3))
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-   \item{glmobj}{ an object of class \code{negbin} produced by \code{\link{glm.nb}}}  
+   \item{glmobj}{ an object of class \code{negbin} produced by \code{\link[MASS:glm.nb]{glm.nb}}}  
    \item{digits}{ number of digits in printed output}
 }
 
@@ -45,7 +45,7 @@ odTest(glmobj, digits = max(3, getOption("digits") - 3))
     analysis of count data}. New York: Cambridge University Press.}
 \author{Simon Jackman \email{jackman@stanford.edu}}
 
-\seealso{\code{\link{glm.nb}}, \code{\link{logLik}}}
+\seealso{\code{\link[MASS:glm.nb]{glm.nb}}, \code{\link{logLik}}}
 
 \examples{
 data(bioChemists)

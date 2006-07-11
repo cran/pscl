@@ -1,3 +1,8 @@
+0.59    fixed compiler warning in dtnorm regarding return value
+        fixed compiler warning in IDEAL regarding double printed as int
+        minor documentation fix
+	removed unneeded directories
+
 0.58 documentaton fixes and cleanups, prompted by Kurt Hornik's check of 0.57 at CRAN
      fixed errors in rollcall documentation
 

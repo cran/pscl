@@ -20,19 +20,17 @@ static double one = 1.0;
 
 double dtnorm(double *mu, double *sd, double *y)
 {
-  double f, z, q, norm;
+  double f, z;
+  double norm=0;
   int loop=1; 
 
   if (*y==0.0){
     z = *mu/(*sd);
     if(z<1.6){
       /* try rejection sampling */
-      while(loop){
-	norm = rnorm(*mu, *sd);
-	if (norm < 0.0){
-	  return(norm);
-	}
-      }
+	    do {
+		    norm = rnorm(*mu, *sd);
+	    } while (norm >= 0.0);
     }
     else{
       /* otherwise use inverse-uniform method, z is always positive */
@@ -43,20 +41,16 @@ double dtnorm(double *mu, double *sd, double *y)
       arg = f + pupper;
       iarg = qnorm(arg,zero,one,1,1);
 
-      q = *mu + (*sd)*iarg;
-      return(q);
+      norm = *mu + (*sd)*iarg;
     }
   }
   else{  /* Y=1 */
     /* try rejection sampling */
     z = *mu/(*sd);
     if(z>-1.6){
-      while(loop){
-	norm = rnorm(*mu, *sd);
-	if (norm > 0.0){
-	  return(norm);
-	}
-      }
+	    do {
+		    norm = rnorm(*mu, *sd);
+	    } while (norm <= 0.0);
     }
     else{
       /* otherwise use inverse-uniform method, n.b., z is always neg */
@@ -67,8 +61,8 @@ double dtnorm(double *mu, double *sd, double *y)
       arg = f + pupper;
       iarg = qnorm(arg,zero,one,0,1);
 
-      q = *mu + (*sd)*iarg;
-      return(q);
+      norm = *mu + (*sd)*iarg;
     }
   }
+  return(norm);
 }

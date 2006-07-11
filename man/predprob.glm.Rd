@@ -19,7 +19,7 @@
 \details{
   This method is only defined for glm objects with
   \code{family=\link{binomial}} or \code{family=\link{poisson}}, or negative
-  binomial count models fit with the \code{\link{glm.nb}} function in \code{library(MASS)}.
+  binomial count models fit with the \code{\link[MASS:glm.nb]{glm.nb}} function in \code{library(MASS)}.
 }
 \value{
   a matrix of predicted probabilities.  Each row in the matrix is a

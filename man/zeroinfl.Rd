@@ -66,7 +66,7 @@ Sciences. Thousand Oaks, California: Sage.
 }
 \author{Simon Jackman \email{jackman@stanford.edu}}
 \seealso{\code{\link{summary.zeroinfl}}, \code{\link{predict.zeroinfl}},
-  \code{\link{hurdle}}, \code{\link{glm.nb}}
+  \code{\link{hurdle}}, \code{\link[MASS:glm.nb]{glm.nb}}
 
   Methods are supplied for the generic functions \code{\link{coef}} and
   \code{\link{logLik}}, for objects of class \code{"zeroinfl"}.

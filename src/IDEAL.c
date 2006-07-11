@@ -255,7 +255,7 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
 	if (*usefile == 1) { // this is not the most efficient way to do this
 	  dmatTOdvec(btemp, beta, m, q); //replace with function call
 	  for (e = 0; e < blength; e++) {
-	    fprintf(ofp, ",%d", btemp[e]);
+	    fprintf(ofp, ",%f", btemp[e]);
 	  } 
 	  fprintf(ofp,"\n");
 	}
