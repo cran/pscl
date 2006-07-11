@@ -1,5 +1,4 @@
-"predprob.glm" <-
-function(obj,newdata=NULL,...){
+predprob.glm <- function(obj,newdata=NULL,...){
     if(!inherits(obj,"glm"))
         stop("predprob.glm only available for glm objects (including class negbin)\n")
 

@@ -22,7 +22,7 @@ predprob(obj, ...)
   predicted probabilities over the range of responses seen in the data
   (i.e., \code{min(y):max(y)}), conditional on the values of covariates. 
 }
-\author{Simon Jackman <jackman@stanford.edu>}
+\author{Simon Jackman \email{jackman@stanford.edu}}
 \seealso{\code{\link{predprob.glm}}, \code{\link{predprob.zeroinfl}}}
 \examples{
 data(bioChemists)

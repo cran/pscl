@@ -1,0 +1,18 @@
+citHeader("To cite pscl/ideal in publications use")
+
+citEntry(entry="Manual",
+         title = "pscl: classes and methods for R developed in the Political Science Computational Laboratory, Stanford University",
+         author = person(last="Jackman",first="Simon",email="jackman@stanford.edu"),
+         organization = "Department of Political Science, Stanford University",
+         address = "Stanford, California",
+         year = 2006,
+         url = "http://pscl.stanford.edu",
+
+         textVersion =
+         paste("Jackman, Simon. 2006. ",
+               "pscl: classes and methods for R developed in the Political Science Computational Laboratory, Stanford University. ",
+               "Department of Political Science, Stanford University. ",
+               "Stanford, California. ",
+               "URL http://pscl.stanford.edu. ",
+               sep="")
+         )

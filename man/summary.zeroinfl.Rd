@@ -3,7 +3,7 @@
 \alias{coef.zeroinfl}
 \alias{print.summary.zeroinfl}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Summarizing Zero-Inflated Regression Models for Count Data}
+\title{summary of zero-inflated regression models for count data}
 \description{
   \code{summary} method for class \code{"zeroinfl"}
 }
@@ -42,7 +42,7 @@
     MLE of the over-dispersion parameter}
   \item{llh}{The value of the log-likelihood function at the MLEs}
 }
-\author{Simon Jackman <jackman@stanford.edu>}
+\author{Simon Jackman \email{jackman@stanford.edu}}
 \seealso{\code{\link{zeroinfl}}, \code{\link{predict.zeroinfl}}
 
   Methods are supplied for the generic functions \code{link{coef}} and

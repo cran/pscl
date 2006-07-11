@@ -10,7 +10,7 @@ function(object, ...){
   out$gamma <- object$par[1:object$kz]
   out$beta <- object$par[(object$kz+1):(object$kz+object$kx)]
   if(object$dist=="negbin")
-    out$theta <-object$theta
+    out$theta <- object$theta
   out$vc <- -solve(object$hessian)
   se <- sqrt(diag(out$vc))
   out$coefficients <- cbind(object$par,

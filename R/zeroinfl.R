@@ -105,14 +105,20 @@ function(count= y ~ .,
     ## set-up, largely borrowed from glm
     cl <- match.call()
 
-    
     if (missing(data)) 
-        data <- environment(formula)
+        data <- environment(count)   ## error spotted by Bettina Gruen <gruen@ci.tuwien.ac.at>
     
     mf <- match.call(expand.dots = FALSE)
-    mX <- match(c("x", "data", "subset", "weights", "na.action", "offset"), names(mf), 0)
-    mZ <- match(c("z", "data", "subset", "weights", "na.action", "offset"), names(mf), 0)
-    mY <- match(c("count", "data", "subset", "weights", "na.action", "offset"), names(mf), 0)
+    if(is.null(mf$x))
+      mf$x <- ~ 1  ## error spotted by Bettina Gruen <gruen@ci.tuwien.ac.at>
+    if(is.null(mf$z))
+      mf$z <- ~ 1  ## error spotted by Bettina Gruen <gruen@ci.tuwien.ac.at>
+    mX <- match(c("x", "data", "subset", "weights", "na.action", "offset"),
+                names(mf), 0)
+    mZ <- match(c("z", "data", "subset", "weights", "na.action", "offset"),
+                names(mf), 0)
+    mY <- match(c("count", "data", "subset", "weights", "na.action", "offset"),
+                names(mf), 0)
 
     mfX <- mf[c(1,mX)]
     names(mfX)[names(mfX)=="x"] <- "formula"
@@ -189,7 +195,7 @@ function(count= y ~ .,
     if(foo$convergence != 0)
         stop("optimization failed to converge")
     cat("done\n")
-    
+
     out <- list()
     out$stval <- stval
     out$par <- foo$par

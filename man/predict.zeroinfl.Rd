@@ -58,7 +58,7 @@ argument can be abbreviated.}
     probabilities, with each row containing predicted probabilities over
     the range of counts observed in the data, i.e., \code{ncol(prob) = length(min(y):max(y))}}
 }
-\author{Simon Jackman <jackman@stanford.edu>}
+\author{Simon Jackman \email{jackman@stanford.edu}}
 \note{Variables are first looked for in newdata and then searched for in the usual way (which will include the environment of the formula used in the fit).}
 \seealso{\code{\link{zeroinfl}}, \code{\link{predict.glm}}, \code{\link{predprob.zeroinfl}}}
 \examples{

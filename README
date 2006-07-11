@@ -6,5 +6,8 @@
 5. Run R CMD check to check the package
 6. Run R CMD build to make the package file
 
+when building on the Mac, can remove resource forks as follows:
+
+find . -type f -exec cp /dev/null {}/..namedfork/rsrc \;
 
 Read "Writing R Extensions" for more information.

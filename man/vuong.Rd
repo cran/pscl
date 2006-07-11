@@ -3,7 +3,7 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Vuong's non-nested hypothesis test}
 \description{
-  Compares two models fit to the same data that do not nest.
+  compares two models fit to the same data that do not nest.
 }
 \usage{
 vuong(m1, m2, digits = getOption("digits"))
@@ -37,7 +37,7 @@ vuong(m1, m2, digits = getOption("digits"))
 }
 \references{Vuong, Q.H. 1989. "Likelihood ratio tests for model
   selection and non-nested hypotheses." \emph{Econometrica}. 57:307-333.}
-\author{Simon Jackman <jackman@stanford.edu>}
+\author{Simon Jackman \email{jackman@stanford.edu}}
 \examples{
 data(bioChemists)
 glm1 <- glm(art ~ .,

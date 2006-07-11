@@ -34,7 +34,7 @@
   \code{newdata} is supplied, the returned matrix will have as many rows
   as in \code{newdata}.
 }
-\author{Simon Jackman <jackman@stanford.edu>}
+\author{Simon Jackman \email{jackman@stanford.edu}}
 \seealso{\code{\link{predict.glm}}}
 \examples{
 data(bioChemists)

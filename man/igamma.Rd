@@ -6,7 +6,7 @@
 \alias{rigamma}
 \alias{igammaHDR}
 \title{inverse-Gamma distribution}
-\description{Density, distribution function, quantile function, and highest density region calculation for the inverse-Gamma distribution with parameters \code{alpha} and \code{beta}}
+\description{density, distribution function, quantile function, and highest density region calculation for the inverse-Gamma distribution with parameters \code{alpha} and \code{beta}}
 \usage{
 	densigamma(x,alpha,beta)
   	pigamma(q,alpha,beta)
@@ -26,62 +26,82 @@
 	search for the HDR is printed} 
 }	    
 \details{
-	The inverse-Gamma density arises frequently in Bayesian
-	analysis of normal data, as the (marginal) conjugate prior for
-	the unknown variance parameter.  The inverse-Gamma density
-	for \eqn{x>0} with parameters \eqn{\alpha>0} and \eqn{\beta>0}
-	is
-	\deqn{f(x) = \frac{\beta^\alpha}{\Gamma(\alpha)} x^{-\alpha-1}
-	\exp(-\beta/x)}
-	where \eqn{\Gamma(x)} is the \code{\link{gamma}} function
-	\deqn{\Gamma(a) = \int_0^\infty t^{a-1} \exp(-t) dt} 
-	and so ensures \eqn{f(x)} integrates to one.  The
-	inverse-Gamma density has a mean at \eqn{\beta/(\alpha-1)} for
-	\eqn{\alpha>1} and has variance \eqn{\beta^2/((\alpha-1)^2
-	(\alpha-2))} for \eqn{\alpha>2}.  The
-	inverse-Gamma density has a unique mode at
-	\eqn{\beta/(\alpha+1)}.  
-
-	The evaluation of the density,
-	cumulative distribution function and quantiles is done by
-	calls to the \code{dgamma}, \code{pgamma} and \code{igamma}
-	functions, with the arguments appropriately transformed.  That
-	is, note
-	that if \eqn{x \sim IG(\alpha,\beta)} then \eqn{1/x \sim G(\alpha,\beta)}. 
-
-	\emph{Highest Density Regions}. In general, suppose \eqn{x}
-	  has a density \eqn{f(x)}, where \eqn{x \in \Theta}.  Then a
-	  highest density region (HDR) for \eqn{x} with content \eqn{p
-	  \in (0,1]} is a region (or set of regions) \eqn{\mathcal{Q}
-	  \subseteq \Theta} such that: \deqn{\int_\mathcal{Q} f(x) dx
-	  = p} and \deqn{f(x) > f(x^*) \, \forall\ x \in \mathcal{Q},
-	  x^* \not\in \mathcal{Q}.}  For a continuous, unimodal
-	  density defined with respect to a single parameter (like the
-	  inverse-Gamma case considered here with parameters \eqn{0 <
-	  \alpha < \infty, \,\, 0 < \beta < \infty}), a HDR region \eqn{Q}
-	  of content \eqn{p} (with \eqn{0 < p < 1}) is a unique, closed
-	  interval on the real half-line.
-
-This function uses numerical methods are used to solve for the
+  The inverse-Gamma density arises frequently in Bayesian
+  analysis of normal data, as the (marginal) conjugate prior for
+  the unknown variance parameter.  The inverse-Gamma density
+  for \eqn{x>0} with parameters \eqn{\alpha>0} and \eqn{\beta>0}
+  is
+  \deqn{f(x) = \frac{\beta^\alpha}{\Gamma(\alpha)} x^{-\alpha-1}
+    \exp(-\beta/x)}{%
+    (beta^alpha)/Gamma(alpha) x^(-alpha-1) exp(-beta/x)
+  }
+  where \eqn{\Gamma(x)} is the \code{\link{gamma}} function
+  \deqn{\Gamma(a) = \int_0^\infty t^{a-1} \exp(-t) dt}{%
+    Gamma(a) = int_0^infty t^(a-1) exp(-t) dt
+  }
+  and so ensures \eqn{f(x)} integrates to one.  The
+  inverse-Gamma density has a mean at \eqn{\beta/(\alpha-1)} for
+  \eqn{\alpha>1} and has variance \eqn{\beta^2/((\alpha-1)^2
+    (\alpha-2))} for \eqn{\alpha>2}.  The
+  inverse-Gamma density has a unique mode at
+  \eqn{\beta/(\alpha+1)}.  
+  
+  The evaluation of the density,
+  cumulative distribution function and quantiles is done by
+  calls to the \code{dgamma}, \code{pgamma} and \code{igamma}
+  functions, with the arguments appropriately transformed.  That
+  is, note
+  that if \eqn{x \sim IG(\alpha,\beta)} then \eqn{1/x \sim
+    G(\alpha,\beta)}.  
+  
+  \emph{Highest Density Regions}. In general, suppose \eqn{x}
+  has a density \eqn{f(x)}, where \eqn{x \in \Theta}.  Then a
+  highest density region (HDR) for \eqn{x} with content \eqn{p
+    \in (0,1]} is a region (or set of regions) \eqn{\mathcal{Q}
+    \subseteq \Theta} such that:
+  \deqn{\int_\mathcal{Q} f(x) dx = p}{%
+    int_Q f(x) dx = p
+  }
+  and
+  \deqn{f(x) > f(x^*) \, \forall\ x \in \mathcal{Q},
+    x^* \not\in \mathcal{Q}.}{%
+    f(x) > f(x*) for all x in Q and all x* not in Q.
+  }
+  For a continuous, unimodal
+  density defined with respect to a single parameter (like the
+  inverse-Gamma case considered here with parameters \eqn{0 <
+    \alpha < \infty, \,\, 0 < \beta < \infty}), a HDR region \eqn{Q}
+  of content \eqn{p} (with \eqn{0 < p < 1}) is a unique, closed
+  interval on the real half-line.
+  
+  This function uses numerical methods to solve for the
   boundaries of a HDR with \code{content} \eqn{p} for the
   inverse-Gamma density, via repeated calls the functions
   \code{densigamma}, \code{pigamma} and
-  \code{qigamma}. The function \code{\link{uniroot}} is used to
+  \code{qigamma}. In particular, the function \code{\link{uniroot}} is used to
   find points \eqn{v} and \eqn{w} such that \deqn{f(v) = f(w)} subject
-  to the constraint \deqn{\int_v^w f(x; \alpha, \beta) d\theta = p} 
+  to the constraint
+  \deqn{\int_v^w f(x; \alpha, \beta) d\theta = p.}{%
+    int_v^w f(x; alpha, beta) d theta = p.
+    }
 }
+
 \value{
-	\code{densigamma} gives the density, \code{pigamma} the
-  distribution function, \code{qigamma} the quantile function,
-  \code{rigamma} generates random samples, and
-  \code{igammaHDR} gives the lower and upper limits of the HDR, as
-  defined above (\code{NA}s if the optimization is not successful).
-}
+
+  \code{densigamma} gives the density, \code{pigamma} the distribution
+	function, \code{qigamma} the quantile function, \code{rigamma}
+	generates random samples, and \code{igammaHDR} gives the lower
+	and upper limits of the HDR, as defined above (\code{NA}s if the
+	optimization is not successful).
+
+      }
+
 \note{The \code{densigamma} is named so as not to conflict with the
   \code{\link{digamma}} function in the R \code{\link{base}} package (the derivative of the
   \code{gamma} function).
 }
-\author{Simon Jackman <jackman@stanford.edu>}
+
+\author{Simon Jackman \email{jackman@stanford.edu}}
 \seealso{\code{\link{gamma}}, \code{\link{dgamma}},
 \code{\link{pgamma}}, \code{\link{qgamma}}, \code{\link{uniroot}}}
 \examples{

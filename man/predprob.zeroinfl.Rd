@@ -1,9 +1,9 @@
 \name{predprob.zeroinfl}
 \alias{predprob.zeroinfl}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Predicted probabilities from zero-inflated regression models}
+\title{predicted probabilities from zero-inflated regression models}
 \description{
-  Produces predicted probabilities of counts from a zero-inflated
+  compute predicted probabilities of counts from a zero-inflated
   regression models
 }
 \usage{
@@ -20,7 +20,7 @@
 \value{
   See \code{\link{predict.zeroinfl}}
 }
-\author{Simon Jackman <jackman@stanford.edu>}
+\author{Simon Jackman \email{jackman@stanford.edu}}
 \seealso{\code{\link{predprob}}, \code{\link{predict.zeroinfl}}}
 \examples{
 data(bioChemists)

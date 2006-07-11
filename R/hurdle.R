@@ -43,12 +43,14 @@ function(count= y ~ .,
   }
   
   NegBin <- function(z,lambda,theta){
-      arg1 <- gamma(theta + z)/(gamma(z+1)*gamma(theta))
-      r <- lambda/(lambda+theta)
-      arg2 <- (1-r)^theta
-      arg3 <- r^z
-      out <- arg1*arg2*arg3
-      out
+    arg1 <- lgamma(theta + z) - lgamma(z+1) - lgamma(theta)
+    logR <- log(lambda) - log(lambda+theta)
+    oneMinusR <- 1 - exp(logR)
+    arg2 <- log(oneMinusR)*theta
+    arg3 <- logR*z
+    out <- arg1 + arg2 + arg3
+    out <- exp(out)
+    out
   }
   
   hurdleNegBin <- function(parms){
@@ -119,15 +121,17 @@ function(count= y ~ .,
   
   ## set-up, largely borrowed from glm
   cl <- match.call()
-  
-  
+    
   if (missing(data)) 
       data <- environment(formula)
   
   mf <- match.call(expand.dots = FALSE)
-  mX <- match(c("x", "data", "subset", "weights", "na.action", "offset"), names(mf), 0)
-  mZ <- match(c("z", "data", "subset", "weights", "na.action", "offset"), names(mf), 0)
-  mY <- match(c("count", "data", "subset", "weights", "na.action", "offset"), names(mf), 0)
+  mX <- match(c("x", "data", "subset", "weights", "na.action", "offset"),
+              names(mf), 0)
+  mZ <- match(c("z", "data", "subset", "weights", "na.action", "offset"),
+              names(mf), 0)
+  mY <- match(c("count", "data", "subset", "weights", "na.action", "offset"),
+              names(mf), 0)
   
   mfX <- mf[c(1,mX)]
   names(mfX)[names(mfX)=="x"] <- "formula"
@@ -195,7 +199,8 @@ function(count= y ~ .,
   if(dist=="negbin")
       stval <- c(stval,0)
   cat("done\n")
-  
+
+  options(warn=0)                ## suppress warnings
   if(dist=="poisson"){
       foo <- optim(fn=llhfunc,
                    par=stval,
@@ -223,9 +228,9 @@ function(count= y ~ .,
   out <- list()
   out$stval <- stval
   out$par <- foo$par
-  if(count=="poisson")
+  if(dist=="poisson")
     names(out$par) <- c(dimnames(Z)[[2]],dimnames(X)[[2]])
-  if(count=="negbin")
+  if(dist=="negbin")
     names(out$par) <- c(dimnames(Z)[[2]],dimnames(X)[[2]],"theta")
   out$hessian <- foo$hessian
   out$call <- cl

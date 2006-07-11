@@ -43,7 +43,7 @@ odTest(glmobj, digits = max(3, getOption("digits") - 3))
 \value{None; prints results and returns silently}
 \references{A. Colin Cameron and Pravin K. Trivedi (1998) \emph{Regression
     analysis of count data}. New York: Cambridge University Press.}
-\author{Simon Jackman <jackman@stanford.edu>}
+\author{Simon Jackman \email{jackman@stanford.edu}}
 
 \seealso{\code{\link{glm.nb}}, \code{\link{logLik}}}
 

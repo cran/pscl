@@ -3,9 +3,9 @@
 \alias{print.hurdle}
 \alias{logLik.hurdle}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Fit hurdle models to count data}
+\title{hurdle models for count data}
 \description{
-  Estimate a hurdle regression model for count data model via maximum likelihood
+  hurdle regression models for count data model, estimation via maximum likelihood
 }
 \usage{
 hurdle(count = y ~ ., x = ~1, z = ~1, data = list(), link = "logit",
@@ -33,7 +33,7 @@ hurdle(count = y ~ ., x = ~1, z = ~1, data = list(), link = "logit",
 \value{An object of class \code{"hurdle"}}
 }
 \references{}
-\author{Simon Jackman <jackman@stanford.edu>}
+\author{Simon Jackman \email{jackman@stanford.edu}}
 \note{Only minimal support for this class thus far; e.g., no predict method} 
 \seealso{\code{\link{zeroinfl}}, \code{\link{summary.hurdle}}}
 \examples{

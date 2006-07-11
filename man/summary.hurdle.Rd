@@ -39,7 +39,7 @@
     MLE of the over-dispersion parameter}
   \item{llh}{The value of the log-likelihood function at the MLEs}
 }
-\author{Simon Jackman <jackman@stanford.edu>}
+\author{Simon Jackman \email{jackman@stanford.edu}}
 
 \seealso{\code{\link{hurdle}}}
 \examples{data(bioChemists)

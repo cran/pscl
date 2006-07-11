@@ -1,8 +1,8 @@
 \name{betaHPD}
 \alias{betaHPD}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Compute and optionally plot beta HDRs}
-\description{Compute and optionally plot highest density regions for the Beta
+\title{compute and optionally plot beta HDRs}
+\description{compute and optionally plot highest density regions for the Beta
   distribution}
 \usage{
    betaHPD(alpha,beta,p=.95,plot=FALSE)
@@ -48,7 +48,7 @@
   containing \eqn{v} and \eqn{w}, defined above.    If the optimization
   fails for whatever reason, a vector of \code{NAs} is returned.
 }
-\author{Simon Jackman <jackman@stanford.edu>}
+\author{Simon Jackman \email{jackman@stanford.edu}}
 \seealso{\code{\link{pbeta}}, \code{\link{qbeta}},
   \code{\link{dbeta}}, \code{\link{uniroot}}}
 \examples{

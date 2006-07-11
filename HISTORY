@@ -1,3 +1,41 @@
+0.58 documentaton fixes and cleanups, prompted by Kurt Hornik's check of 0.57 at CRAN
+     fixed errors in rollcall documentation
+
+0.57 added dtl file support to readKH
+        extensive reliance on match.call(), rather than carrying around copies of objects, many changes to numerous functions
+        dropList introduced, many functions changed; see dropRollCall and dropUnanimous (rollcall objects)
+        added extractRollCallObject (for ideal objects)
+	added computeMargins, for rollcall objects
+	added convertCodes, operates on codes component of roll call object
+        tracex handles 2d traces gracefully
+        added plot.predict.ideal
+        prior precisions in constrain.legis and contstrain.item are .01 for unconstrained parameters
+        added s109, dropped s102 as demonstration data, ships with package
+        added vectorRepresentation (rollcall object)
+
+0.56 changed rollcall class to have legis.data and vote.data data frames
+        amended plotting functions appropriately
+        rollcall objects have party loyalty scores
+        rollcall objects have lopsided data; summary.rollcall/print.summary.rollcall will display
+        ideal saves some barebones summary statistics (posterior means)
+        summary.ideal computes standard deviations
+        summary.ideal/print.summary.ideal displays information on bills that fail to discriminate 
+        plot1d (plot method for 1d ideal objects) has option for all legislator names
+        plot2d (plot method for 2d ideal objects) has option to overlay estimated cutting lines
+        added readKH function and supporting data objects in R/sysdata.rda (state.info and party)
+        readKH has extensive checks and debugging of reads from web (thanks to Kurt Kornik <Kurt.Hornik@wu-wien.ac.at>)
+        minor bug fixes in documentation and examples
+        made ideal examples shorter
+        add coda to list of required packages
+        error in negative binomial hurdle model, added theta to coefficients dimnames 
+        added TODO file to top-level directory of package
+        fixed bug in print.zeroinfl (thanks to Bettina Grün <gruen@ci.tuwien.ac.at>)
+	bugs in zeroinfl (Bettina Grün <gruen@ci.tuwien.ac.at>)
+        corrected spelling of Ginsb*u*rg in sc9497 (Supreme Court sample data)
+
+0.55 added ideal point estimation (Alex Tahk)
+        added gamma functions for Jackman BASS book
+
 0.54 fixed errors in documentation for summary.zeroinfl
 
 0.53 edited documentation for odTest
