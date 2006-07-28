@@ -1,13 +1,16 @@
 \name{tracex}
 \alias{tracex}
-\title{Trace Plot of Legislators' Ideal Points.}
+\title{trace plot of MCMC iterates, posterior density of legislators'
+  ideal points} 
+
 \description{
-  Produces a trace plot of the samples from the posterior density of
-  legislators' ideal points.
+  Produces a trace plot of the MCMC samples from the posterior density of
+  legislators' \code{\link{ideal}} points.
 }
+
 \usage{
 tracex(object, legis=NULL, d=1, conf.int=0.95,
-       showAll = FALSE, start=rownames(object$x)[1])
+       showAll = FALSE, burnin=NULL)
 }
 
 \arguments{
@@ -22,8 +25,9 @@ tracex(object, legis=NULL, d=1, conf.int=0.95,
   \item{showAll}{logical, if \code{TRUE} and \code{length(d)==2},
   display traces for all selected legislators' ideal points on
   the one plot.}
-  \item{start}{numeric, integer, the number of the iteration with which
-  to begin plotting and calculations.}
+ \item{burnin}{of the recorded MCMC samples, how many to discard as
+    burnin?  Default is \code{NULL}, in which case the value of
+    \code{burnin} in the \code{\link{ideal}} object is used.}
 }
 
 \details{Produces a trace plot showing the history of the MCMC
@@ -34,7 +38,7 @@ tracex(object, legis=NULL, d=1, conf.int=0.95,
   interval (specified by \code{conf.int}) around the mean of the
   posterior (using the estimated \code{\link[=quantile]{quantiles}}) of
   the respective MCMC iterates).  All of these values are calculated
-  beginning with the iteration specified by \code{start}.
+  discarding the initial \code{burnin} iterations.
 
   When \code{d} is a vector of length two, a 2-dimensional trace plot is
   displayed, with the \code{d[1]} dimension on the horizontal axis, and
@@ -48,7 +52,8 @@ data(s109)
 ## short run for demo purposes only
 id1 <- ideal(s109,
              meanzero=TRUE,
-             maxiter=500,burnin=100,thin=10)
+             maxiter=500,
+             burnin=100,thin=10)
 tracex(id1,legis="KENNEDY")
 
 ## n.b., no such legislator has Horrendous Goblin
@@ -57,8 +62,8 @@ tracex(id1,legis=c("KENNEDY","BOXER","KYL","Horrendous Goblin"))
 \dontrun{
 id2 <- ideal(s109,
              d=2,
-             maxiter=5000,   ## short run, and unidentified!
-             burnin=500,
+             maxiter=5000,   ## unidentified!
+             burnin=0,
              thin=50)
 tracex(id2,d=1,legis=c("KENNEDY","BOXER","KYL","Horrendous Goblin"))
 tracex(id2,d=2,legis=c("KENNEDY","BOXER","KYL","Horrendous Goblin"))

@@ -1,29 +1,36 @@
 \name{predprob}
 \alias{predprob}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{Compute predicted probabilities from fitted models}
+
+\title{compute predicted probabilities from fitted models}
+
 \description{
   Compute predicted probabilities from fitted models, optionally at new
-  covariate values
+  covariate values.
 }
+
 \usage{
 predprob(obj, ...)
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
   \item{obj}{fitted model object}
   \item{...}{other arguments}
 }
+
 \details{
   See documentation for specific methods.
 }
+
 \value{
   A matrix of predicted probabilities, each row a vector of
   predicted probabilities over the range of responses seen in the data
   (i.e., \code{min(y):max(y)}), conditional on the values of covariates. 
 }
+
 \author{Simon Jackman \email{jackman@stanford.edu}}
+
 \seealso{\code{\link{predprob.glm}}, \code{\link{predprob.zeroinfl}}}
+
 \examples{
 data(bioChemists)
 zip <- zeroinfl(count=art ~ .,

@@ -1,10 +1,12 @@
 \name{readKH}
 \alias{readKH}
-\title{Read Roll Call Data from Poole-Rosenthal KH format}
+\title{read roll call data in Poole-Rosenthal KH format}
 \description{
-  Creates a \code{rollcall} object from the flat file format used by
-  Keith Poole and Howard Rosenthal
+  Creates a \code{rollcall} object from the flat file format for roll
+  call data used by
+  Keith Poole and Howard Rosenthal.
 }
+
 \usage{
 readKH(file,
        dtl=NULL,
@@ -16,6 +18,7 @@ readKH(file,
        debug=FALSE)
 
 }
+
 \arguments{
   \item{file}{string, name of a file or URL holding KH data}
   \item{dtl}{string, name of a file or URL holding KH \code{dtl} file
@@ -41,12 +44,14 @@ readKH(file,
       of Representatives}; default is \code{NULL}}
   \item{debug}{logical, print debugging information for net connection}
 }
+
 \value{an object of class \code{\link{rollcall}}, with components created
   using the identifying information in the Poole/Rosenthal files.  If
   the function can not read the file (e.g., the user specified a URL and
   the machine is not connected to the Internet), the function fails with
   an error message (set \code{debug=TRUE} to help resolve these issues).
 }
+
 \details{Keith Poole and Howard Rosenthal have gathered an impressive
   collection of roll call data, spanning every roll call cast in
   the United States Congress.  This effort continues now as a real-time
@@ -72,7 +77,7 @@ readKH(file,
   \code{\link{summary.rollcall}}.  The \code{legis.data} component of the
   \code{\link{rollcall}} object is a \code{\link{data.frame}} which
   contains:
-  \itemize{
+  \describe{
     \item{\code{state}}{a 2-character string abbreviation of each
       legislator' state}
     \item{\code{icpsrState}}{a 2-digit numeric code for each

@@ -1,12 +1,15 @@
 \name{convertCodes}
 \alias{convertCodes}
 \title{convert entries in a rollcall matrix to binary form}
+
 \description{
-  Convert roll call matrix to binary form using encoding information
+  Convert roll call matrix to binary form using encoding information.
 }
+
 \usage{
 convertCodes(object, codes = object$codes)
 }
+
 \arguments{
   \item{object}{\code{\link{rollcall}} object}
   \item{codes}{list, mapping entries in the \code{votes} component of
@@ -14,6 +17,7 @@ convertCodes(object, codes = object$codes)
     \code{NA} (missing, abstentions, etc). Defaults to the \code{codes}
     component of the \code{rollcall} object.} 
 }
+
 \details{
   See \code{\link{rollcall}} for details on the form of the
   \code{codes} list.

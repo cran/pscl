@@ -2,7 +2,7 @@
 \alias{ntable}
 \title{nicely formatted tables}
 \description{
-  nicely formatted tables, with row or column marginals etc
+  Nicely formatted tables, with row or column marginals etc.
 }
 \usage{
 ntable(x,y=NULL,

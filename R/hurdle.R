@@ -167,7 +167,6 @@ function(count= y ~ .,
   cat("dependent variable y:\n")
   print(tab)
   y0 <- sort(unique(Y))           ## unique values of y
-  m <- length(y0)                 ## number of unique values
   if(any(floor(y0)!=y0))
       stop("Non-integer values of y encountered, invalid for zeroinfl/count model\n")
   if(min(y0)!=0)

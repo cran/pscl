@@ -1,13 +1,15 @@
 \name{partycodes}
 \alias{partycodes}
 \docType{data}
-\title{Political parties appearing the U.S. Congress}
+\title{political parties appearing in the U.S. Congress}
+
 \description{
   Numeric codes and names of 85 political parties appearing in Poole
-  and Rosenthal's collection of U.S. Congressional roll calls
+  and Rosenthal's collection of U.S. Congressional roll calls.
 }
-\usage{data(partycodes)
-}
+
+\usage{data(partycodes)}
+
 \format{
   \itemize{
     \item{\code{code}}{integer, numeric code for legislatorappearing in Poole and

@@ -2,11 +2,12 @@
 \alias{zeroinfl}
 \alias{print.zeroinfl}
 \alias{logLik.zeroinfl}
-%- Also NEED an '\alias' for EACH other topic documented here.
+
 \title{zero-inflated regression models for count data}
 \description{
-  fit zero-inflated regression models for count data via maximum likelihood
+  Fit zero-inflated regression models for count data via maximum likelihood.
 }
+
 \usage{
 zeroinfl(count = y ~ ., x = ~1, z = ~1,
         data = list(),
@@ -14,7 +15,7 @@ zeroinfl(count = y ~ ., x = ~1, z = ~1,
         method = "BFGS", trace = FALSE, maxit = 50000,
         na.action = na.omit)
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
   \item{count}{count being modeled, passed as the left-hand side of a \code{\link{formula}}; lowest count must be zero for
     zero-inflated models}

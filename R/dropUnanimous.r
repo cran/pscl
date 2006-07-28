@@ -1,5 +1,5 @@
 ## drop unanimous cols of a (rollcall) matrix
-dropUnanimous <- function(obj,lop=0){
+dropUnanimous <- function(obj, lop=0){
     UseMethod("dropUnanimous")
 }
 

@@ -6,7 +6,9 @@
   A sample rollcall object, generated using Jeff Lewis' quasi-real-time
   collection of the rollcalls of the 109th U.S. Senate (2005-2006).
 }
+
 \usage{data(s109)}
+
 \format{
   A \code{\link{rollcall}} object containing the recorded votes of the 109th
   U.S. Senate, plus information identifying the legislators and the

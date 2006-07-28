@@ -2,11 +2,13 @@
 \alias{summary.zeroinfl}
 \alias{coef.zeroinfl}
 \alias{print.summary.zeroinfl}
-%- Also NEED an '\alias' for EACH other topic documented here.
+
 \title{summary of zero-inflated regression models for count data}
+
 \description{
-  \code{summary} method for class \code{"zeroinfl"}
+  Summary of zero-inflated regression models for count data.}
 }
+
 \usage{
   \method{summary}{zeroinfl}(object, ...)
 

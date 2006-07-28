@@ -1,14 +1,15 @@
 \name{vuong}
 \alias{vuong}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{Vuong's non-nested hypothesis test}
 \description{
-  compares two models fit to the same data that do not nest.
+  Compares two models fit to the same data that do not nest via Vuong's
+  non-nested test.
 }
+
 \usage{
 vuong(m1, m2, digits = getOption("digits"))
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
   \item{m1}{model 1, an object inheriting from class \code{glm},
     \code{negbin} or \code{zeroinfl}}

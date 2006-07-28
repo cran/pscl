@@ -1,6 +1,6 @@
 \name{summary.ideal}
 \alias{summary.ideal}
-\title{Summarize an Ideal object }
+\title{summary of an ideal object}
 
 \description{
   Provides a summary of the output from ideal point estimation contained
@@ -9,7 +9,7 @@
 
 \usage{
 \method{summary}{ideal}(object, quantiles = c(.025, .975),
-              start = rownames(object$x)[1],
+              burnin=NULL,
               include.beta=FALSE,...)
 }
 
@@ -21,8 +21,9 @@
     ideal point and each item's discrimination parameter (if stored in
     the \code{ideal} object).}
   
-  \item{start}{the number of the iteration with which to begin when
-    computing summary quantities and means.}
+ \item{burnin}{of the recorded MCMC samples, how many to discard as
+    burnin?  Default is \code{NULL}, in which case the value of
+    \code{burnin} in the \code{\link{ideal}} object is used.}
   
   \item{include.beta}{whether or not to calculate summary statistics of
     beta, if beta is available.  If the item parameters were not stored
@@ -72,8 +73,23 @@
   the same sign. If they do, then the corresponding discrimination
   parameter is flagged as distinguishible from zero; otherwise not.
 }
+
+\note{When specifying a value of \code{burnin} different from that used
+  in fitting the \code{\link{ideal}} object, note a distinction
+  between the iteration numbers of the stored iterations, and the
+  number of stored iterations.  That is, the \code{n}-th iteration
+  stored in an \code{\link{ideal}} object will not be iteration
+  \code{n} if the user specified \code{thin>1} in the call to
+  \code{\link{ideal}}.  Here, iterations are tagged with their
+  iteration number.  Thus, if the user called \code{\link{ideal}} with
+  \code{thin=10} and \code{burnin=100} then the stored iterations are
+  numbered \code{100, 110, 120, ...}.  Any future subsetting via a
+  \code{burnin} refers to this iteration number.}
+
 \seealso{\code{\link{ideal}}}
+
 \author{Simon Jackman \email{jackman@stanford.edu}}
+
 \examples{
 ## fake example
 set.seed(314159265)
@@ -81,7 +97,7 @@ fakeData <- matrix(sample(x=c(0,1),size=1000,replace=TRUE),
                    10,100)
 rc <- rollcall(fakeData)
 ## short-run for demo purposes
-idFake <- ideal(rc,maxiter=1000,burnin=100,thin=10)
+idFake <- ideal(rc,maxiter=500,burnin=100,thin=10)
 summary(idFake)
 
 ## Supreme Court Example

@@ -9,13 +9,6 @@
 ##                 lib)
 ## }
 
-parseSubset <- function(v,drop){
-  nm <- names(drop)
-  ## check for unanimous filter
-  if("unan" %in% nm)
-    vOut <- dropUnanimous(v)
-}
-
 ideal <- function(object,
                   codes=object$codes,
                   dropList=list(codes="notInLegis",lop=0),
@@ -52,7 +45,8 @@ ideal <- function(object,
     cl$store.item <- store.item
   if(is.null(cl$meanzero))
     cl$meanzero <- meanzero
-  rollcallObj <- cl$object
+
+  localMeanZero <- meanzero   ## copy user-supplied
 
   ## check validity of user arguments
   if (!("rollcall" %in% class(object)))
@@ -157,7 +151,7 @@ ideal <- function(object,
     if(sum(is.na(match(c("xp","xpv","bp","bpv"),names(priors))))!=0)
       stop("priors must be a list with elements xp, xpv, bp, bpv")
 
-    meanzero <- FALSE
+    localMeanZero <- FALSE
     xp <- as.matrix(priors$xp)
     xpv <- as.matrix(priors$xpv)
     bp <- as.matrix(priors$bp)
@@ -174,9 +168,7 @@ ideal <- function(object,
       stop("Dimensions of bp or bpv not m by d+1")
     }
   }
-  else {
-    ## generate priors - mean zero
-    meanzero <- TRUE
+  else {   ## no user-supplied priors
     xp <- matrix(rep(0, n*d), nrow=n)
     xpv <- matrix(rep(1, n*d), nrow=n)
     bp <- matrix(rep(0,m*(d+1)), nrow=m)
@@ -269,7 +261,7 @@ ideal <- function(object,
                  PACKAGE=.package.Name,
                  as.integer(n), as.integer(m), as.integer(d), as.double(yToC), 
                  as.integer(maxiter), as.integer(thin), as.integer(impute),
-                 as.integer(meanzero), as.double(xp), as.double(xpv), as.double(bp),
+                 as.integer(localMeanZero), as.double(xp), as.double(xpv), as.double(bp),
                  as.double(bpv), as.double(xstart), as.double(bstart),
                  xoutput=NULL,
                  boutput=NULL,as.integer(burnin),
@@ -281,7 +273,7 @@ ideal <- function(object,
                  PACKAGE=.package.Name,
                  as.integer(n), as.integer(m), as.integer(d), as.double(yToC), 
                  as.integer(maxiter), as.integer(thin), as.integer(impute),      
-                 as.integer(meanzero), as.double(xp), as.double(xpv), as.double(bp),
+                 as.integer(localMeanZero), as.double(xp), as.double(xpv), as.double(bp),
                  as.double(bpv), as.double(xstart), as.double(bstart),
                  xoutput=as.double(rep(0,n*d*numrec)),
                  boutput=NULL,as.integer(burnin),
@@ -292,7 +284,7 @@ ideal <- function(object,
                  PACKAGE=.package.Name,
                  as.integer(n), as.integer(m), as.integer(d), as.double(yToC),          
                  as.integer(maxiter), as.integer(thin), as.integer(impute),
-                 as.integer(meanzero), as.double(xp), as.double(xpv), as.double(bp),
+                 as.integer(localMeanZero), as.double(xp), as.double(xpv), as.double(bp),
                  as.double(bpv), as.double(xstart), as.double(bstart),
                  xoutput=as.double(rep(0,n*d*numrec)),
                  boutput=as.double(rep(0,m*(d+1)*numrec)),as.integer(burnin),
@@ -318,34 +310,34 @@ ideal <- function(object,
     }
     else {
       b <- NULL
-      b.mean <- NULL
     }
   }
-  else {
-    b.mean <- b <- x <- NULL
+  else {   ## output went to a file
+    b <- x <- NULL
   }
 
   ## compute some summary stats now, since we almost always use them
-  cat("MCMC sampling done, computing posterior means for ideal points...\n")
-  keep <- x[,1] > burnin
-  xbar <- apply(x[keep,-1],2,mean)
-  xbar <- matrix(xbar,n,d,byrow=TRUE)
-  mnames <- NULL
-  if(d>1){
-    for(j in 1:d)
-      mnames <- c(mnames,paste("Dimension",j))
+  xbar <- betabar <- NULL
+  if(!is.null(x)){
+    cat("MCMC sampling done, computing posterior means for ideal points...\n")
+    keep <- x[,1] > burnin
+    xbar <- apply(x[keep,-1],2,mean)
+    xbar <- matrix(xbar,n,d,byrow=TRUE)
+    mnames <- NULL
+    if(d>1){
+      for(j in 1:d)
+        mnames <- c(mnames,paste("Dimension",j))
+    }
+    dimnames(xbar) <- list(legis.names,mnames)
+    cat("done\n")
   }
-  dimnames(xbar) <- list(legis.names,mnames)
-  cat("done\n")
-
+  
   if(store.item){
     cat("and for bill parameters...")
     betabar <- apply(b[keep,-1],2,mean)
     betabar <- matrix(betabar,m,d+1,byrow=T)
     cat("done\n")
   }
-  else
-    betabar <- NULL
 
   ## wrap up for return to user
   out <- list(n=n,m=m,d=d,

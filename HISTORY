@@ -1,3 +1,18 @@
+0.60    * added postProcess
+           * added jitter to plot.predict.ideal
+           * changed "start" to "burnin" in many function that handle ideal objects
+	   * changed checkStart to checkBurnIn in idealHelper.r,
+           returns "keep"  (logical vector)
+	   * improved documentation for plot1d
+	   * dropped plot1d and plot2d from export in NAMESPACE 
+           * consolidated some help files, making fewer entries in
+           package index etc
+	   * checked package with codetools(), cleaned up some
+	   redundancies, overwriting of function args inside of
+	   functions etc
+	   * minor stylistic changes to titles and descriptions in
+	   help files
+
 0.59    fixed compiler warning in dtnorm regarding return value
         fixed compiler warning in IDEAL regarding double printed as int
         minor documentation fix

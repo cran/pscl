@@ -1,10 +1,13 @@
 \name{summary.rollcall}
 \alias{summary.rollcall}
 \alias{print.summary.rollcall}
-\title{Summarize a rollcall object }
+\title{summarize a rollcall object}
+
 \description{
-  Provides a summary of the votes contained in a rollcall object.
+  Provides a summary of the information about votes, legislators, etc in
+  a \code{\link{rollcall}} object. 
 }
+
 \usage{
 \method{summary}{rollcall}(object,
                  dropList=list(codes = "notInLegis", lop = 0),

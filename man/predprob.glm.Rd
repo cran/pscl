@@ -1,26 +1,31 @@
 \name{predprob.glm}
 \alias{predprob.glm}
-%- Also NEED an '\alias' for EACH other topic documented here.
+
 \title{Predicted Probabilties for GLM Fits}
+
 \description{
-  Obtains predicted probabilities from a fitted generalized linear model object.
+  Obtains predicted probabilities from a fitted generalized linear model
+  object. 
 }
+
 \usage{
 \method{predprob}{glm}(obj,newdata=NULL,...)
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
   \item{obj}{a fitted object of class inheriting from \code{"glm"}}
   \item{newdata}{optionally, a data frame in which to look for variables
     with which to predict.  If omitted, the fitted linear predictors are
     used.}
-  \item{...}{}
+  \item{...}{arguments passed to or from other methods}
 }
+
 \details{
   This method is only defined for glm objects with
   \code{family=\link{binomial}} or \code{family=\link{poisson}}, or negative
   binomial count models fit with the \code{\link[MASS:glm.nb]{glm.nb}} function in \code{library(MASS)}.
 }
+
 \value{
   a matrix of predicted probabilities.  Each row in the matrix is a
   vector of probabilities, assigning predicted probabilities over the range of

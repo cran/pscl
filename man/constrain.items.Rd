@@ -1,16 +1,19 @@
 \name{constrain.items}
 \alias{constrain.items}
 \title{constrain item parameters in analysis of roll call data}
+
 \description{
   Sets constraints on specified item parameters in Bayesian analysis of
   roll call data by generating appropriate priors and start values for
   Markov chain Monte Carlo iterations.
 }
+
 \usage{
 constrain.items(obj, dropList = list(codes = "notInLegis", lop = 0),
                 x, d = 1)
 
 }
+
 \arguments{
   \item{obj}{an object of class \code{\link{rollcall}}.}
   \item{dropList}{a \code{\link{list}} (or \code{\link{alist}})

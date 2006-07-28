@@ -1,9 +1,11 @@
 \name{betaHPD}
 \alias{betaHPD}
-%- Also NEED an '\alias' for EACH other topic documented here.
+
 \title{compute and optionally plot beta HDRs}
-\description{compute and optionally plot highest density regions for the Beta
-  distribution}
+
+\description{Compute and optionally plot highest density regions for the Beta
+  distribution.}
+
 \usage{
    betaHPD(alpha,beta,p=.95,plot=FALSE)
 }

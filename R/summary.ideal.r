@@ -36,11 +36,17 @@ print.ideal <- function(x, ...) {
 
 summary.ideal <- function(object,
                           quantiles=c(.025,.975),
-                          start=rownames(object$x)[1],
+                          burnin=NULL,
                           include.beta=FALSE,
                           ...){
-  start1 <- checkStart(object,start)
-  keep <- start1:nrow(object$x)
+
+  if(class(object)!="ideal")
+    stop("summary.ideal only defined for objects of class ideal")
+
+  if(is.null(burnin))
+    keep <- checkBurnIn(object,eval(object$call$burnin))
+  else
+    keep <- checkBurnIn(object,burnin)
   
   xm <- bm <- xQuantTab <- bQuantTab <- NULL
   xResults <- list()
@@ -49,15 +55,16 @@ summary.ideal <- function(object,
 
   ## get quantiles of x
   if(!is.null(quantiles)){
-    quantiles <- sort(quantiles)
+    localQuantiles <- sort(quantiles)
     xQuantTab <- as.matrix(apply(object$x[keep,-1],2,
                                  quantile,
-                                 probs=quantiles,na.rm=T))
+                                 probs=localQuantiles,
+                                 na.rm=T))
   }
   if (length(quantiles) > 1)
     xQuantTab <- t(xQuantTab)
   rownames(xQuantTab) <- colnames(object$x)[-1]
-  if(start==rownames(object$x)[1])
+  if(is.null(burnin))
     xm <- object$xbar
   else{
     xm <- apply(object$x[keep,-1],2,mean)
@@ -72,7 +79,7 @@ summary.ideal <- function(object,
     xResults[[j]] <- cbind(xm[,j],
                            xQuantTab[thisDimension,])
     cNames <- c("Mean","Std.Dev.",
-                paste(as.character(quantiles*100),
+                paste(as.character(localQuantiles*100),
                       "%",
                       sep=""))
     dimnames(xResults[[j]])[[2]] <- cNames
@@ -86,11 +93,11 @@ summary.ideal <- function(object,
     if(!is.null(quantiles))
       bQuantTab <- as.matrix(apply(object$beta[keep,-1],2,
                                 quantile,
-                                probs=quantiles,na.rm=T))
+                                probs=localQuantiles,na.rm=T))
     if (length(quantiles)>1)
       bQuantTab <- t(bQuantTab)
     rownames(bQuantTab) <- colnames(object$beta)[-1]
-    if(start==rownames(object$x)[1])
+    if(burnin==eval(object$call$burnin))
       bm <- object$betabar
     else{
       bm <- apply(object$beta[keep,-1],2,mean)
@@ -121,9 +128,8 @@ summary.ideal <- function(object,
     nQ <- length(quantiles)
     if(nQ==2){
       ## we have confidence interval
-      width <- abs(quantiles[2] - quantiles[1])
+      width <- abs(localQuantiles[2] - localQuantiles[1])
       sigFunc <- function(x){
-        k <- ncol(x)
         out <- sign(x[,3])==sign(x[,4])
         labs <- rep(paste(round(width*100),"% CI",sep=""),2)
         labs[1] <- paste(labs[1],"does NOT overlap 0")
@@ -150,7 +156,7 @@ summary.ideal <- function(object,
       pall <- NULL
       pm <- tapply(xm[,b],party,mean)
       if (!is.null(quantiles)){  ## quantiles, if requested
-        pq <- tapply(xm[,b],party,quantile,probs=quantiles)
+        pq <- tapply(xm[,b],party,quantile,probs=localQuantiles)
         for(j in 1:length(pq)){
           pall <- rbind(pall,pq[[j]])
         }
@@ -182,7 +188,6 @@ print.summary.ideal <- function(x, digits=3, ...){
     stop("object passed to print.summary.ideal must be of class summary.ideal")
 
   cat("Markov chain Monte Carlo Analysis of Roll Call Data\n")
-  n <- eval(x$object)$n
   m <- eval(x$object)$m
   d <- eval(x$object)$d
   if(d==1)

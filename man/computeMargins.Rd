@@ -4,7 +4,7 @@
   object}
 
 \description{
-  add summaries of each roll call vote to a \code{\link{rollcall}} object
+  Add summaries of each roll call vote to a \code{\link{rollcall}} object.
 }
 
 \usage{

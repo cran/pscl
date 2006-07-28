@@ -1,27 +1,34 @@
 \name{predprob.zeroinfl}
 \alias{predprob.zeroinfl}
-%- Also NEED an '\alias' for EACH other topic documented here.
+
 \title{predicted probabilities from zero-inflated regression models}
+
 \description{
-  compute predicted probabilities of counts from a zero-inflated
-  regression models
+  Compute predicted probabilities of counts from a zero-inflated
+  regression models.
 }
+
 \usage{
 \method{predprob}{zeroinfl}(obj,...)
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
   \item{obj}{a fitted object of class inheriting from \code{"zeroinfl"}}
   \item{...}{additional arguments to be passed to \code{\link{predict.zeroinfl}}
-}}
+}} 
+
 \details{
   Calls \code{\link{predict.zeroinfl}} with the option \code{type="prob"}
 }
+
 \value{
   See \code{\link{predict.zeroinfl}}
 }
+
 \author{Simon Jackman \email{jackman@stanford.edu}}
+
 \seealso{\code{\link{predprob}}, \code{\link{predict.zeroinfl}}}
+
 \examples{
 data(bioChemists)
 zip <- zeroinfl(count=art ~ .,

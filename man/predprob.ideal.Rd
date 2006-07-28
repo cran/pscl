@@ -32,7 +32,7 @@ id1 <- ideal(s109,
              d=1,
              meanzero=TRUE,
              store.item=TRUE,
-             maxiter=1000,
+             maxiter=500,
              burnin=100,
              thin=10)  
 phat <- predprob(id1)

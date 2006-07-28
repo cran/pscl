@@ -1,14 +1,16 @@
 \name{predict.ideal}
 \alias{predict.ideal}
 \alias{print.predict.ideal}
-\title{oredicted orobabilities from an ideal object}
-\description{compute predicted probabilities from an \code{ideal}
-  object.  This predict method uses the posterior mean values of x and beta to
-  make predictions.}
+\title{predicted probabilities from an ideal object}
+
+\description{Compute predicted probabilities from an \code{\link{ideal}}
+  object.  This predict method uses the posterior mean values of \eqn{x}
+  and \eqn{\beta}{beta} to make predictions.}
+
 \usage{
 \method{predict}{ideal}(object,
                         cutoff=.5,
-                        start=rownames(object$x)[1],
+                        burnin=NULL,
                         ...)
 
 \method{print}{predict.ideal}(x,digits=2,...)
@@ -19,8 +21,9 @@
     \code{\link{ideal}}) with item parameters (beta) stored.}
   \item{cutoff}{numeric, a value between 0 and 1, the threshold to be used for sepatating predicted
     probabilities into yea and nay votes.}
-  \item{start}{of the recorded MCMC samples, the sample that should be
-    used as the first iteration included in prediction calculations.}
+  \item{burnin}{of the recorded MCMC samples, how many to discard as
+    burnin?  Default is \code{NULL}, in which case the value of
+    \code{burnin} in the \code{\link{ideal}} object is used.}
   \item{x}{object of class \code{predict.ideal}}
   \item{digits}{number of digits in printed object}
   \item{...}{further arguments passed to or from other methods.}  
@@ -61,6 +64,18 @@
   \code{\link{rollcall}} object passed to \code{\link{ideal}}}
 }
 
+\note{When specifying a value of \code{burnin} different from that used
+    in fitting the \code{\link{ideal}} object, note a distinction
+    between the iteration numbers of the stored iterations, and the
+    number of stored iterations.  That is, the \code{n}-th iteration
+    stored in an \code{\link{ideal}} object will not be iteration
+    \code{n} if the user specified \code{thin>1} in the call to
+    \code{\link{ideal}}.  Here, iterations are tagged with their
+    iteration number.  Thus, if the user called \code{\link{ideal}} with
+    \code{thin=10} and \code{burnin=100} then the stored iterations are
+    numbered \code{100, 110, 120, ...}.  Any future subsetting via a
+    \code{burnin} refers to this iteration number.}
+
 \seealso{\code{\link{ideal}}, \code{\link{summary.ideal}}, \code{\link{plot.predict.ideal}}}
 
 \examples{
@@ -75,7 +90,7 @@ id1 <- ideal(s109,
              d=1,
              meanzero=TRUE,
              store.item=TRUE,  ## need this to be TRUE for predict
-             maxiter=1000,
+             maxiter=500,
              burnin=100,
              thin=10)  
 

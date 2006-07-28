@@ -1,12 +1,14 @@
 \name{vectorRepresentation}
 \alias{vectorRepresentation}
-%- Also NEED an '\alias' for EACH other topic documented here.
+
 \title{convert roll call matrix to series of vectors}
+
 \description{
  Extract the information in a roll call matrix as a series of vectors
  with voting decision, a unique identifier for the legislator and a
  unique identifier for the roll call.
 }
+
 \usage{
 vectorRepresentation(object, dropList = list(codes = c("missing", "notInLegis")))
 }
@@ -15,13 +17,14 @@ vectorRepresentation(object, dropList = list(codes = c("missing", "notInLegis"))
   \item{object}{an object of class \code{\link{rollcall}}}
   \item{dropList}{a \code{dropList}; see \code{\link{dropRollCall}}}
 }
-\details{
-  It is often the case that roll call matrices are sparse, say, when the
-  roll call matrix has an overlapping generations structure, pooling
-  across many legislatures such that few of the represented legislators
-  actually vote on any given roll call.  In such a case, representing
-  the data as a roll call matrix is not particularly helpful, either for
-  data summaries or modeling.  
+
+\details{ It is often the case that roll call matrices are sparse, say,
+  when the roll call matrix has an \dQuote{overlapping generations}
+  structure; e.g., consider forming data by pooling across a long
+  temporal sequence of legislatures such that relatively few of the
+  legislators in the data set actually vote on any given roll call.  In
+  such a case, representing the data as a roll call matrix is not
+  particularly helpful nor efficient, either for data summaries or modeling.
 }
 
 \value{A \code{\link{matrix}} with \code{z} rows, where \code{z} is the

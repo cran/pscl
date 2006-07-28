@@ -2,11 +2,14 @@
 \alias{summary.hurdle}
 \alias{print.summary.hurdle}
 \alias{coef.hurdle}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{Summarzing Hurdle Regression Models for Count Data}
+
+\title{summarize hurdle regression models for count data}
+
 \description{
-  \code{summary} methods for class \code{"hurdle"}
+  Provides \code{summary} methods for hurlde regression models for count
+  data.
 }
+
 \usage{
 \method{summary}{hurdle}(object,...)
 

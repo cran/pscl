@@ -38,16 +38,6 @@ function(count= y ~ .,
         llh
     }
     
-    NegBin <- function(Y,lambda,theta){
-                                        #dnbinom(y,mu=lambda,size=theta)
-        arg1 <- gamma(theta + Y)/(gamma(Y+1)*gamma(theta))
-        r <- lambda/(lambda+theta)
-        arg2 <- (1-r)^theta
-        arg3 <- r^Y
-        out <- arg1*arg2*arg3
-        out
-    }
-    
     LogNegBin <- function(Y,lambda,theta){
                                         #dnbinom(x=y,size=theta,mu=lambda,log=T)
         arg1 <- lgamma(Y+theta)-lgamma(Y+1)-lgamma(theta)
@@ -154,7 +144,6 @@ function(count= y ~ .,
     cat("dependent variable y:\n")
     print(tab)
     y0 <- sort(unique(Y))           ## unique values of y
-    m <- length(y0)                 ## number of unique values
     if(any(floor(y0)!=y0))
         stop("Non-integer values of y encountered, invalid for zeroinfl/count model\n")
     if(min(y0)!=0)

@@ -50,7 +50,6 @@ igammaHDR <- function(alpha,beta,content=.95,debug=FALSE){
  
   tryContent <- content
   flag <- FALSE
-  attempts <- 0
   while(!flag){
     if(debug)
       cat(paste("igammaHPD: checking search bounds with content=",

@@ -1,16 +1,17 @@
 \name{sc9497}
 \docType{data}
 \alias{sc9497}
-\title{Votes from the United States Supreme Court, from 1994-1997}
+\title{votes from the United States Supreme Court, from 1994-1997}
 \description{
   This data set provides information on the United States Supreme Court
-  from 1994-1997.  Votes included are non-unanimous ones.
+  from 1994-1997.  Votes included are non-unanimous.
 }
+
 \usage{data(sc9497)}
 \format{A list containing the elements:
   \describe{
     \item{votes}{a matrix of the votes, 0=Nay, 1=Yea,
-    NA=Abstained or Missing Data.  The matrix columns are labeled with
+    \code{NA}=Abstained or missing data.  The matrix columns are labeled with
     \code{vote.names} and the rows are labeled with \code{legis.names}.}
     \item{legis.names}{a vector of the names of the nine Justices
     sitting on the court at this time.}

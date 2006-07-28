@@ -1,15 +1,17 @@
 \name{odTest}
 \alias{odTest}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{Likelihood ratio test for over-dispersion in count data}
+
+\title{likelihood ratio test for over-dispersion in count data}
+
 \description{
   Compares the log-likelihoods of a negative binomial regression model
-  and a Poisson regression model
+  and a Poisson regression model.
 }
+
 \usage{
 odTest(glmobj, digits = max(3, getOption("digits") - 3))
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
    \item{glmobj}{ an object of class \code{negbin} produced by \code{\link[MASS:glm.nb]{glm.nb}}}  
    \item{digits}{ number of digits in printed output}

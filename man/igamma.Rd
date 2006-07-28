@@ -6,7 +6,9 @@
 \alias{rigamma}
 \alias{igammaHDR}
 \title{inverse-Gamma distribution}
-\description{density, distribution function, quantile function, and highest density region calculation for the inverse-Gamma distribution with parameters \code{alpha} and \code{beta}}
+
+\description{Density, distribution function, quantile function, and highest density region calculation for the inverse-Gamma distribution with parameters \code{alpha} and \code{beta}.}
+
 \usage{
 	densigamma(x,alpha,beta)
   	pigamma(q,alpha,beta)
@@ -14,6 +16,7 @@
 	rigamma(n,alpha,beta)
 	igammaHDR(alpha,beta,content=.95,debug=FALSE)
 }
+
 \arguments{
 	\item{x,q}{vector of quantiles}
 	\item{p}{vector of probabilities}
@@ -24,7 +27,8 @@
 	highest density region}
 	\item{debug}{logical; if TRUE, debugging information from the
 	search for the HDR is printed} 
-}	    
+    }
+    
 \details{
   The inverse-Gamma density arises frequently in Bayesian
   analysis of normal data, as the (marginal) conjugate prior for
@@ -40,19 +44,19 @@
     Gamma(a) = int_0^infty t^(a-1) exp(-t) dt
   }
   and so ensures \eqn{f(x)} integrates to one.  The
-  inverse-Gamma density has a mean at \eqn{\beta/(\alpha-1)} for
-  \eqn{\alpha>1} and has variance \eqn{\beta^2/((\alpha-1)^2
-    (\alpha-2))} for \eqn{\alpha>2}.  The
-  inverse-Gamma density has a unique mode at
-  \eqn{\beta/(\alpha+1)}.  
+  inverse-Gamma density has a mean at \eqn{\beta/(\alpha-1)}{beta/(alpha-1)} for
+  \eqn{\alpha>1}{alpha>1} and has variance \eqn{\beta^2/((\alpha-1)^2
+    (\alpha-2))}{beta^2/((alpha-1)^2 (alpha-2))} for
+  \eqn{\alpha>2}{alpha>2}.  The inverse-Gamma density has a unique mode at
+  \eqn{\beta/(\alpha+1)}{beta/(alpha+1)}.  
   
   The evaluation of the density,
   cumulative distribution function and quantiles is done by
   calls to the \code{dgamma}, \code{pgamma} and \code{igamma}
   functions, with the arguments appropriately transformed.  That
   is, note
-  that if \eqn{x \sim IG(\alpha,\beta)} then \eqn{1/x \sim
-    G(\alpha,\beta)}.  
+  that if \eqn{x \sim IG(\alpha,\beta)}{x ~ IG(alpha,beta} then \eqn{1/x \sim
+    G(\alpha,\beta)}{1/x ~ G(alpha,beta)}.  
   
   \emph{Highest Density Regions}. In general, suppose \eqn{x}
   has a density \eqn{f(x)}, where \eqn{x \in \Theta}.  Then a
@@ -86,24 +90,23 @@
     }
 }
 
-\value{
-
-  \code{densigamma} gives the density, \code{pigamma} the distribution
-	function, \code{qigamma} the quantile function, \code{rigamma}
-	generates random samples, and \code{igammaHDR} gives the lower
-	and upper limits of the HDR, as defined above (\code{NA}s if the
-	optimization is not successful).
-
-      }
+\value{\code{densigamma} gives the density, \code{pigamma} the
+  distribution function, \code{qigamma} the quantile function,
+  \code{rigamma} generates random samples, and \code{igammaHDR} gives
+  the lower and upper limits of the HDR, as defined above (\code{NA}s if
+  the optimization is not successful).
+}
 
 \note{The \code{densigamma} is named so as not to conflict with the
-  \code{\link{digamma}} function in the R \code{\link{base}} package (the derivative of the
-  \code{gamma} function).
+  \code{\link{digamma}} function in the R \code{\link{base}} package
+  (the derivative of the \code{gamma} function).
 }
 
 \author{Simon Jackman \email{jackman@stanford.edu}}
+
 \seealso{\code{\link{gamma}}, \code{\link{dgamma}},
 \code{\link{pgamma}}, \code{\link{qgamma}}, \code{\link{uniroot}}}
+
 \examples{
 alpha <- 4
 beta <- 30

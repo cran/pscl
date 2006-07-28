@@ -170,8 +170,6 @@ print.rollcall <- function(x,print.votes=FALSE, ...){
   if (print.votes)
    print(x$votes) 
 
-  mc <- match.call()
-  
   cat(paste("Detailed information available via summary function.\n"))
   
   invisible(NULL)
@@ -350,17 +348,19 @@ vectorRepresentation <- function(object,
     stop("no rollcall codes")
   else
     codes <- object$codes
-
+  
   if(is.null(dropList) |
      length(dropList)==0 |
      is.null(dropList$codes) |
      length(dropList$codes)==0){
     cat("missing arguments for drop, vectorRepresentation will use defaults")
-    dropList <- list(codes=c("missing","notInLegis"))
+    dL <- list(codes=c("missing","notInLegis"))
   }
-  tmpRollCall <- dropRollCall(object,dropList=dropList)
+  else
+    dL <- dropList
+  tmpRollCall <- dropRollCall(object,dropList=dL)
 
-  badCodes <- match(dropList$codes,names(codes))
+  badCodes <- match(dL$codes,names(codes))
   if(any(is.na(badCodes)))
     stop("couldn't find codes to drop\n")
   else{

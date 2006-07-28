@@ -210,14 +210,14 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
       updatey(ystar,y,x,beta,n,m,d,iter);   
       //Rprintf("past update y\n");
       
+      updatex(ystar,ok,beta,x,xp,xpv,n,m,d,impute,meanzero);
+      //Rprintf("past updatex\n"); 
+
       makexreg(xreg,x,n,d,q);
       //Rprintf("past makexreg\n");
       
       updateb(ystar,ok,beta,xreg,bp,bpv,n,m,d,impute);
-      //Rprintf("past updateb\n");
-      
-      updatex(ystar,ok,beta,x,xp,xpv,n,m,d,impute,meanzero);
-      //Rprintf("past updatex\n"); 
+      //Rprintf("past updateb\n");      
 
       R_CheckUserInterrupt();               /* check for user interrupt */
       

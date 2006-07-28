@@ -1,14 +1,16 @@
 \name{dropRollCall}
 \alias{dropRollCall}
 \title{drop user-specified elements from a rollcall object}
+
 \description{
-  drop user-specified elements of rollcall object, returning a roll
+  Drop user-specified elements of rollcall object, returning a roll
   call object. 
 }
+
 \usage{
 dropRollCall(object, dropList)
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
 
   \item{object}{an object of class \code{\link{rollcall}}}

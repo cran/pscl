@@ -3,12 +3,14 @@
 \docType{data}
 \title{elections to Australian House of
   Representatives, 1949-2004}
+
 \description{
-  aggregate data on the 23 elections to Australia's House of
+  Aggregate data on the 23 elections to Australia's House of
   Representatives, 1949 to 2004. 
 }
-\usage{data(AustralianElections)
-}
+
+\usage{data(AustralianElections)}
+
 \format{
   \itemize{
     \item{\code{date}}{date of election, stored using the

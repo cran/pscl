@@ -1,9 +1,12 @@
 \name{rollcall}
 \alias{rollcall}
-\title{Create an object of class rollcall}
+\title{create an object of class rollcall}
 \description{
-  create a \code{rollcall} object
+  Create a \code{rollcall} object, used for the analysis of legislative
+  voting or, equivalently, item-response modeling of binary data
+  produced by standardized tests, etc.
 }
+
 \usage{
 rollcall(data,
          yea=1, nay=0, missing=NA, notInLegis=9,
@@ -11,6 +14,7 @@ rollcall(data,
          legis.data=NULL, vote.data=NULL,
          desc=NULL, source=NULL)
 }
+
 \arguments{
 
   \item{data}{voting decisions (for roll calls), or test results (for

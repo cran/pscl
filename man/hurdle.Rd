@@ -2,11 +2,14 @@
 \alias{hurdle}
 \alias{print.hurdle}
 \alias{logLik.hurdle}
-%- Also NEED an '\alias' for EACH other topic documented here.
+
 \title{hurdle models for count data}
+
 \description{
-  hurdle regression models for count data model, estimation via maximum likelihood
+  Hurdle regression models for count data model, estimation via maximum
+  likelihood. 
 }
+
 \usage{
 hurdle(count = y ~ ., x = ~1, z = ~1, data = list(), link = "logit",
         dist = "poisson", method = "BFGS", trace = FALSE,
@@ -33,8 +36,11 @@ hurdle(count = y ~ ., x = ~1, z = ~1, data = list(), link = "logit",
 \value{An object of class \code{"hurdle"}}
 }
 \references{}
+
 \author{Simon Jackman \email{jackman@stanford.edu}}
+
 \note{Only minimal support for this class thus far; e.g., no predict method} 
+
 \seealso{\code{\link{zeroinfl}}, \code{\link{summary.hurdle}}}
 \examples{
 data(bioChemists)
@@ -51,5 +57,6 @@ hnb <- hurdle(count=art ~ .,
               data=bioChemists,trace=TRUE)
 summary(hnb)
 }
-\keyword{models}% at least one, from doc/KEYWORDS
-\keyword{regression}% __ONLY ONE__ keyword per line
+
+\keyword{models}
+\keyword{regression}

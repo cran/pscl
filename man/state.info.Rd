@@ -1,11 +1,11 @@
 \name{state.info}
 \alias{state.info}
 \docType{data}
-\title{Information about the American states needed for U.S. Congress}
+\title{information about the American states needed for U.S. Congress}
 \description{
   Numeric codes and names of 50 states and the District of Columbia,
-  needed so as to parse Poole
-  and Rosenthal's collections of U.S. Congressional roll calls
+  required to parse Keith Poole
+  and Howard Rosenthal's collections of U.S. Congressional roll calls.
 }
 \usage{data(state.info)
 }

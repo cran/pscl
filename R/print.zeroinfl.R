@@ -7,7 +7,6 @@ print.zeroinfl <- function(x,digits=max(3,getOption("digits")-3), ...){
   theCoef <- NULL
   if(!is.null(x$par)){
     theCoef <- coef(x)
-    nCoef <- length(theCoef)
   }
   else {
     cat("no coefficients in zeroinfl object, did the model converge successfully?")

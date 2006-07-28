@@ -1,12 +1,11 @@
 ## ideal helper functions
 
-checkStart <- function(x, start) {
-  if (as.numeric(start)>=(x$x[nrow(x$x),1]))
+## check validity of a burnin number
+## return logical of valid iters
+checkBurnIn <- function(object, burnin) {
+  if (as.numeric(burnin)>=max(object$x[,1]))
     stop("start must be less than the number of iterations")
-  if(!as.integer(start)%in%x$x[,1])
-    stop("start is not a valid iteration number")
-  return (row(x$x)[x$x[,1]==as.integer(start),1])
-
+  return (object$x[,1] > burnin)
 }
 
 checkD <- function(x,d) {
@@ -24,10 +23,10 @@ getDimX <- function(x,d,columns=TRUE) {
   px <- NULL
   if(columns) {
     px <- (x$x[,seq(from=d+1,to=ncol(x$x),by=x$d)])
-    colnames(px)<-x$legis.names
+    colnames(px) <- x$legis.names
   } else {
     px <- (x$x[seq(from=d,to=nrow(x$x),by=x$d),])
-    rownames(px)<-x$legis.names
+    rownames(px) <- x$legis.names
   }
   px
 }
@@ -35,11 +34,12 @@ getDimX <- function(x,d,columns=TRUE) {
 getDim <- function(x,d,dims,names,columns=TRUE) {
   px <- NULL
   if(columns) {
-    px<-(x[,seq(from=d,to=ncol(x),by=dims)])
-    colnames(px)<-names
-  } else {
+    px <-(x[,seq(from=d,to=ncol(x),by=dims)])
+    colnames(px) <- names
+  }
+  else {
     px <- (x[seq(from=d,to=nrow(x),by=dims),])
-    rownames(px)<-names
+    rownames(px) <- names
   }
   px
 }

@@ -1,7 +1,7 @@
 \name{bioChemists}
 \alias{bioChemists}
 \docType{data}
-\title{Article production by graduate students in biochemistry Ph.D. programs}
+\title{article production by graduate students in biochemistry Ph.D. programs}
 \description{
   A sample of 915 biochemistry graduate students.
 }

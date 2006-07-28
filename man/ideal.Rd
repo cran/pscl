@@ -1,8 +1,7 @@
 \name{ideal}
 \alias{ideal}
-\title{Analysis of Roll Call Data (ideal point estimation or
-  item-response modeling via Markov
-  chain Monte Carlo methods)}
+\title{analysis of roll call data (IRT models) via Markov
+  chain Monte Carlo methods}
 
 \description{
   Analysis of \code{rollcall} data via the spatial voting model;
@@ -227,7 +226,7 @@ id1 <- ideal(s109,
              d=1,
              meanzero=TRUE,
              store.item=TRUE,
-             maxiter=1000,
+             maxiter=500,
              burnin=100,
              thin=10)  
 summary(id1)

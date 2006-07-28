@@ -10,7 +10,7 @@ function(object,
         stop("error: predict.zeroinfl only takes objects of class zeroinfl\n")
 
 
-    type <- match.arg(type)
+    localType <- match.arg(type)
     linkfn <- object$linkfn
     parms <- object$par
     kx <- object$kx
@@ -77,7 +77,7 @@ function(object,
     }
 
     ## user requests predicted probabilities
-    if(type=="prob"){
+    if(localType=="prob"){
         yUnique <- min(object$y):max(object$y)
         nUnique <- length(yUnique)
         p <- matrix(NA,length(yhat),nUnique)

@@ -3,8 +3,6 @@ function(m1,m2,digits=getOption("digits"))
 {
 
     ## get predicted probabilities for both models
-    m1class <- class(m1)[1]
-    m2class <- class(m2)[1]
 
     m1y <- m1$y
     m2y <- m2$y
@@ -55,9 +53,13 @@ function(m1,m2,digits=getOption("digits"))
 
     cat("in this case:\n")
     if(v>0)
-        cat(paste("model1 > model2, with p-value",signif(1-pnorm(v),digits),"\n"))
+        cat(paste("model1 > model2, with p-value",
+                  signif(1-pnorm(v),digits),
+                  "\n"))
     else
-        cat(paste("model2 > model1, with p-value",signif(pnorm(v),digits),"\n"))
+        cat(paste("model2 > model1, with p-value",
+                  signif(pnorm(v),digits),
+                  "\n"))
 
     invisible(NULL)
 }

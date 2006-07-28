@@ -1,8 +1,8 @@
-## predict function for ideal
+## predict method for class ideal
 
 predict.ideal <- function(object,
                           cutoff=0.5,
-                          start=rownames(object$x)[1],
+                          burnin=NULL,
                           ...) {
   if(class(object)!="ideal")
     stop("predict.ideal only defined for objects of class ideal\n")
@@ -12,7 +12,10 @@ predict.ideal <- function(object,
     stop("try re-fitting model with store.items=TRUE.")
   }
 
-  start1 <- checkStart(object,start)
+  if(is.null(burnin))
+    keep <- checkBurnIn(object,eval(object$call$burnin))
+  else
+    keep <- checkBurnIn(object,burnin)  ## check that start is valid
 
   ## get votes into shape for prediction from ideal
   cat(paste("predict.ideal: Working with rollcall object",
@@ -43,19 +46,20 @@ predict.ideal <- function(object,
   dimnames(predprob) <- dimnames(votes)
   pred <- predprob
   correct <- predprob
-  if(start!=rownames(object$x)[1]){
-    x1 <- cbind(matrix(apply(object$x[start1:nrow(object$x),-1],2,mean),
-                       nrow=object$n,byrow=TRUE),
-                1)
-    b <- matrix(apply(object$beta[start1:nrow(object$beta), -1],2,mean),
-                nrow=object$m,
-                byrow=TRUE)
+  if(!is.null(burnin)){
+    cat("Computing posterior means using ideal object.\n")
+    x1 <- matrix(apply(object$x[keep,-1],2,mean),
+                 nrow=object$n,ncol=object$d,byrow=TRUE)
+    x1 <- cbind(x1,1)
+    b <- matrix(apply(object$beta[keep,-1],2,mean),
+                nrow=object$m,ncol=object$d+1,byrow=TRUE)
   }
   else{
+    cat("Using posterior means in ideal object.\n")
     x1 <- cbind(object$xbar,1)
     b <- object$betabar
   }
-  mu <- x1 %*% t(b)      ## this should be n by (d+1) times (d+1) by m
+  mu <- tcrossprod(x1,b)        ## this should be n by (d+1) times (d+1) by m
   predprob <- pnorm(mu)
   pred <- predprob >= cutoff
   correct <- votes==pred
@@ -123,13 +127,13 @@ plot.predict.ideal <- function(x,
   if(class(x)!="predict.ideal")
     stop("plot.predict.ideal only defined for objects of class predict.ideal")
 
-  type <- match.arg(type)
+  localType <- match.arg(type)
 
   d <- eval(x$ideal)$d
   desc <- eval(x$ideal$call$object)$desc
   rcObj <- extractRollCallObject(eval(x$ideal))
   
-  if(type=="legis"){
+  if(localType=="legis"){
     ## plot percent correctly predicted against posterior mean of ideal point
     ## dimension by dimension
     xbar <- eval(x$ideal)$xbar
@@ -165,7 +169,7 @@ plot.predict.ideal <- function(x,
   #########################################################################
   ## type = votes
   #########################################################################
-  if(type=="votes"){
+  if(localType=="votes"){
     if(is.null(rcObj$voteMargins))
       rcObj <- computeMargins(rcObj)
     margin <- rcObj$voteMargins
@@ -180,9 +184,9 @@ plot.predict.ideal <- function(x,
     #dimnames(margin)[[2]] <- c("Yea","Nay","NA",
     #                           "Yea (proportion of those voting)",
     #                           "Nay (proportion of those voting)")
-    plot(x=margin[,4],   ## percent voting yes
+    plot(x=jitter(margin[,4]),   ## percent voting yes
          y=x$vote.percent,
-         xlab="Yea (%, excluding NAs)",
+         xlab="Losing Coalition (%, excluding NAs, jittered)",
          ylab="Voting Decisions Correctly Predicted (%, excluding NA)")
     titleString <- paste(desc,"\n",
                          "Percent Correctly Predicted, by Vote Margin")

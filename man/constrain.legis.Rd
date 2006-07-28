@@ -1,15 +1,18 @@
 \name{constrain.legis}
 \alias{constrain.legis}
 \title{constrain legislators' ideal points in analysis of roll call data}
+
 \description{
   Sets constraints on specified legislators for ideal
   point estimation by generating appropriate priors and start values.
 }
+
 \usage{
 constrain.legis(obj, dropList = list(codes = "notInLegis", lop = 0),
                  x, d = 1)
 
 }
+
 \arguments{
   \item{obj}{an object of class \code{\link{rollcall}}.}
    \item{dropList}{a \code{\link{list}} (or \code{\link{alist}})
@@ -105,7 +108,7 @@ id1Constrained <- ideal(s109,
                        d=1,
                        priors=cl,      ## use cl
                        startvals=cl,   ## use cl
-                       maxiter=1000,
+                       maxiter=500,
                        burnin=100,
                        thin=10)
 summary(id1Constrained)

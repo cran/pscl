@@ -1,12 +1,16 @@
 ## convert ideal object to MCMC object
 
-idealToMCMC <- function(x, start=rownames(x$x)[1]){
-  if(class(x)!="ideal")
+idealToMCMC <- function(object, burnin=NULL){
+  if(class(object)!="ideal")
     stop("idealToMCMC only defined for objects of class ideal")
-  start1 <- checkStart(x,start)
-  return(mcmc(data=x$x[start1:nrow(x$x),-1],
-              start=as.integer(start),
-              thin=x$call$thin,
-              end=x$x[nrow(x$x),1])
+  
+  if(is.null(burnin))
+    b <- eval(object$call$burnin)
+  keep <- checkBurnIn(object,b)
+
+  return(mcmc(data=object$x[keep,-1],
+              start=object$x[keep,1][1],
+              thin=eval(object$call$thin),
+              end=object$x[nrow(object$x),1])
          )
 }

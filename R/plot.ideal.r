@@ -1,17 +1,20 @@
 ## ideal plotting functions
-plot.ideal <- function(x, conf.int=0.95, start=rownames(x$x)[1], ...) {
+plot.ideal <- function(x, conf.int=0.95, burnin=NULL, ...) {
   if(class(x)!="ideal")
     stop("plot.ideal only available for objects of class ideal")
+  
+  if(is.null(burnin))
+    keep <- checkBurnIn(x,eval(x$call$burnin))
+  else
+    keep <- checkBurnIn(x,burnin)
 
-  if(x$d == 1) {
-    plot1d(x,conf.int=conf.int, start=start, ...)
+  if(x$d == 1)
+    plot1d(x,conf.int=conf.int, burnin=burnin, ...)
+  else if(x$d==2){
+    plot2d(x,burnin=burnin, ...)
   }
-  else if(x$d==2) {
-    plot2d(x,start=start, ...)
-  }
-  else { ## more than 2 dimensions
-    start1 <- checkStart(x,start)
-    xm <- apply(x$x[start1:nrow(x$x),-1],2,mean,na.rm=T)
+  else{ ## more than 2 dimensions    
+    xm <- apply(x$x[keep,-1],2,mean,na.rm=T)
     dim <- matrix(rep(NA,(x$n*x$d)),ncol=x$d)
     lbls <- NULL
     for (i in 1:x$d){
@@ -25,25 +28,30 @@ plot.ideal <- function(x, conf.int=0.95, start=rownames(x$x)[1], ...) {
 plot1d <- function(x,
                    d=1,
                    conf.int=0.95,
-                   start=rownames(x$x)[1],
+                   burnin=NULL,
                    showAllNames=FALSE,
                    ...){
   if(class(x)!="ideal")
     stop("plot.ideal only available for objects of class ideal")
-  start1 <- checkStart(x,start)  ## check that start is valid
+  
+  if(is.null(burnin))
+    keep <- checkBurnIn(x,eval(x$call$burnin))
+  else
+    keep <- checkBurnIn(x,burnin)
+  
   checkD(x,d)                    ## check that selected dimension is ok
   checkCI(conf.int)              ## check that confidence interval is ok
   q <- c((1-conf.int)/2, 1-((1-conf.int)/2))  ## quantiles from CI
   
   xd <- getDimX(x,d)             ## indicators for dimension
-  xm <- apply(xd[start1:nrow(x$x),],2,mean,na.rm=T) ## xbar
+  xm <- apply(xd[keep,],2,mean,na.rm=T) ## xbar
   indx <- order(xm)              ## sort index
   exispar <- par(no.readonly=T) 
-  xq <- t(apply(xd[start1:nrow(x$x),],2,quantile,probs=q))  ## get CIs
-
+  xq <- t(apply(xd[keep,],2,quantile,probs=q))  ## get CIs
+  
   par(mar=c(3,8,4,2)+0.1,
       oma=rep(0,4))
-
+  
   ## title string info
   mainString <- paste("Ideal Points: ",
                       "Posterior Means and ",
@@ -62,8 +70,8 @@ plot1d <- function(x,
   mtext(mainString,side=3,line=3)
   
   xLims <- 1.01*range(xq)
-
-  ## get a copy of the rollcall object used inside of ideal
+  
+  ## names etc
   cat(paste("Looking up legislator names and party affiliations\n"))
   cat(paste("in rollcall object",x$call$object,"\n"))
   tmpObject <- dropRollCall(eval(x$call$object),
@@ -117,50 +125,69 @@ plot1d <- function(x,
 plot2d <- function(x,
                    d1=1,
                    d2=2,
-                   start=rownames(x$x)[1],
+                   burnin=NULL,
                    overlayCuttingPlanes=FALSE,
                    ...){
-
+  
   if(class(x)!="ideal")
     stop("plot.ideal only available for objects of class ideal")
+  
+  if(is.null(burnin))
+    keep <- checkBurnIn(x,eval(x$call$burnin))
+  else
+    keep <- checkBurnIn(x,burnin)
 
+  oCP <- overlayCuttingPlanes   ## local copy of overlayCuttingPlanes
   if(overlayCuttingPlanes){
     if(is.null(x$beta)){
       cat("Item parameters were not stored in ideal object\n")
       cat("No cutting planes will be plotted\n")
-      overlayCuttingPlanes <- FALSE
+      oCP <- FALSE
+    }
+    if(x$d>2){
+      cat("overlay of cutting planes only defined for 2d fits\n")
+      oCP <- FALSE
     }
   }
+  
   mainString <- paste("Ideal Points:",
                       "Posterior Means")
   if(!is.null(eval(x$call$object)$desc))
     mainString <- paste(eval(x$call$object)$desc,"\n",mainString)
-
-  start1 <- checkStart(x,start)
-  keep <- start1:(nrow(x$x))
   
   checkD(x,d1)
   checkD(x,d2)
+  
+  if(d1==d2)
+    stop("can't do 2 dimensional summaries of the same dimension\n")
+  
   xd1 <- getDimX(x,d1)
   xd2 <- getDimX(x,d2)
-
-  if(start!=rownames(x$x)[1]){
-    xm1 <- apply(xd1[keep,],2,mean)  ## posterior means
-    xm2 <- apply(xd2[keep,],2,mean)
-  }
-  else{
+  
+  if(is.null(burnin)){    ## use x bar in ideal object
     xm1 <- x$xbar[,d1]
     xm2 <- x$xbar[,d2]
   }
-
+  else{
+    xm1 <- apply(xd1[keep,],2,mean)  ## posterior means
+    xm2 <- apply(xd2[keep,],2,mean)
+  }
+  
   if(overlayCuttingPlanes){
-    betaBar <- apply(x$beta[,-1],2,mean)
-    b1Bar <- betaBar[seq(from=1,by=3,length=x$m)]
-    b2Bar <- betaBar[seq(from=2,by=3,length=x$m)]
-    alphaBar <- betaBar[seq(from=3,by=3,length=x$m)]
+    if(is.null(burnin)){    ## use betabar in ideal object
+      b1Bar <- x$betabar[,d1]
+      b2Bar <- x$betabar[,d2]
+      alphaBar <- x$betabar[,(x$d+1)]
+    }
+    else{
+      betaBar <- apply(x$beta[keep,-1],2,mean)
+      b1Bar <- betaBar[seq(from=d1,by=x$d+1,length=x$m)]
+      b2Bar <- betaBar[seq(from=d2,by=x$d+1,length=x$m)]
+      alphaBar <- betaBar[seq(from=x$d+1,by=x$d+1,length=x$m)]
+    }
   }
 
-  ## get a copy of the rollcall object used inside of ideal
+  ## get a copy of the rollcall object used by ideal object
   tmpObject <- dropRollCall(eval(x$call$object),
                             eval(x$call$dropList))
   party <- tmpObject$legis.data$party  ## extract party info
@@ -172,7 +199,7 @@ plot2d <- function(x,
          xlab=paste("Dimension ",as.character(d1),sep=""),
          ylab=paste("Dimension ",as.character(d2),sep=""),
          ...)
-    if(overlayCuttingPlanes){
+    if(oCP){
       for(j in 1:x$m)
         abline(a=-alphaBar[j]/b2Bar[j],
                b=-b1Bar[j]/b2Bar[j],
@@ -192,7 +219,7 @@ plot2d <- function(x,
                b=-b1Bar[j]/b2Bar[j],
                col=gray(.45),lwd=.5)
     }
-
+    
     tbl <- table(party, exclude=NULL)
     cl <- rainbow(length(tbl))
     for (i in 1:length(tbl)){
@@ -202,7 +229,7 @@ plot2d <- function(x,
              pch=16,col=cl[i])
     }
   }
-
+  
   invisible(NULL)
 }
 
@@ -211,7 +238,7 @@ tracex <- function(object,
                    d=1,
                    conf.int=0.95,
                    showAll=FALSE,
-                   start=rownames(object$x)[1]){
+                   burnin=NULL){
 
   warnOption <- options()$warn
   options(warn=-1)
@@ -228,7 +255,7 @@ tracex <- function(object,
     stop("legis must be character (names of legislators)\n")
 
   old.par <- par()
-
+  
   ## try matching names
   legis.names <- as.vector(dimnames(object$x)[[2]])
   nLegis <- length(legis)
@@ -270,11 +297,16 @@ tracex <- function(object,
   plotName <- plotName[!is.na(plotName)]
   names(p) <- plotName
   nLegis <- length(p)
+  cat(paste("Matching",legis,"with",plotName,"\n"))
 
+  if(is.null(burnin))
+    keep <- checkBurnIn(object,eval(object$call$burnin))
+  else
+    keep <- checkBurnIn(object,burnin)
+  
   ## one-dimensional stuff
   if(length(d)==1){
     options(warn=0)
-    start1 <- checkStart(object,start)
     checkD(object,d)
     
     if((conf.int<=0)||(conf.int>=1))
@@ -285,8 +317,8 @@ tracex <- function(object,
     count <- 0
     par(mfrow=c(rw+1,1))
     for (i in 1:nLegis){
-      meat <- object$x[start1:nrow(object$x),p[[i]]+d-1]
-      iter <- object$x[start1:nrow(object$x),1]
+      meat <- object$x[keep,p[[i]]+d-1]
+      iter <- object$x[keep,1]
       par(mar=c(4, 4, 4, 2) + 0.1)      
       plot(y=meat,
            x=iter,
@@ -300,7 +332,6 @@ tracex <- function(object,
       lines(iter,predict(lf),col="blue",lwd=3)
       
       xbar <- mean(meat)
-      sd <- sqrt(var(meat))
       q <- c((1-conf.int)/2, 1-((1-conf.int)/2))
       q <- quantile(meat,q)
       
@@ -329,21 +360,19 @@ tracex <- function(object,
       readline("Press any key to see next set of plots: ")
     }
   }
-
-  #####################################################################
+  
+  ## ###################################################################
   ## two-dimensional traceplots
   if(length(d)==2){
     goodD <- d %in% (1:object$d)
     if(!all(goodD))
       stop("invalid dimensions requested in tracex")
     
-    start1 <- checkStart(object,start)
-    nIter <- nrow(object$x)
     col <- rainbow(nLegis)
     meat <- list()
     for(i in 1:nLegis){
-      xTraces <- object$x[start1:nIter,p[[i]][1]]
-      yTraces <- object$x[start1:nIter,p[[i]][2]]
+      xTraces <- object$x[keep,p[[i]][1]]
+      yTraces <- object$x[keep,p[[i]][2]]
       meat[[i]] <- list(x=xTraces,
                         y=yTraces,
                         col=col[i])
@@ -353,8 +382,8 @@ tracex <- function(object,
       xRange <- range(unlist(lapply(meat,function(x)x$x)),na.rm=TRUE)
       yRange <- range(unlist(lapply(meat,function(x)x$y)),na.rm=TRUE)
       require(graphics)
-      nf <- layout(mat=matrix(c(1,2),1,2,byrow=TRUE),
-                   width=c(.7,.3))
+      layout(mat=matrix(c(1,2),1,2,byrow=TRUE),
+             width=c(.7,.3))
       
       par(mar=c(4,4,1,1))
       plot(x=xRange,y=yRange,
@@ -370,7 +399,7 @@ tracex <- function(object,
       }
       
       lapply(meat,lineFunc)
-
+      
       mtext(side=3,outer=FALSE,line=-.5,cex=.75,
             paste("Two-dimensional trace plots, MCMC iterations,\n",
                   eval(object$call$object)$desc,
@@ -420,6 +449,7 @@ tracex <- function(object,
   
   par(old.par)
   options(warn=warnOption)
-
+  
   invisible(NULL)
 }
+  
