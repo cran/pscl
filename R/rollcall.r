@@ -506,7 +506,7 @@ print.summary.rollcall <- function(x, digits=1, ...){
   printHeader(eval(rcObj))
 
   if(!is.null(x$call$dropList))
-    cat(paste("This summary ignores voting decisions that are coded ",
+    cat(paste("\nThis summary ignores voting decisions that are coded ",
               paste(x$call$dropList$codes,collapse=" or "),
               ".\n",sep=""))
   if(!is.null(x$call$dropList$lop))
@@ -530,7 +530,7 @@ print.summary.rollcall <- function(x, digits=1, ...){
   cat("\n")
   
   if(!is.null(x$partyTab)){
-    cat("Party Composition (over all legislators in rollcall object):\n")
+    cat("Party Composition:\n")
     print(x$partyTab)
   }
   cat("\nVote Summary:\n")

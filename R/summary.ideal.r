@@ -97,7 +97,7 @@ summary.ideal <- function(object,
     if (length(quantiles)>1)
       bQuantTab <- t(bQuantTab)
     rownames(bQuantTab) <- colnames(object$beta)[-1]
-    if(burnin==eval(object$call$burnin))
+    if(is.null(burnin))
       bm <- object$betabar
     else{
       bm <- apply(object$beta[keep,-1],2,mean)

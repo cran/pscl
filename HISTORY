@@ -1,3 +1,19 @@
+0.61	   * fixed bug in summary.ideal found by Keith Poole (8/8/06)
+           * documentation of ideal section on Identification changed
+	   to reflect presence of postProcess function
+	   * added summary.rollcall into NAMESPACE per request of Jeff
+	   Lewis
+	   * no nsl function on Windows, changed readKH to simply call
+	   readLines with a try-error wrapper per suggestion of
+	   XP-user Jeff Lewis
+           * processing of dropList improved, per suggestion of Jeff
+	   Lewis
+           * cosmetic changes to print.summary.rollcall
+	   * fixed errors caused by removing sysdata.rda; now utility
+	   data sets such as stateinfo and partyinfo have to loaded
+	   via data() in functions inside readKH subfunctions; again,
+	   Jeff Lewis reported error testing readKH function. 
+
 0.60    * added postProcess
            * added jitter to plot.predict.ideal
            * changed "start" to "burnin" in many function that handle ideal objects

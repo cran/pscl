@@ -8,8 +8,15 @@ readKH <- function(file,
                    desc=NULL,
                    debug=FALSE){
 
-  cat("Attempting to read file in Keith Poole/Howard Rosenthal (KH) format\n")
-  data <- readFromFunc(file,debug=debug)
+  cat("Attempting to read file in Keith Poole/Howard Rosenthal (KH) format.\n")
+  warnLevel <- options()$warn
+  options(warn=-1)
+  data <- try(readLines(con=file),silent=TRUE)
+  if(inherits(data,"try-error")){
+    cat(paste("Could not read",file,"\n"))
+    return(invisible(NULL))
+  }
+  options(warn=warnLevel)
   
   cat("Attempting to create roll call object\n")
   voteData <- substring(data,37)
@@ -36,7 +43,7 @@ readKH <- function(file,
   party <- as.numeric(substring(data,21,23))
   ## convert party to label
   partyfunc <- function(x){
-    #data(partycodes)
+    data(partycodes)
     party <- partycodes$party[match(x,partycodes$code)]
     party[party=="Democrat"] <- "D"
     party[party=="Republican"] <- "R"
@@ -47,7 +54,7 @@ readKH <- function(file,
 
   ## convert state ICPSR code to abbreviation
   statename <- function(x){
-    #data(state.info)
+    data(state.info)
     state.info$state[match(x,state.info$icpsr)]
   }
   state <- as.numeric(substring(data,9,10))  ## icpsr code
@@ -128,52 +135,57 @@ strip.trailing.space <- function(x){
 }
 
 ## read from file, possible web
-readFromFunc <- function(file,debug=TRUE){
-  ## check if this is a URL, starting with such as http, https, or ftp
-  urlStrings <- c("http","ftp")
-  netFile <- any(!is.na(pmatch(urlStrings,file)))
-  if(netFile){
-    if(debug)
-      cat(paste("we appear to have a URL:",file,"\n"))
-    slashes <- gregexpr(pattern="/",text=file)[[1]]
-    if(length(slashes)<3)
-      cat(paste("dubious URL, it has only",length(slashes),"slashes\n"))
-    hostname <- substring(file,slashes[2]+1,slashes[3]-1)
-    if(debug)
-      cat(paste("hostname is",hostname,"\n"))
+## readFromFunc <- function(file,debug=TRUE){
+##   ## check if this is a URL, starting with such as http, https, or ftp
+##   urlStrings <- c("http","ftp")
+##   netFile <- any(!is.na(pmatch(urlStrings,file)))
+##   if(netFile){
+##     if(debug)
+##       cat(paste("we appear to have a URL:",file,"\n"))
+##     slashes <- gregexpr(pattern="/",text=file)[[1]]
+##     if(length(slashes)<3)
+##       cat(paste("dubious URL, it has only",length(slashes),"slashes\n"))
+##     hostname <- substring(file,slashes[2]+1,slashes[3]-1)
+##     if(debug)
+##       cat(paste("hostname is",hostname,"\n"))
 
-    ## check that we can actually resolve the hostname
-    w <- options()$warn
-    options(warn=-1)
-    goodNet <- nsl(hostname)
-    if(debug)
-      if(is.null(goodNet))
-        cat(paste("nsl on",hostname,"returned NULL\n"))
-      else
-        cat(paste("nsl on",hostname,"returned",goodNet,"\n"))
-    if(is.null(goodNet)){
-      options(warn=w)
-      cat("Could not resolve the URL you provided.\n")
-      cat("Check the URL or your internet connection.\n")
-      return(invisible(NULL))
-    }
-    options(warn=w)
-  }
+##     ## check that we can actually resolve the hostname
+##     w <- options()$warn
+##     options(warn=-1)
+##     goodNet <- NULL
+##     haveNSL <- exists("nsl")
+##     if(haveNSL){
+##       goodNet <- nsl(hostname)
+##     else
+      
+##     if(debug)
+##       if(is.null(goodNet))
+##         cat(paste("nsl on",hostname,"returned NULL\n"))
+##       else
+##         cat(paste("nsl on",hostname,"returned",goodNet,"\n"))
+##     if(is.null(goodNet)){
+##       options(warn=w)
+##       cat("Could not resolve the URL you provided.\n")
+##       cat("Check the URL or your internet connection.\n")
+##       return(invisible(NULL))
+##     }
+##     options(warn=w)
+##   }
 
-  ## now actually try to read the data  
-  readResults <- try(readLines(file))
-  if(class(readResults)=="try-error"){
-    cat(paste("readKH error: could not read from",file,"\n",
-              "execution terminating\n"))
-    data <- NULL
-  }
-  else{
-    data <- readResults
-    nRecs <- length(data)
-      cat(paste("read",file,"ok with",nRecs,"records\n"))
-    }
-  data
-}
+##   ## now actually try to read the data  
+##   readResults <- try(readLines(file))
+##   if(class(readResults)=="try-error"){
+##     cat(paste("readKH error: could not read from",file,"\n",
+##               "execution terminating\n"))
+##     data <- NULL
+##   }
+##   else{
+##     data <- readResults
+##     nRecs <- length(data)
+##       cat(paste("read",file,"ok with",nRecs,"records\n"))
+##     }
+##   data
+## }
 
 dateExtract <- function(string){
   theMonths <- c("JANUARY","FEBRUARY","MARCH",
