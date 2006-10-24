@@ -1,220 +1,505 @@
-"zeroinfl" <-
-function(count= y ~ .,
-                     x = ~1,
-                     z = ~1,
-                     data=list(),
-                     link="logit",
-                     dist="poisson",
-                     method="BFGS",
-                     trace=FALSE,
-                     maxit=50000,
-                     na.action=na.omit)
+zeroinfl <- function(formula, data, subset, na.action,
+                     dist = c("poisson", "negbin", "geometric"),
+                     link = c("logit", "probit", "cloglog", "cauchit", "log"),
+		     control = zeroinfl.control(...),
+		     model = TRUE, y = TRUE, x = FALSE, ...)
 {
-    cat("Zero-Inflated Count Model\n")
-    if(link=="probit"){
-        linkfn <- pnorm
-        cat("Using probit to model zero vs non-zero\n")
-    }
-    else{
-        linkfn <- plogis
-        cat("Using logit to model zero vs non-zero\n")
-    }
+  ## set up likelihood
+  ziPoisson <- function(parms) {
+    ## count mean
+    lambda <- as.vector(exp(X %*% parms[1:kx]))
+    ## binary mean
+    phi <- as.vector(linkinv(Z %*% parms[(kx+1):(kx+kz)]))
     
-    zeroinflPoisson <- function(parms){
-        gamma <- parms[1:kz]
-        beta <- parms[(kz+1):(kz+kx)]
-        
-        phi <- linkfn(Z%*%gamma)
-        xb <- X%*%beta
-        lambda <- exp(xb)
-        
-        arg1 <- log(phi + (1-phi)*(exp(-lambda)))
-        arg1 <- arg1[zeroCount]
-        
-        arg2 <- log(1 - phi) - lambda + Y*xb - lgamma(Y+1)
-        arg2 <- arg2[posCount]
-        
-        llh <- sum(arg1) + sum(arg2)
-        llh
-    }
+    ## log-likelihood for y = 0 and y >= 1
+    loglik0 <- log( phi + exp( log(1-phi) - lambda ) ) ## -lambda = dpois(0, lambda, log = TRUE)
+    loglik1 <- log(1-phi) + dpois(Y, lambda, log = TRUE)
     
-    LogNegBin <- function(Y,lambda,theta){
-                                        #dnbinom(x=y,size=theta,mu=lambda,log=T)
-        arg1 <- lgamma(Y+theta)-lgamma(Y+1)-lgamma(theta)
-        arg2 <- theta*(log(theta)-log(theta+lambda))
-        arg3 <- Y*(log(lambda)-log(theta+lambda))
-        out <- arg1+arg2+arg3
-        out
-    }
+    ## collect and return
+    loglik <- sum(loglik0[Y0]) + sum(loglik1[Y1])
+    loglik
+  }
+  
+  ziNegBin <- function(parms) {
+    ## count mean
+    lambda <- as.vector(exp(X %*% parms[1:kx]))
+    ## binary mean
+    phi <- as.vector(linkinv(Z %*% parms[(kx+1):(kx+kz)]))
+    ## negbin size
+    theta <- exp(parms[(kx+kz)+1])
     
-    zeroinflNegBin <- function(parms){
-        gamma <- parms[1:kz]
-        beta <- parms[(kz+1):(kz+kx)]
-        theta <- exp(parms[(kz+kx)+1])
-        
-        mu <- Z%*%gamma
-        lambda <- exp(X%*%beta)
-        
-        ## binary link for p(y=0)
-        f0 <- linkfn(mu)
-        arg2 <- log(1-f0) + theta*(log(theta)-log(theta+lambda))
-        arg2 <- exp(arg2)
-        ##p0 <- f0 + (1-f0)*(theta/(theta+lambda))^theta
-        p0 <- f0 + arg2
-        p0 <- p0[zeroCount]
-        
-        ## negbin for y>0
-        ##p1 <- (1-f0)*NegBin(y,lambda,theta)
-        ##p1 <- p1[y>0]
-        lp1 <- log(1-f0) + LogNegBin(Y,lambda,theta)
-        lp1 <- lp1[posCount]
-        
-        ## log-likelihood
-                                        #llh <- sum(log(p0)) + sum(log(p1))
-        llh <- sum(log(p0)) + sum(lp1)
-        llh
+    ## log-likelihood for y = 0 and y >= 1
+    loglik0 <- log( phi + exp( log(1-phi) + suppressWarnings(dnbinom(0, size = theta, mu = lambda, log = TRUE)) ) )
+    loglik1 <- log(1-phi) + suppressWarnings(dnbinom(Y, size = theta, mu = lambda, log = TRUE))
+
+    ## collect and return
+    loglik <- sum(loglik0[Y0]) + sum(loglik1[Y1])
+    loglik
+  }
+  
+  ziGeom <- function(parms) ziNegBin(c(parms, 0))
+  
+  dist <- match.arg(dist)
+  loglikfun <- switch(dist,
+                      "poisson" = ziPoisson,
+		      "geometric" = ziGeom,
+		      "negbin" = ziNegBin)
+
+  ## binary link processing
+  link <- match.arg(link)
+  linkinv <- make.link(link)$linkinv
+
+  if(control$trace) cat("Zero-inflated Count Model\n",
+    paste("count model:", dist, "with log link\n"),
+    paste("zero-inflation model: binomial with", link, "link\n"), sep = "")
+	     
+  
+  ## set up model.frame() call  
+  cl <- match.call()
+  if(missing(data)) data <- environment(formula)
+  mf <- match.call(expand.dots = FALSE)
+  m <- match(c("formula", "data", "subset", "na.action"), names(mf), 0)
+  mf <- mf[c(1, m)]
+  mf$drop.unused.levels <- TRUE
+  
+  ## extended formula processing
+  if(length(formula[[3]]) > 1 && identical(formula[[3]][[1]], as.name("|")))
+  {
+    ff <- formula
+    formula[[3]][1] <- call("+")
+    mf$formula <- formula
+    ffc <- . ~ .
+    ffz <- ~ .
+    ffc[[2]] <- ff[[2]]
+    ffc[[3]] <- ff[[3]][[2]]
+    ffz[[3]] <- ff[[3]][[3]]
+    ffz[[2]] <- NULL
+    if(any(sapply(unlist(as.list(ffz[[2]])), function(x) identical(x, as.name("."))))) {
+      ffz <- eval(parse(text = sprintf( paste("%s -", deparse(ffc[[2]])), deparse(ffz) )))
     }
-    
-    if(dist=="poisson"){
-        cat("Using Poisson for counts\n")
-        llhfunc <- zeroinflPoisson
-    }
-    if(dist=="negbin"){
-        cat("Using Negative Binomial for counts\n")
-        llhfunc <- zeroinflNegBin
-    }
-    
-    if (method=="Nelder-Mead")
-        control <- list(maxit=maxit,rel.tol=1e-12,trace=trace,REPORT=1,fnscale=-1)
-    else if(method=="BFGS")
-        control <- list(trace=trace,REPORT=1,maxit=maxit,fnscale=-1,rel.tol=1e-24)
-    else
-        stop("invalid method")
+  } else {
+    ffc <- ff <- formula
+    ffz <- ~ 1
+  }
+
+  ## call model.frame()
+  mf[[1]] <- as.name("model.frame")
+  mf <- eval(mf, parent.frame())
+  
+  ## extract terms, model matrices, response
+  mt <- terms(formula, data = data)
+  mtX <- terms(ffc, data = data)
+  X <- model.matrix(mtX, mf)
+  mtZ <- terms(ffz, data = data)
+  mtZ <- terms(update(mtZ, ~ .), data = data)
+  Z <- model.matrix(mtZ, mf)
+  Y <- model.response(mf, "numeric")
 
 
-    ## set-up, largely borrowed from glm
-    cl <- match.call()
-
-    if (missing(data)) 
-        data <- environment(count)   ## error spotted by Bettina Gruen <gruen@ci.tuwien.ac.at>
-    
-    mf <- match.call(expand.dots = FALSE)
-    if(is.null(mf$x))
-      mf$x <- ~ 1  ## error spotted by Bettina Gruen <gruen@ci.tuwien.ac.at>
-    if(is.null(mf$z))
-      mf$z <- ~ 1  ## error spotted by Bettina Gruen <gruen@ci.tuwien.ac.at>
-    mX <- match(c("x", "data", "subset", "weights", "na.action", "offset"),
-                names(mf), 0)
-    mZ <- match(c("z", "data", "subset", "weights", "na.action", "offset"),
-                names(mf), 0)
-    mY <- match(c("count", "data", "subset", "weights", "na.action", "offset"),
-                names(mf), 0)
-
-    mfX <- mf[c(1,mX)]
-    names(mfX)[names(mfX)=="x"] <- "formula"
-    mfX$drop.unused.levels <- TRUE
-    mfX[[1]] <- as.name("model.frame")
-    mfX <- eval(mfX, parent.frame())
-    mtX <- attr(mfX, "terms")
-    
-    mfZ <- mf[c(1,mZ)]
-    names(mfZ)[names(mfZ)=="z"] <- "formula"
-    mfZ$drop.unused.levels <- TRUE
-    mfZ[[1]] <- as.name("model.frame")
-    mfZ <- eval(mfZ, parent.frame())
-    mtZ <- attr(mfZ, "terms")
-
-    mfY <- mf[c(1, mY)]
-    names(mfY)[names(mfY)=="count"] <- "formula"
-    mfY$drop.unused.levels <- TRUE
-    mfY[[1]] <- as.name("model.frame")
-    mfY <- eval(mfY, parent.frame())
-    Y <- model.response(mfY, "numeric")
-    if (length(dim(Y)) == 1) {
-        nm <- rownames(Y)
-        dim(Y) <- NULL
-        if (!is.null(nm)) 
-            names(Y) <- nm
-    }
-    if(is.null(Y) | length(Y)==0)
-        stop("No observations in y")
-    
-    n <- length(Y)
-    tab <- table(Y,exclude=NULL)
-    cat("dependent variable y:\n")
+  ## sanity checks
+  if(length(Y) < 1) stop("empty model")
+  if(all(Y > 0)) stop("invalid dependent variable, minimum count is not zero")  
+  if(!isTRUE(all.equal(as.vector(Y), as.integer(round(Y + 0.001)))))
+    stop("invalid dependent variable, non-integer values")
+  Y <- as.integer(round(Y + 0.001))
+  if(any(Y < 0)) stop("invalid dependent variable, negative counts")
+  
+  if(control$trace) {
+    cat("dependent variable:\n")
+    tab <- table(factor(Y, levels = 0:max(Y)), exclude = NULL)
+    names(dimnames(tab)) <- NULL
     print(tab)
-    y0 <- sort(unique(Y))           ## unique values of y
-    if(any(floor(y0)!=y0))
-        stop("Non-integer values of y encountered, invalid for zeroinfl/count model\n")
-    if(min(y0)!=0)
-        stop("Minimum value of y is not zero, invalid for zeroinfl/count model\n")
-        
-    zeroCount <- Y==0
-    posCount <- Y>0
-    
-    X <- if(!is.empty.model(mtX))
-        model.matrix(mtX,mfX)
-    else
-        matrix(, NROW(Y), 0)
-    kx <- dim(X)[2]
+  }
+      
+  ## convenience variables
+  n <- length(Y)
+  kx <- NCOL(X)
+  kz <- NCOL(Z)
+  Y0 <- Y < 1
+  Y1 <- Y > 0
 
-    Z <- if(!is.empty.model(mtZ))
-        model.matrix(mtZ,mfZ)
-    else
-        matrix(, NROW(Y), 0)
-    kz <- dim(Z)[2]
-
-    ## start values
-    cat("generating start values...")
-    model0 <- glm.fit(Z,1-pmin(Y,1),family=binomial())
-    g0 <- model0$coef
-    model1 <- glm.fit(X,Y,family=poisson())
-    g1 <- model1$coef
-    stval <- c(g0,g1)
-    if(dist=="negbin")
-        stval <- c(stval,0)
-    cat("done\n")
-    
-    cat("MLE begins...\n")
-    foo <- optim(fn=llhfunc,
-                 par=stval,
-                 method=method,
-                 control=control,
-                 hessian=TRUE)
-    if(foo$convergence != 0)
-        stop("optimization failed to converge")
-    cat("done\n")
-
-    out <- list()
-    out$stval <- stval
-    out$par <- foo$par
-    out$theta <- NULL
-    if(dist=="poisson")
-        names(out$par) <- c(dimnames(Z)[[2]],dimnames(X)[[2]])
-    if(dist=="negbin"){
-        names(out$par) <- c(dimnames(Z)[[2]],dimnames(X)[[2]],"log(theta)")
-        out$theta <- exp(out$par["log(theta)"])
+  ## starting values
+  start <- control$start
+  if(!is.null(start)) {
+    valid <- TRUE
+    if(!("count" %in% names(start))) {
+      valid <- FALSE
+      warning("invalid starting values, count model coefficients not specified")
+      start$count <- rep(0, kx)
     }
-    out$hessian <- foo$hessian
-    out$call <- cl
-    out$method <- method
-    out$dist <- dist
-    out$llh <- foo$value
-    out$y <- Y
-    out$x <- X
-    out$z <- Z
-    ## need levels and terms to make predict work properly
-    out$xlevels <- .getXlevels(mtX,mfX)
-    out$zlevels <- .getXlevels(mtZ,mfZ)
-    out$xTerms <- mtX
-    out$zTerms <- mtZ
-    out$link <- link
-    out$linkfn <- linkfn
-    out$n <- n
-    out$kx <- kx
-    out$kz <- kz
+    if(!("zero" %in% names(start))) {
+      valid <- FALSE
+      warning("invalid starting values, zero-inflation model coefficients not specified")
+      start$zero <- rep(0, kz)
+    }
+    if(length(start$count) != kx) {
+      valid <- FALSE
+      warning("invalid starting values, wrong number of count model coefficients")
+    }
+    if(length(start$zero) != kz) {
+      valid <- FALSE
+      warning("invalid starting values, wrong number of zero-inflation model coefficients")
+    }
+    if(dist == "negbin") {
+      if(!("theta" %in% names(start))) start$theta <- 1
+      start <- list(count = start$count, zero = start$zero, theta = as.vector(start$theta[1]))
+    } else {
+      start <- list(count = start$count, zero = start$zero)
+    }
+    if(!valid) start <- NULL
+  }
+  
+  if(is.null(start)) {
+    if(control$trace) cat("generating starting values...")
+    model_count <- glm.fit(X, Y, family = poisson(), weights = as.integer(Y1))
+    model_zero <- glm.fit(Z, as.integer(Y0), family = binomial(link = link))
+    start <- list(count = model_count$coefficients, zero = model_zero$coefficients)
+    if(dist == "negbin") start$theta <- 1
 
-    class(out) <- "zeroinfl"
-    out
+    ## EM estimation of starting values
+    if(control$EM & dist == "poisson") {
+      lambdai <- model_count$fitted
+      probi <- model_zero$fitted
+      probi <- probi/(probi + (1-probi) * dpois(0, lambdai))
+      probi[Y1] <- 0
+
+      ll_new <- loglikfun(c(start$count, start$zero))
+      ll_old <- 2 * ll_new
+    
+      while(abs((ll_old - ll_new)/ll_old) > control$reltol) {
+        ll_old <- ll_new
+        model_count <- glm.fit(X, Y, weights = 1-probi, family = poisson(), start = start$count)
+        model_zero <- suppressWarnings(glm.fit(Z, probi, family = binomial(link = link), start = start$zero))
+        lambdai <- model_count$fitted
+        probi <- model_zero$fitted
+        probi <- probi/(probi + (1-probi) * dpois(0, lambdai))
+        probi[Y1] <- 0
+        start <- list(count = model_count$coefficients, zero = model_zero$coefficients)
+        ll_new <- loglikfun(c(start$count, start$zero))
+      }
+    }
+
+    if(control$EM & dist == "geometric") {
+      lambdai <- model_count$fitted
+      probi <- model_zero$fitted
+      probi <- probi/(probi + (1-probi) * dnbinom(0, size = 1, mu = lambdai))
+      probi[Y1] <- 0
+
+      ll_new <- loglikfun(c(start$count, start$zero))
+      ll_old <- 2 * ll_new      
+      if(!require("MASS")) {
+        ll_old <- ll_new
+	warning("EM estimation of starting values not available")
+      }
+    
+      while(abs((ll_old - ll_new)/ll_old) > control$reltol) {
+        ll_old <- ll_new
+        model_count <- suppressWarnings(glm.fit(X, Y, weights = 1-probi, family = negative.binomial(1), start = start$count))
+        model_zero <- suppressWarnings(glm.fit(Z, probi, family = binomial(link = link), start = start$zero))
+        start <- list(count = model_count$coefficients, zero = model_zero$coefficients)
+        lambdai <- model_count$fitted
+        probi <- model_zero$fitted
+        probi <- probi/(probi + (1-probi) * dnbinom(0, size = 1, mu = lambdai))
+        probi[Y1] <- 0
+        ll_new <- loglikfun(c(start$count, start$zero))
+      }
+    }
+
+    if(control$EM & dist == "negbin") {
+      lambdai <- model_count$fitted
+      probi <- model_zero$fitted
+      probi <- probi/(probi + (1-probi) * dnbinom(0, size = start$theta, mu = lambdai))
+      probi[Y1] <- 0
+
+      ll_new <- loglikfun(c(start$count, start$zero, log(start$theta)))      
+      ll_old <- 2 * ll_new      
+      if(!require("MASS")) {
+        ll_old <- ll_new
+	warning("EM estimation of starting values not available")
+      }
+    
+      while(abs((ll_old - ll_new)/ll_old) > control$reltol) {
+        ll_old <- ll_new
+        model_count <- suppressWarnings(glm.nb(Y ~ 0 + X, weights = 1-probi, start = start$count, init.theta = start$theta))
+        model_zero <- suppressWarnings(glm.fit(Z, probi, family = binomial(link = link), start = start$zero))
+        start <- list(count = model_count$coefficients, zero = model_zero$coefficients, theta = model_count$theta)
+        lambdai <- model_count$fitted
+        probi <- model_zero$fitted
+        probi <- probi/(probi + (1-probi) * dnbinom(0, size = start$theta, mu = lambdai))
+        probi[Y1] <- 0
+        ll_new <- loglikfun(c(start$count, start$zero, log(start$theta)))
+      }
+    }
+
+    if(control$trace) cat("done\n")
+  }
+
+
+  ## ML estimation
+  if(control$trace) cat("calling optim() for ML estimation:\n")
+  method <- control$method
+  hessian <- control$hessian
+  ocontrol <- control
+  control$method <- control$hessian <- control$EM <- control$start <- NULL
+  fit <- optim(fn = loglikfun,
+    par = c(start$count, start$zero, if(dist == "negbin") log(start$theta) else NULL),
+    method = method, hessian = hessian, control = control)
+  if(fit$convergence > 0) warning("optimization failed to converge")
+
+  ## coefficients and covariances
+  coefc <- fit$par[1:kx]
+  names(coefc) <- names(start$count) <- colnames(X)
+  coefz <- fit$par[(kx+1):(kx+kz)]
+  names(coefz) <- names(start$zero) <- colnames(Z)
+
+
+  vc <- -solve(as.matrix(fit$hessian))
+  if(dist == "negbin") {
+    np <- kx + kz + 1
+    theta <- as.vector(exp(fit$par[np]))
+    SE.logtheta <- as.vector(sqrt(diag(vc)[np]))
+    vc <- vc[-np, -np, drop = FALSE]
+  } else {
+    theta <- NULL
+    SE.logtheta <- NULL
+  }
+  colnames(vc) <- rownames(vc) <- c(paste("count", colnames(X), sep = "_"),
+                                    paste("zero",  colnames(Z), sep = "_"))
+
+  ## fitted and residuals
+  mu <- exp(X %*% coefc)[,1]
+  phi <- linkinv(Z %*% coefz)[,1]
+  Yhat <- (1-phi) * mu
+  res <- Y - Yhat
+
+  rval <- list(coefficients = list(count = coefc, zero = coefz),
+    residuals = res,
+    fitted.values = Yhat,
+    optim = fit,
+    method = method,
+    control = ocontrol,
+    start = start,
+    n = n,
+    df.null = n - 2,
+    df.residual = n - (kx + kz + (dist == "negbin")),
+    terms = list(count = mtX, zero = mtZ, full = mt),
+    theta = theta,
+    SE.logtheta = SE.logtheta,
+    loglik = fit$value,
+    vcov = vc,
+    dist = dist,
+    link = link,
+    linkinv = linkinv,
+    converged = fit$convergence < 1,
+    call = cl,
+    formula = ff,
+    levels = .getXlevels(mt, mf),
+    contrasts = list(count = attr(X, "contrasts"), zero = attr(Z, "contrasts"))
+  )
+  if(model) rval$model <- mf
+  if(y) rval$y <- Y
+  if(x) rval$x <- list(count = X, zero = Z)
+      
+  class(rval) <- "zeroinfl"
+  return(rval)
 }
 
+zeroinfl.control <- function(method = "BFGS", maxit = 10000, trace = FALSE, EM = FALSE, start = NULL, ...) {
+  rval <- list(method = method, maxit = maxit, trace = trace, EM = EM, start = start)
+  rval <- c(rval, list(...))
+  if(!is.null(rval$fnscale)) warning("fnscale must not be modified")
+  rval$fnscale <- -1
+  if(!is.null(rval$hessian)) warning("hessian must not be modified")
+  rval$hessian <- TRUE
+  if(is.null(rval$reltol)) rval$reltol <- .Machine$double.eps^(1/1.6)
+  rval
+}
+
+coef.zeroinfl <- function(object, model = c("full", "count", "zero"), ...) {
+  model <- match.arg(model)
+  rval <- object$coefficients
+  rval <- switch(model,
+                 "full" = structure(c(rval$count, rval$zero),
+		   .Names = c(paste("count", names(rval$count), sep = "_"),
+                   paste("zero", names(rval$zero), sep = "_"))),
+		 "count" = rval$count,
+		 "zero" = rval$zero)
+  rval
+}
+
+vcov.zeroinfl <- function(object, model = c("full", "count", "zero"), ...) {
+  model <- match.arg(model)
+  rval <- object$vcov
+  if(model == "full") return(rval)
+
+  cf <- object$coefficients[[model]]
+  wi <- seq(along = object$coefficients$count)
+  rval <- if(model == "count") rval[wi, wi] else rval[-wi, -wi]
+  colnames(rval) <- rownames(rval) <- names(cf)
+  return(rval)
+}
+
+logLik.zeroinfl <- function(object, ...) {
+  structure(object$loglik, df = object$n - object$df.residual, class = "logLik")
+}
+
+print.zeroinfl <- function(x, digits = max(3, getOption("digits") - 3), ...)
+{
+
+  cat("\nCall:", deparse(x$call, width.cutoff = floor(getOption("width") * 0.85)), "\n", sep = "\n")
+  
+  if(!x$converged) {
+    cat("model did not converge\n")
+  } else {
+    cat(paste("Count model coefficients (", x$dist, " with log link):\n", sep = ""))
+    print.default(format(x$coefficients$count, digits = digits), print.gap = 2, quote = FALSE)
+    if(x$dist == "negbin") cat(paste("Theta =", round(x$theta, digits), "\n"))
+  
+    cat(paste("\nZero-inflation model coefficients (binomial with ", x$link, " link):\n", sep = ""))
+    print.default(format(x$coefficients$zero, digits = digits), print.gap = 2, quote = FALSE)
+  }
+  
+  invisible(x)
+}
+
+summary.zeroinfl <- function(object,...)
+{
+  ## compute z statistics
+  kc <- length(object$coefficients$count)
+  kz <- length(object$coefficients$zero)
+  se <- sqrt(diag(object$vcov))
+  coef <- c(object$coefficients$count, object$coefficients$zero)  
+  if(object$dist == "negbin") {
+    coef <- c(coef[1:kc], "Log(theta)" = log(object$theta), coef[(kc+1):(kc+kz)])
+    se <- c(se[1:kc], object$SE.logtheta, se[(kc+1):(kc+kz)])
+    kc <- kc+1
+  }
+  zstat <- coef/se
+  pval <- 2*pnorm(-abs(zstat))
+  coef <- cbind(coef, se, zstat, pval)
+  colnames(coef) <- c("Estimate", "Std. Error", "z value", "Pr(>|z|)")
+  object$coefficients$count <- coef[1:kc,,drop = FALSE]
+  object$coefficients$zero <- coef[(kc+1):(kc+kz),,drop = FALSE]
+  
+  ## delete some slots
+  object$residuals <- object$fitted.values <- object$terms <- object$model <- object$y <-
+    object$x <- object$levels <- object$contrasts <- object$start <- NULL
+
+  ## return
+  class(object) <- "summary.zeroinfl"
+  object
+}
+
+print.summary.zeroinfl <- function(x, digits = max(3, getOption("digits") - 3), ...)
+{
+
+  cat("\nCall:", deparse(x$call, width.cutoff = floor(getOption("width") * 0.85)), "\n", sep = "\n")
+  
+  if(!x$converged) {
+    cat("model did not converge\n")
+  } else {
+    cat(paste("Count model coefficients (", x$dist, " with log link):\n", sep = ""))
+    printCoefmat(x$coefficients$count, digits = digits, signif.legend = FALSE)
+  
+    cat(paste("\nZero-inflation model coefficients (binomial with ", x$link, " link):\n", sep = ""))
+    printCoefmat(x$coefficients$zero, digits = digits, signif.legend = FALSE)
+    
+    if(getOption("show.signif.stars") & any(rbind(x$coefficients$count, x$coefficients$zero)[,4] < 0.1))
+      cat("---\nSignif. codes: ", "0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1", "\n")
+
+    if(x$dist == "negbin") cat(paste("\nTheta =", round(x$theta, digits), "\n")) else cat("\n")
+    cat(paste("Number of iterations in", x$method, "optimization:", tail(na.omit(x$optim$count), 1), "\n"))
+    cat("Log-likelihood:", formatC(x$loglik, digits = digits), "on", x$n - x$df.residual, "Df\n")
+  }
+  
+  invisible(x)
+}
+
+predict.zeroinfl <- function(object, newdata, type = c("response", "prob"), na.action = na.pass, ...)
+{
+    type <- match.arg(type)
+
+    ## if no new data supplied
+    if(missing(newdata)) {
+      rval <- object$fitted.values
+      if(type == "prob") {
+        if(!is.null(object$x)) {
+	  X <- object$x$count
+	  Z <- object$x$zero
+	} else if(!is.null(object$model)) {
+          X <- model.matrix(object$terms$count, object$model, contrasts = object$contrasts$count)
+          Z <- model.matrix(object$terms$zero,  object$model, contrasts = object$contrasts$zero)	
+	} else {
+	  stop("predicted probabilities cannot be computed with missing newdata")
+	}
+        mu <- exp(X %*% object$coefficients$count)[,1]
+        phi <- object$linkinv(Z %*% object$coefficients$zero)[,1]
+      }
+    } else {
+      mf <- model.frame(delete.response(object$terms$full), newdata, na.action = na.action, xlev = object$levels)
+      X <- model.matrix(delete.response(object$terms$count), mf, contrasts = object$contrasts$count)
+      Z <- model.matrix(delete.response(object$terms$zero),  mf, contrasts = object$contrasts$zero)
+
+      mu <- exp(X %*% object$coefficients$count)[,1]
+      phi <- object$linkinv(Z %*% object$coefficients$zero)[,1]
+      rval <- (1-phi) * mu
+    }   
+
+    
+    ## predicted probabilities
+    if(type == "prob") {
+      if(!is.null(object$y)) y <- object$y
+        else if(!is.null(object$model)) y <- model.response(object$model)
+	else stop("predicted probabilities cannot be computed for fits with y = FALSE and model = FALSE")
+
+      yUnique <- min(y):max(y)
+      nUnique <- length(yUnique)
+      rval <- matrix(NA, nrow = length(rval), ncol = nUnique)
+      dimnames(rval) <- list(rownames(X), yUnique)
+      
+      switch(object$dist,
+             "poisson" = {
+    	       rval[, 1] <- phi + (1-phi) * exp(-mu)
+               for(i in 2:nUnique) rval[,i] <- (1-phi) * dpois(yUnique[i], lambda = mu)
+             },
+	     "negbin" = {
+               theta <- object$theta
+               rval[, 1] <- phi + (1-phi) * dnbinom(0, mu = mu, size = theta)
+               for(i in 2:nUnique) rval[,i] <- (1-phi) * dnbinom(yUnique[i], mu = mu, size = theta)
+             },
+	     "geometric" = {
+               rval[, 1] <- phi + (1-phi) * dnbinom(0, mu = mu, size = 1)
+               for(i in 2:nUnique) rval[,i] <- (1-phi) * dnbinom(yUnique[i], mu = mu, size = 1)
+	     })
+    }
+   
+    rval
+}
+
+fitted.zeroinfl <- function(object, ...) {
+  object$fitted.values
+}
+
+residuals.zeroinfl <- function(object, type = c("pearson", "response"), ...) {
+  type <- match.arg(type)
+  if(type == "pearson") return(object$residuals/sqrt(object$fitted.values))
+    else return(object$residuals)
+}
+
+terms.zeroinfl <- function(x, model = c("count", "zero"), ...) {
+  x$terms[[match.arg(model)]]
+}
+
+model.matrix.zeroinfl <- function(object, model = c("count", "zero"), ...) {
+  model <- match.arg(model)
+  if(!is.null(object$x)) rval <- object$x[[model]]
+    else if(!is.null(object$model)) rval <- model.matrix(object$terms[[model]], object$model, contrasts = object$contrasts[[model]])
+    else stop("not enough information in fitted model to return model.matrix")
+  return(rval)
+}
+
+predprob.zeroinfl <- function(obj, ...){
+    predict(obj, type = "prob", ...)
+}
+
+## estfun.zeroinfl?

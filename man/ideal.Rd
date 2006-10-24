@@ -189,21 +189,21 @@ ideal(object, codes = object$codes,
 }
 
 \references{
-  Albert, James. 1992. "Bayesian Estimation of normal ogive item
-  response curves using Gibbs sampling." \emph{Journal of Educational
+  Albert, James. 1992. Bayesian Estimation of normal ogive item
+  response curves using Gibbs sampling. \emph{Journal of Educational
   Statistics}. 17:251-269.
 
-  Clinton, Joshua, Simon Jackman and Douglas Rivers. 2004. "The
-  Statistical Analysis of Roll Call Data"  \emph{American Political
+  Clinton, Joshua, Simon Jackman and Douglas Rivers. 2004. The
+  Statistical Analysis of Roll Call Data.  \emph{American Political
   Science Review}.  98:335-370.
 
-  Patz, Richard J. and Brian W. Junker. 1999.  "A Straightforward
+  Patz, Richard J. and Brian W. Junker. 1999.  A Straightforward
   Approach to Markov Chain Monte Carlo Methods for Item Response
-  Models." \emph{Journal of Education and Behavioral
+  Models. \emph{Journal of Education and Behavioral
   Statistics}. 24:146-178.
   
-  Rivers, Douglas. 2003.  "Identification of Multidimensional
-  Item-Response Models." Typescript.  Department of Political Science,
+  Rivers, Douglas. 2003.  \dQuote{Identification of Multidimensional
+  Item-Response Models.} Typescript.  Department of Political Science,
   Stanford University.
 }
 

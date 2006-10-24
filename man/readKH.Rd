@@ -62,7 +62,7 @@ readKH(file,
   This function relies on some hard-coded features of Poole-Rosenthal
   flat files, and assumes that the \code{file} being supplied has the following
   structure (variable, start-end columns):
-  \itemize{
+  \describe{
     \item{ICPSR legislator unique ID}{4-8}
     \item{ICPSR state ID}{9-10}
     \item{Congressional District}{11-12}
@@ -71,7 +71,6 @@ readKH(file,
     \item{legislator name}{26-36}
     \item{roll-call voting record}{37 to end-of-record}
     }
-
   This function reads data files in that format, and creates a
   \code{\link{rollcall}}, for which there are useful methods such as
   \code{\link{summary.rollcall}}.  The \code{legis.data} component of the
@@ -104,17 +103,17 @@ readKH(file,
   Poole and Rosenthal also make \code{dtl} files available for
   Congresses 1 through 106. These files contain information about the
   votes themselves, in a multiple-line per vote \code{ascii} format, and
-  reside in the \code{dtl} director of Pool'es web site, e.g.,
-  \url{ftp://pooleandrosenthal/dtl/102s.dtl} is the \code{dtl} file for
+  reside in the \code{dtl} director of Poole's web site, e.g.,
+  \url{ftp://pooleandrosenthal.com/dtl/102s.dtl} is the \code{dtl} file for
   the 102nd Senate.  The default is to presume that no such file exists.
   When a \code{dtl} file is available, and is read, the
   \code{votes.data} attribute of the resulting \code{\link{rollcall}}
   object is a \code{\link{data.frame}} with one record per vote, with
   the following variables:
-  \itemize{
-    \item{date}{vector of class \code{\link{Date}}, date of the
+  \describe{
+    \item{\code{date}}{vector of class \code{\link{Date}}, date of the
     rollcall, if available; otherwise \code{NULL}}
-    \item{description}{vector of mode \code{character}, descriptive
+    \item{\code{description}}{vector of mode \code{character}, descriptive
       text}
   }
   The \code{dtl} files are presumed to have the date of the rollcall in
@@ -124,9 +123,9 @@ readKH(file,
   Finally, note also that the Poole/Rosenthal data sets often include
   the U.S. President as a pseudo-legislator, adding the announced
   positions of a president or the administration to the roll call
-  matrix. This adds an extra "legislator" to the data set and can
+  matrix. This adds an extra \dQuote{legislator} to the data set and can
   sometimes produce suprising results (e.g., a U.S. Senate of 101
-  senators), and a "legislator" with a surprisingly low party loyalty
+  senators), and a \dQuote{legislator} with a surprisingly low party loyalty
   score (since the President/administration only announces positions on
   a relatively small fraction of all Congressional roll calls).   
 }

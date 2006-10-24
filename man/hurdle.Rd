@@ -1,62 +1,162 @@
 \name{hurdle}
 \alias{hurdle}
-\alias{print.hurdle}
-\alias{logLik.hurdle}
 
-\title{hurdle models for count data}
+\title{Hurdle Models for Count Data Regression}
 
 \description{
-  Hurdle regression models for count data model, estimation via maximum
-  likelihood. 
+  Fit hurdle regression models for count data via maximum likelihood. 
 }
 
 \usage{
-hurdle(count = y ~ ., x = ~1, z = ~1, data = list(), link = "logit",
-        dist = "poisson", method = "BFGS", trace = FALSE,
-        maxit = 50000, na.action = na.omit)
+hurdle(formula, data, subset, na.action,
+  dist = c("poisson", "negbin", "geometric"),
+  zero.dist = c("binomial", "poisson", "negbin", "geometric"),
+  link = c("logit", "probit", "cloglog", "cauchit", "log"),
+  control = hurdle.control(\dots),
+  model = TRUE, y = TRUE, x = FALSE, \dots)
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
-  \item{count}{count being modeled, passed as the left-hand side of a \code{link{formula}}; lowest count must be zero}
-  \item{x}{right-hand side of a formula giving covariates
-    for the count part of the model}
-  \item{z}{right-hand side of a formula giving covariates
-    for the hurdle part of the model}
-  \item{data}{a data frame}
-  \item{link}{link function for zero-inflated part of the model (choices
-  are \code{logit} or \code{probit})}
-  \item{dist}{count model, \code{"poisson"} (default) or \code{"negbin"}}
-  \item{method}{method for maximizing the log-likelihood function, only \code{"BFGS"} and
-    \code{"Nelder-Mead"} are supported}
-  \item{trace}{logical, if \code{TRUE}, display progress of maximization}
-  \item{maxit}{maximum number of iterations in maximization}
-  \item{na.action}{method for handling missing data, default is \code{\link{na.omit}}}
+  \item{formula}{symbolic description of the model, see details.}
+  \item{data, subset, na.action}{arguments controlling formula processing
+    via \code{\link[stats]{model.frame}}.}
+  \item{dist}{character specification of count model family.}
+  \item{zero.dist}{character specification of the zero hurdle model family.}
+  \item{link}{character specification of link function in the binomial
+    zero hurdle (only used if \code{zero.dist = "binomial"}.}
+  \item{control}{a list of control arguments specified via
+    \code{\link{hurdle.control}}.}
+  \item{model, y, x}{logicals. If \code{TRUE} the corresponding components
+    of the fit (model frame, response, model matrix) are returned.}
+  \item{\dots}{arguments passed to \code{\link{hurdle.control}} in the
+    default setup.}
 }
-\details{}
-\value{An object of class \code{"hurdle"}}
+
+\details{
+  Hurdle count models are two-component models with a truncated count
+  component for positive counts and a hurdle component that models the
+  zero counts. Thus, unlike zero-inflation models, there are \emph{not} two
+  sources of zeros: the count model is only employed if the hurdle for
+  modeling the occurence of zeros is exceeded. The count model is typically
+  a truncated Poisson or negative binomial regression (with log link).
+  The geometric distribution is a special case of the negative binomial with
+  size parameter equal to 1. For modeling the hurdle (occurence of positive
+  counts) either a binomial model can be employed or a censored count distribution.
+  Binomial logit and censored geometric models as the hurdle part both lead to 
+  the same likelihood function and thus to the same coefficient estimates.
+  
+  The \code{formula} can be used to specify both components of the model:
+  If a \code{formula} of type \code{y ~ x1 + x2} is supplied, then the same
+  regressors are employed in both components. This is equivalent to
+  \code{y ~ x1 + x2 | x1 + x2}. Of course, a different set of regressors
+  could be specified for the zero hurdle component, e.g.,
+  \code{y ~ x1 + x2 | z1 + z2 + z3} giving the count data model \code{y ~ x1 + x2}
+  conditional on (\code{|}) the zero hurdle model \code{y ~ z1 + z2 + z3}.
+  
+  All parameters are estimated by maximum likelihood using \code{\link[stats]{optim}},
+  with control options set in \code{\link{hurdle.control}}.
+  Starting values can be supplied, otherwise they are estimated by \code{\link[stats]{glm.fit}}
+  (the default). By default, the two components of the model are estimated separately
+  using two \code{optim} calls. Standard errors are derived numerically using
+  the Hessian matrix returned by \code{\link[stats]{optim}}. See
+  \code{\link{hurdle.control}} for details.
+  
+  The returned fitted model object is of class \code{"hurdle"} and is similar
+  to fitted \code{"glm"} objects. For elements such as \code{"coefficients"} or
+  \code{"terms"} a list is returned with elements for the zero and count components,
+  respectively. For details see below.
+  
+  A set of standard extractor functions for fitted model objects is available for
+  objects of class \code{"hurdle"}, including methods to the generic functions
+  \code{\link[base]{print}}, \code{\link[base]{summary}}, \code{\link[stats]{coef}}, 
+  \code{\link[stats]{vcov}}, \code{\link[stats]{logLik}}, \code{\link[stats]{residuals}}, 
+  \code{\link[stats]{predict}}, \code{\link[stats]{fitted}}, \code{\link[stats]{terms}},
+  \code{\link[stats]{model.matrix}}. See \code{\link{predict.hurdle}} for more details
+  on all methods.
 }
-\references{}
 
-\author{Simon Jackman \email{jackman@stanford.edu}}
+\value{
+  An object of class \code{"hurdle"}, i.e., a list with components including
+  \item{coefficients}{a list with elements \code{"count"} and \code{"zero"}
+    containing the coefficients from the respective models,}
+  \item{residuals}{a vector of raw residuals (observed - fitted),}
+  \item{fitted.values}{a vector of fitted means,}
+  \item{optim}{a list (of lists) with the output(s) from the \code{optim} call(s) for
+    minimizing the negative log-likelihood(s),}
+  \item{control}{the control arguments passed to the \code{optim} call,}
+  \item{start}{the starting values for the parameters passed to the \code{optim} call(s),}
+  \item{n}{number of observations,}
+  \item{df.null}{residual degrees of freedom for the null model (= \code{n - 2}),}
+  \item{df.residual}{residual degrees of freedom for fitted model,}
+  \item{terms}{a list with elements \code{"count"}, \code{"zero"} and
+    \code{"full"} containing the terms objects for the respective models,}
+  \item{theta}{estimate of the additional \eqn{\theta}{theta} parameter of the
+    negative binomial model(s) (if negative binomial component is used),}
+  \item{SE.logtheta}{standard error(s) for \eqn{\log(\theta)}{log(theta)},}
+  \item{loglik}{log-likelihood of the fitted model,}
+  \item{vcov}{covariance matrix of all coefficients in the model (derived from the
+    Hessian of the \code{optim} output(s)),}
+  \item{dist}{a list with elements \code{"count"} and \code{"zero"} with character
+    strings describing the respective distributions used,}
+  \item{link}{character string describing the link if a binomial zero hurdle model
+    is used,}
+  \item{linkinv}{the inverse link function corresponding to \code{link},}
+  \item{converged}{logical indicating successful convergence of \code{optim},}
+  \item{call}{the original function call,}
+  \item{formula}{the original formula,}
+  \item{levels}{levels of the categorical regressors,}
+  \item{contrasts}{a list with elements \code{"count"} and \code{"zero"}
+    containing the contrasts corresponding to \code{levels} from the
+    respective models,}
+  \item{model}{the full model frame (if \code{model = TRUE}),}
+  \item{y}{the response count vector (if \code{y = TRUE}),}
+  \item{x}{a list with elements \code{"count"} and \code{"zero"}
+    containing the model matrices from the respective models
+    (if \code{x = TRUE}).}
+}
 
-\note{Only minimal support for this class thus far; e.g., no predict method} 
+\references{
+Cameron, A. Colin and Pravin K. Trivedi. 1998. \emph{Regression Analysis of Count 
+Data}. New York: Cambridge University Press.
 
-\seealso{\code{\link{zeroinfl}}, \code{\link{summary.hurdle}}}
+Cameron, A. Colin and Pravin K. Trivedi 2005. \emph{Microeconometrics: Methods and Applications}.
+Cambridge: Cambridge University Press.
+
+Mullahy, J. 1986. Specification and Testing of Some Modified Count Data Models.
+  \emph{Journal of Econometrics}. V33: 341--365.
+}
+
+\author{Achim Zeileis <Achim.Zeileis@R-project.org>}
+
+\seealso{\code{\link{hurdle.control}}, \code{\link[stats]{glm}},
+  \code{\link[stats]{glm.fit}}, \code{\link[MASS]{glm.nb}},
+  \code{\link{zeroinfl}}
+}
+
 \examples{
-data(bioChemists)
-hp <- hurdle(count=art ~ .,
-              x = ~ fem + mar + kid5 + phd + ment,
-              z = ~ fem + mar + kid5 + phd + ment,
-              data=bioChemists,trace=TRUE)
-summary(hp)
+## from Long (1997)
+data("bioChemists", package = "pscl")
 
-hnb <- hurdle(count=art ~ .,
-              x = ~ fem + mar + kid5 + phd + ment,
-              z = ~ fem + mar + kid5 + phd + ment,
-              dist="negbin",
-              data=bioChemists,trace=TRUE)
-summary(hnb)
+## logit-poisson
+## "art ~ ." is the same as "art ~ . | .", i.e.
+## "art ~ fem + mar + kid5 + phd + ment | fem + mar + kid5 + phd + ment"
+fm_hp1 <- hurdle(art ~ ., data = bioChemists)
+summary(fm_hp1)
+
+## geometric-poisson
+fm_hp2 <- hurdle(art ~ ., data = bioChemists, zero = "geometric")
+summary(fm_hp2)
+
+## logit and geometric model are equivalent
+coef(fm_hp1, model = "zero") - coef(fm_hp2, model = "zero")
+
+## logit-negbin
+fm_hnb1 <- hurdle(art ~ ., data = bioChemists, dist = "negbin")
+summary(fm_hnb1)
+
+## negbin-negbin
+fm_hnb2 <- hurdle(art ~ ., data = bioChemists, dist = "negbin", zero = "negbin")
+summary(fm_hnb2)
 }
 
-\keyword{models}
 \keyword{regression}

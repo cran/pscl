@@ -1,3 +1,27 @@
+0.72     * fixed error in bioChemists data found by Bettina Grün
+  	 <gruen@ci.tuwien.ac.at>, variable kids5 was off by 1 unit, now runs
+  	 from min of zero (no kids).
+
+0.71     * fixed bug in betaHPD discovered by John Bullock
+    
+0.70     * completely rewritten version of hurdle() and zeroinfl():
+             - new formula interface of type y ~ x | z where y ~ x
+	       specifies the count model and z the inflation/hurdle
+	       regressors.
+	     - re-structured returned value, is now more similar to
+	       "glm" objects
+	     - extended/enhanced extractor functions
+
+0.62    * plot.ideal.1d: better left plot margin, based on max length of
+ 	 legis.name
+	 * plot.ideal.2d: inconsistent testing of presence of beta in ideal object
+ 	   when overlaying cutting planes
+	   * plot.ideal.Rd: more examples (but in \dontrun)
+	 * tracex: bug for 2d ideal objects
+	 * tracex: 2d, make legend lines heavier for showAll
+	 * tracex: for R >= 2.4, change par() to par(no.readonly=TRUE) 
+	 * fixed typo in plot.ideal.Rd
+
 0.61	   * fixed bug in summary.ideal found by Keith Poole (8/8/06)
            * documentation of ideal section on Identification changed
 	   to reflect presence of postProcess function

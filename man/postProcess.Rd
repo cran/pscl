@@ -89,8 +89,8 @@ postProcess(object, constraints, debug = FALSE)
 }
 
 \references{
-Rivers, Douglas. 2003.  "Identification of Multidimensional
-  Item-Response Models." Typescript.  Department of Political Science,
+Rivers, Douglas. 2003.  \dQuote{Identification of Multidimensional
+  Item-Response Models.} Typescript.  Department of Political Science,
   Stanford University.
 }
 

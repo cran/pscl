@@ -48,10 +48,25 @@ plot1d <- function(x,
   indx <- order(xm)              ## sort index
   exispar <- par(no.readonly=T) 
   xq <- t(apply(xd[keep,],2,quantile,probs=q))  ## get CIs
+
+  ## names etc
+  cat(paste("Looking up legislator names and party affiliations\n"))
+  cat(paste("in rollcall object",x$call$object,"\n"))
+  tmpObject <- dropRollCall(eval(x$call$object),
+                            eval(x$call$dropList))
+  party <- tmpObject$legis.data$party  ## extract party info
+  legis.name <- unclass(dimnames(x$xbar)[[1]])
+  longName <- max(nchar(legis.name))
+  rm(tmpObject)
+  textLoc <- 1.05*min(xq)   ## where to put x labels
   
-  par(mar=c(3,8,4,2)+0.1,
-      oma=rep(0,4))
-  
+  if(showAllNames)
+    par(mar=c(3,longName*.55,4,2)+0.1,
+        oma=rep(0,4))
+  else
+    par(mar=c(3,longName*.75,4,2)+0.1,
+        oma=rep(0,4))
+    
   ## title string info
   mainString <- paste("Ideal Points: ",
                       "Posterior Means and ",
@@ -71,15 +86,6 @@ plot1d <- function(x,
   
   xLims <- 1.01*range(xq)
   
-  ## names etc
-  cat(paste("Looking up legislator names and party affiliations\n"))
-  cat(paste("in rollcall object",x$call$object,"\n"))
-  tmpObject <- dropRollCall(eval(x$call$object),
-                            eval(x$call$dropList))
-  party <- tmpObject$legis.data$party  ## extract party info
-  legis.name <- unclass(dimnames(x$xbar)[[1]])
-  rm(tmpObject)
-  textLoc <- 1.05*min(xq)   ## where to put x labels
   for (i in 1:x$n){
     if(!showAllNames){
       if((x$n <= 30)||(i %in% as.integer(seq(1,x$n,length=30)))){
@@ -173,7 +179,7 @@ plot2d <- function(x,
     xm2 <- apply(xd2[keep,],2,mean)
   }
   
-  if(overlayCuttingPlanes){
+  if(oCP){
     if(is.null(burnin)){    ## use betabar in ideal object
       b1Bar <- x$betabar[,d1]
       b2Bar <- x$betabar[,d2]
@@ -254,7 +260,11 @@ tracex <- function(object,
   if(!is.character(legis))
     stop("legis must be character (names of legislators)\n")
 
-  old.par <- par()
+  Rv <- as.numeric(version$major) + .1*as.numeric(version$minor)
+  if(Rv>=2.4)
+    old.par <- par(no.readonly=TRUE)  
+  else
+    old.par <- par()
   
   ## try matching names
   legis.names <- as.vector(dimnames(object$x)[[2]])
@@ -297,12 +307,12 @@ tracex <- function(object,
   plotName <- plotName[!is.na(plotName)]
   names(p) <- plotName
   nLegis <- length(p)
-  cat(paste("Matching",legis,"with",plotName,"\n"))
 
   if(is.null(burnin))
     keep <- checkBurnIn(object,eval(object$call$burnin))
   else
     keep <- checkBurnIn(object,burnin)
+  start <- object$x[keep,1][1]
   
   ## one-dimensional stuff
   if(length(d)==1){
@@ -368,8 +378,8 @@ tracex <- function(object,
     if(!all(goodD))
       stop("invalid dimensions requested in tracex")
     
-    col <- rainbow(nLegis)
-    meat <- list()
+    col <- rainbow(nLegis)       ## colors
+    meat <- list()               ## container for iters to plot
     for(i in 1:nLegis){
       xTraces <- object$x[keep,p[[i]][1]]
       yTraces <- object$x[keep,p[[i]][2]]
@@ -418,6 +428,7 @@ tracex <- function(object,
       for(i in 1:nLegis){
         lines(x=c(0,.15),
               y=rep(i,2),
+              lwd=2,
               col=col[i])
         text(x=.25,
              y=i,

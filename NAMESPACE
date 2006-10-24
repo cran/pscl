@@ -1,51 +1,74 @@
-useDynLib(pscl)
+useDynLib("pscl")
 
-export(hurdle, odTest,
-       predprob, predprob.glm, predprob.ideal, predprob.zeroinfl,
-       vuong, zeroinfl, ntable, betaHPD) 
-export(densigamma, pigamma, qigamma, rigamma, igammaHDR)
-export(computeMargins,
-       constrain.items, constrain.legis,
-       convertCodes,
-       dropRollCall,
-       dropUnanimous, 
-       extractRollCallObject,
-       ideal, idealToMCMC,
-       readKH,
-       rollcall, summary.rollcall,
-       plot.predict.ideal,
-       plot.ideal,
-       postProcess,
-       tracex,
-       vectorRepresentation)
+export("hurdle", "hurdle.control",
+       "zeroinfl", "zeroinfl.control",
+       "odTest",
+       "predprob", "vuong", "ntable", "betaHPD")
 
-importFrom(MASS, glm.nb)
-importFrom(stats, logLik)
+export("densigamma", "pigamma", "qigamma", "rigamma", "igammaHDR")
 
-S3method(coef, zeroinfl)
-S3method(coef, hurdle)
-S3method(dropUnanimous, matrix)
-S3method(dropUnanimous, rollcall)
-S3method(logLik, zeroinfl)
-S3method(logLik, hurdle)
-S3method(plot, ideal)
-S3method(plot, predict.ideal)
-S3method(predict, zeroinfl)
-S3method(predict, ideal)
-S3method(predprob, glm)
-S3method(predprob, zeroinfl)
-S3method(print, zeroinfl)
-S3method(print, hurdle)
-S3method(print, summary.zeroinfl)
-S3method(print, summary.hurdle)
-S3method(print, ideal)
-S3method(print, rollcall)
-S3method(print, predict.ideal)
-S3method(print, summary.ideal)
-S3method(print, summary.rollcall)
-S3method(summary, zeroinfl)
-S3method(summary, hurdle)
-S3method(summary, ideal)
-S3method(summary, rollcall)
+export("computeMargins",
+       "constrain.items", "constrain.legis",
+       "convertCodes",
+       "dropRollCall",
+       "dropUnanimous", 
+       "extractRollCallObject",
+       "ideal", "idealToMCMC",
+       "readKH",
+       "rollcall", "summary.rollcall",
+       "plot.predict.ideal",
+       "plot.ideal",
+       "postProcess",
+       "tracex",
+       "vectorRepresentation")
 
+importFrom("MASS", "glm.nb")
+importFrom("stats", "logLik")
 
+## methods for class zeroinfl
+  S3method("print", "zeroinfl")
+  S3method("print", "summary.zeroinfl")
+  S3method("summary", "zeroinfl")
+  S3method("coef", "zeroinfl")
+  S3method("vcov", "zeroinfl")
+  S3method("logLik", "zeroinfl")
+  S3method("predict", "zeroinfl")
+  S3method("residuals", "zeroinfl")
+  S3method("fitted", "zeroinfl")
+  S3method("predprob", "zeroinfl")
+  S3method("terms", "zeroinfl")
+  S3method("model.matrix", "zeroinfl")
+
+## methods for class hurdle
+  S3method("print", "hurdle")
+  S3method("print", "summary.hurdle")
+  S3method("summary", "hurdle")
+  S3method("coef", "hurdle")
+  S3method("vcov", "hurdle")
+  S3method("logLik", "hurdle")
+  S3method("predict", "hurdle")
+  S3method("residuals", "hurdle")
+  S3method("fitted", "hurdle")
+  S3method("predprob", "hurdle")
+  S3method("terms", "hurdle")
+  S3method("model.matrix", "hurdle")
+
+## methods for class ideal
+  S3method("plot", "ideal")
+  S3method("plot", "predict.ideal")
+  S3method("predict", "ideal")
+  S3method("predprob", "ideal")
+  S3method("print", "ideal")
+  S3method("print", "predict.ideal")
+  S3method("print", "summary.ideal")
+  S3method("summary", "ideal")
+
+## methods for class rollcall
+  S3method("dropUnanimous", "rollcall")
+  S3method("print", "rollcall")
+  S3method("print", "summary.rollcall")
+  S3method("summary", "rollcall")
+
+## misc methods
+  S3method("dropUnanimous", "matrix")
+  S3method("predprob", "glm")

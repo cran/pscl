@@ -94,8 +94,8 @@ plot2d(x, d1=1, d2=2, burnin=NULL,
   numbered \code{100, 110, 120, ...}.  Any future subsetting via a
   \code{burnin} refers to this iteration number.}
 
-\seealso{\code{\link{ideal}}.  
-  \code{\link{tracex}} for trace plots, a graphicakl aid useful in
+\seealso{\code{\link{ideal}};  
+  \code{\link{tracex}} for trace plots, a graphical aid useful in
 diagnosing convergence of the MCMC algorithms.} 
 
 \examples{
@@ -109,6 +109,24 @@ id1 <- ideal(s109,
              thin=10)  
 
 plot(id1)
+
+\dontrun{
+id2 <- ideal(s109,
+             d=2,
+             store.item=TRUE,
+             maxiter=1e4,
+             burnin=0,
+             thin=25)
+
+plot(id2,overlayCuttingPlanes=TRUE)
+
+id2pp <- postProcess(id2,
+                     constraints=list(BOXER=c(-1,0),
+                       INHOFE=c(1,0),
+                       CHAFEE=c(0,.25)))
+
+plot(id2,overlayCuttingPlanes=TRUE)
 }
+} 
 \keyword{hplot}
 

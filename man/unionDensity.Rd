@@ -34,17 +34,17 @@
     Organization in Communist and Capitalist Countries}. Bloomington:
     Indiana University Press.  
   
-  Stephens, John and Micahel Wallerstein. 1991. "Industrial
-  Concentration, Country Size and Trade Union Membership."
+  Stephens, John and Michael Wallerstein. 1991. Industrial
+  Concentration, Country Size and Trade Union Membership.
   \emph{American Political Science Review} 85:941-953.
   
-  Western, Bruce and Simon Jackman. 1994. "Bayesian Inference for
-  Comparative Research."  \emph{American Political Science Review}
+  Western, Bruce and Simon Jackman. 1994. Bayesian Inference for
+  Comparative Research.  \emph{American Political Science Review}
   88:412-423. 
   
-  Wilensky, Harold L. 1981. "Leftism, Catholicism, Democratic
+  Wilensky, Harold L. 1981. Leftism, Catholicism, Democratic
   Corporatism: The Role of Political Parties in Recemt Welfare State
-  Development." In \emph{The Development of Welfare States in Europe
+  Development. In \emph{The Development of Welfare States in Europe
   and America}, ed. Peter Flora and Arnold J. Heidenheimer. New
   Brunswick: Transaction Books. 
 }

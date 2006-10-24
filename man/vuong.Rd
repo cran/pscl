@@ -39,30 +39,18 @@ vuong(m1, m2, digits = getOption("digits"))
 \references{Vuong, Q.H. 1989. "Likelihood ratio tests for model
   selection and non-nested hypotheses." \emph{Econometrica}. 57:307-333.}
 \author{Simon Jackman \email{jackman@stanford.edu}}
+
 \examples{
-data(bioChemists)
-glm1 <- glm(art ~ .,
-            data=bioChemists,
-            family=poisson,trace=TRUE)  ## poisson GLM
-
-zip <- zeroinfl(count=art ~ .,
-                x = ~ fem + mar + kid5 + phd + ment,
-                z = ~ fem + mar + kid5 + phd + ment,
-                dist="poisson",        
-                data=bioChemists,trace=TRUE) ## zero-infl poisson
-
-vuong(glm1,zip)
+data("bioChemists")
+## compare Poisson GLM and ZIP
+glm1 <- glm(art ~ ., data = bioChemists, family = poisson)
+zip <- zeroinfl(art ~ . | ., data = bioChemists, EM = TRUE)
+vuong(glm1, zip)
 
 ## compare negbin with zero-inflated negbin
-require(MASS)
-nb1 <- glm.nb(art ~ .,
-              data=bioChemists,
-              trace=TRUE)
-zinb <- zeroinfl(count=art ~ .,
-                 x = ~ fem + mar + kid5 + phd + ment,
-                 z = ~ fem + mar + kid5 + phd + ment,
-                 dist="negbin",
-                 data=bioChemists,trace=TRUE)
-vuong(nb1,zinb)
+nb1 <- glm.nb(art ~ ., data=bioChemists)
+zinb <- zeroinfl(art ~ . | ., data = bioChemists, dist = "negbin", EM = TRUE)
+vuong(nb1, zinb)
 }
-\keyword{models}% at least one, from doc/KEYWORDS
+
+\keyword{models}
