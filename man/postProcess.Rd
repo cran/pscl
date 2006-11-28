@@ -8,17 +8,16 @@
   post-processing).} 
 
 \usage{
-postProcess(object, constraints, debug = FALSE)
+postProcess(object, constraints="normalize", debug = FALSE)
 }
 
-\arguments{
-  \item{object}{an object of class \code{\link{ideal}}}
+\arguments{ \item{object}{an object of class \code{\link{ideal}}}
   \item{constraints}{list of length \code{d+1}, each component providing
-    a set of \code{d} restrictions, where \code{d} is the dimension of
-    the fitted \code{\link{ideal}} model.  The name of each component
-    should uniquely match a legislator/subject's name.  See Details.}
-  \item{debug}{logical flag for verbose output, used for debugging}
-}
+  a set of \code{d} restrictions, where \code{d} is the dimension of the
+  fitted \code{\link{ideal}} model; or the character string
+  \code{normalize} (default).  If a list, the name of each component should
+  uniquely match a legislator/subject's name.  See Details.}
+  \item{debug}{logical flag for verbose output, used for debugging} }
 
 \details{
   Item-response models are unidentified without restrictions on the
@@ -68,16 +67,29 @@ postProcess(object, constraints, debug = FALSE)
   IRT model is \deqn{P(y_{ij} = 1) = F(x_i'\beta_j)}{%
     Pr(y_[ij] = 1) = F(x_i' b_j)}
   where in this formulation \eqn{x_i} is a vector of
-  length \code{d+1}, including a \dQuote{1} to put a constant term into
-  the model (i.e., the intercept or \dQuote{minus-difficulty} parameter
+  length \code{d+1}, including a \code{-1} to put a constant term into
+  the model (i.e., the intercept or difficulty parameter
   is part of \eqn{\beta_j}{beta_j}).  Let \eqn{A} denote the
   non-singular, \code{d+1}-by-\code{d+1} matrix that maps the \eqn{x}
   into the space of identified parameters.  Recall that this
   transformation is computed iteration by iteration.  Then each
   \eqn{x_i} is transformed to \eqn{x^*_i = Ax_i}{x*_i = Ax_i} and
   \eqn{\beta_j}{b_j} is transformed to \eqn{\beta_j^* = A^{-1}
-  \beta_j}{b_j^* = A^(-1) b_j}, \eqn{i = 1, \ldots, n; j = 1,
-  \ldots, m}.
+    \beta_j}{b_j^* = A^(-1) b_j}, \eqn{i = 1, \ldots, n; j = 1,
+    \ldots, m}.
+  
+  Local identification can be obtained for a one-dimensional model by
+  simply imposing a normalizing restriction on the ideal points: this
+  normalization (mean zero, standard deviation one) is
+  the default behavior, but is only valid when the \code{rollcall}
+  object was fit with \code{d=1}.  An offsetting transformation is
+  applied to the items parameters as well.  Specifically, in
+  one-dimensional, the two-parameter IRT model is \deqn{P(y_{ij} = 1) =
+  F(x_i \beta_j - \alpha_j).}{Pr(y_[ij] = 1) = F(x_i b_j - a_j).}  If we
+  normalize the \eqn{x_i} to \eqn{x*_i = (x_i - c)/m} then the
+  offsetting transformations for the item/bill parameters are
+  \eqn{\beta_j^* = \beta_j m}{b*_j = b_j m} and \eqn{\alpha_j^* =
+  \alpha_j - c\beta_j}{a*_j = a_j - cb_j}.
 }
 
 \value{
@@ -89,14 +101,22 @@ postProcess(object, constraints, debug = FALSE)
 }
 
 \references{
+Hoff, Peter, Adrian E. Raftery and Mark S. Handcock. 2002.
+Latent Space Approaches to Social Network Analysis. \emph{Journal
+  of the American Statistical Association} 97:1090--1098.
+
+Edwards, Yancy D. and Greg M. Allenby. 2003.
+Multivariate Analysis of Mulitple Response Data. \emph{Journal of
+  Marketing Research} 40:321--334.
+
 Rivers, Douglas. 2003.  \dQuote{Identification of Multidimensional
   Item-Response Models.} Typescript.  Department of Political Science,
-  Stanford University.
+Stanford University.
 }
 
 \author{Simon Jackman \email{jackman@stanford.edu}}
 
-\note{Applying these transformations to obtain identification can
+\note{Applying transformations to obtain identification can
   sometimes lead to surprising results.  Each data point makes the same
   likelihood contributions with either the identified or unidentified
   parameters.  But, in general, predictions generated with the
@@ -133,8 +153,12 @@ id1 <- ideal(s109,
              burnin=0,
              thin=10)
 
+id1Local <- postProcess(id1)    ## default is to normalize
+summary(id1Local)
+
 id1pp <- postProcess(id1,
                      constraints=list(BOXER=-1,INHOFE=1))
+summary(id1Local)
 
 \dontrun{
 id2 <- ideal(s109,

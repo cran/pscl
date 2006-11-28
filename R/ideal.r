@@ -21,7 +21,8 @@ ideal <- function(object,
                   priors=NULL,
                   startvals=NULL,
                   store.item=FALSE,
-                  file=NULL){
+                  file=NULL,
+                  verbose=FALSE){
 
   cat("ideal: analysis of roll call data via Markov chain Monte Carlo methods.\n\n")
 
@@ -30,7 +31,7 @@ ideal <- function(object,
   if(is.null(cl$d))
     cl$d <- d
   if(is.null(cl$codes))
-    cl$d <- codes
+    cl$codes <- codes
   if(is.null(cl$dropList))
     cl$dropList <- dropList
   if(is.null(cl$maxiter))
@@ -46,7 +47,7 @@ ideal <- function(object,
   if(is.null(cl$meanzero))
     cl$meanzero <- meanzero
 
-  localMeanZero <- meanzero   ## copy user-supplied
+  localMeanZero <- meanzero   ## copy user-supplied argument
 
   ## check validity of user arguments
   if (!("rollcall" %in% class(object)))
@@ -90,9 +91,10 @@ ideal <- function(object,
       stop("supplied codes fail redundancy checks")
   }
   if(!is.null(dropList)){
-    cat(paste("Subsetting rollcall object",
-              as.name(cl$object),
-              "using dropList\n"))
+    if(verbose)
+      cat(paste("Subsetting rollcall object",
+                as.name(cl$object),
+                "using dropList\n"))
     y <- dropRollCall(tmpObject,dropList)  ## any subsetting to do?
   }
   else
@@ -105,9 +107,11 @@ ideal <- function(object,
   vote.names <- dimnames(y$votes)[[2]]
 
   ## map roll call votes into binary format required by ideal
-  printCodes(codes)
-  cat("\n")
-
+  if(verbose){
+    printCodes(codes)
+    cat("\n")
+  }
+  
   if(checkVotes(y$votes,codes))
     stop("rollcall: can't map all votes using supplied codes")
 
@@ -120,61 +124,131 @@ ideal <- function(object,
   numrec <- (maxiter-burnin)/thin+1
   if (((store.item)&&((n+m)*d*numrec>2000000))
        ||((!store.item)&&((n*d*numrec)>2000000))){
-    ans <- readline(paste("The current call to ideal will result in a large object that ",
-                          "will take up a large amount of memory.  Do you want to ",
+    ans <- readline(paste("The current call to ideal will result in a large object that\n",
+                          "will take up a large amount of memory.  Do you want to\n",
                           "continue with the current parameter values? (y/n): ",
                           sep=""))
 
     if ((substr(ans, 1, 1) == "n")||(substr(ans, 1, 1) == "N"))
-      stop("User terminated ideal run.")
+      stop("User terminated execution of ideal.")
   }
 
   if (numrec>1000) {
-    ans <- readline(paste("You are attempting to save ",numrec," iterations.  This ",
-                         "could result in a very large object and cause memory problems.  ",
+    ans <- readline(paste("You are attempting to save ",numrec," iterations.  This\n",
+                         "could result in a very large object and cause memory problems.\n",
                          "Do you want to continue with the current call to ideal? (y/n): ",
                          sep=""))
 
     if ((substr(ans, 1, 1) == "n")||(substr(ans, 1, 1) == "N"))
-      stop("User terminated ideal run.")
+      stop("User terminated execution of ideal.")
   }
 
   cat(paste("Ideal Point Estimation\n\nNumber of Legislators\t\t",
               n,"\nNumber of Items\t\t\t", m, "\n\n"))
   xp <- xpv <- bp <- bpv <- NULL
 
+  ####################################################################
   ## check priors
+  ####################################################################
+  if(verbose)
+    cat("checking for any user-supplied priors...\n")
   if(!is.null(priors)){
     if(!is.list(priors))
-      stop("priors must be a list with elements xp, xpv, bp, bpv")
-
-    if(sum(is.na(match(c("xp","xpv","bp","bpv"),names(priors))))!=0)
-      stop("priors must be a list with elements xp, xpv, bp, bpv")
-
-    localMeanZero <- FALSE
-    xp <- as.matrix(priors$xp)
-    xpv <- as.matrix(priors$xpv)
-    bp <- as.matrix(priors$bp)
-    bpv <- as.matrix(priors$bpv)
-    if (sum(is.na(c(xp,xpv,bp,bpv)))!=0) {
-      stop("Priors contain missing values, which is not allowed")
+      stop("priors must be a list")
+    
+    if(all(unlist(lapply(priors,is.null))))
+      stop("priors supplied in a list, but all elements are NULL")
+    
+    if(sum(unlist(lapply(priors,is.na)))>0)
+      stop("priors contain missing values, which is not allowed")
+  
+    ## now check individual elements of prior list
+    if(!is.null(priors$xp)){
+      if(length(priors$xp)==1)     ## user supplied a scalar
+        xp <- matrix(priors$xp,n,d)
+      if(is.matrix(priors$xp))
+        xp <- priors$xp
     }
-
+    else{
+      if(verbose)
+        cat("no prior means supplied for ideal points,\n",
+            "setting to default of 0\n")
+      xp <- matrix(0,n,d)
+    }
+    
+    if(!is.null(priors$xpv)){
+      if(length(priors$xpv)==1)    ## user supplied a scalar
+        xpv <- matrix(priors$xpv,n,d)
+      if(is.matrix(priors$xpv))
+        xpv <- priors$xpv
+    }
+    else{
+      if(verbose)
+        cat("no prior precisions supplied for ideal points,\n",
+            "setting to default of 1\n")
+      xpv <- matrix(1,n,d)
+    }
+    
+    if(!is.null(priors$bp)){
+      if(length(priors$bp)==1)    ## user supplied a scalar
+        bp <- matrix(priors$bp,m,d+1)
+      if(is.matrix(priors$bp))
+        bp <- priors$bp
+    }
+    else{
+      if(verbose)
+        cat("no prior means supplied for item parameters,\n",
+            "setting to default to 0\n")
+      bp <- matrix(0,m,d+1)
+    }
+    
+    if(!is.null(priors$bpv)){
+      if(length(priors$bpv)==1)   ## user supplied a scalar
+        bpv <- matrix(priors$bpv,m,d+1)
+      if(is.matrix(priors$bpv))
+        bpv <- priors$bpv
+    }
+    else{
+      if(verbose)
+        cat("no prior precisions supplied for item parameters,\n",
+            "setting to default of .01\n")
+      bpv <- matrix(.01,m,d+1)
+    }
+    
     if (((nrow(xp) != n)||(ncol(xp) != d)) || ((nrow(xpv)!=n)||(ncol(xpv)!=d))) {
       stop("Dimensions of xp or xpv not n by d")
     }
-
+    
     if (((nrow(bp) != m)||(ncol(bp) != (d+1))) || ((nrow(bpv)!=m)||(ncol(bpv)!=(d+1)))) {
       stop("Dimensions of bp or bpv not m by d+1")
     }
   }
-  else {   ## no user-supplied priors
-    xp <- matrix(rep(0, n*d), nrow=n)
-    xpv <- matrix(rep(1, n*d), nrow=n)
-    bp <- matrix(rep(0,m*(d+1)), nrow=m)
-    bpv <- matrix(rep(0.01, m*(d+1)), nrow=m)
+  
+  ## ##################################################################
+  ## if we get this far with priors still NULL
+  ## then revert to defaults
+  ## ##################################################################
+  if(is.null(xp)){
+    if(verbose)
+      cat("setting prior means for ideal points to all zeros\n")
+    xp <- matrix(0,n,d)
   }
-
+  if(is.null(xpv)){
+    if(verbose)
+      cat("setting prior precisions for ideal points to all 1\n")
+    xpv <- matrix(1,n,d)
+  }
+  if(is.null(bp)){
+    if(verbose)
+      cat("setting prior means for item parameters to all zeros\n")
+    bp <- matrix(0,m,d+1)
+  }
+  if(is.null(bpv)){
+    if(verbose)
+      cat("setting prior precisions for item parameters to all 0.01\n")
+    bpv <- matrix(0.01,m,d+1)
+  }
+  
   xp <- as.vector(t(xp))
   xpv <- as.vector(t(xpv))
   bp <- as.vector(t(bp))
@@ -183,50 +257,59 @@ ideal <- function(object,
   ################################################################
   ## check for start values - create if not supplied
   ################################################################
+  if(verbose)
+    cat("\nchecking start values...\n")
   xstart <- bstart <- NULL
   options(warn=-1)
-  if (!is.null(startvals)) {
+  if(!is.null(startvals)){                 ## parse used-supplied start values
     if(!is.list(startvals))
-      stop("startval must be a list with elements xstart and bstart")
-    if(sum(is.na(match(c("xstart","bstart"),names(startvals))))!=0)
-      stop("startval must be a list with elements xstart and bstart")
-    xstart <- as.matrix(startvals$xstart)
+      stop("startval must be a list with components xstart and/or bstart")
 
-    if ((nrow(xstart) != n)||(ncol(xstart) != d)){
-      stop("Dimensions of xstart not n by d")
+    if(!is.null(startvals$xstart)){
+      if(length(startvals$xstart) != n*d)
+        stop("length of xstart not n by d")
+      if(d==1)
+        xstart <- matrix(startvals$xstart,ncol=1)
+      else
+        xstart <- startvals$xstart
+      if (sum(is.na(xstart))!=0)
+        stop("xstart contains missing values")
     }
-
-    if (sum(is.na(xstart))!=0)
-      stop("xstart contains missing values")
-
-    bstart <- as.matrix(startvals$bstart)
-
-    if ((nrow(bstart) != m)||(ncol(bstart) != (d+1))) {
-      stop("Dimensions of bstart not m by d+1")
-    }
-
-    if(sum(is.na(bstart))!=0)
-      stop("bstart contains missing values")
+    
+    if(!is.null(startvals$bstart)){
+      if(length(startvals$bstart) != m*(d+1))
+        stop("length of bstart not m by d+1")
+      bstart <- startvals$bstart
+      if(sum(is.na(bstart))!=0)
+        stop("bstart contains missing values")
+    } 
   } 
-  else {
+
+  if(is.null(xstart)){
     if((n>500) | (!is.null(priors))){
       if (n>500)
         cat(paste("n =",n,
                   "is too many subjects/legislators for eigen-decomposition\n",
-                  "for start values (this option for x.start capped at n=500)\n"))
+                  "for start values (capped at n=500)\n"))
       cat("setting start values to zero for all legislators\n")
       xstart <- matrix(0,n,d)
-      bstart <- matrix(0,m,d+1)
     }
     else
-      {
-        xstart <- x.startvalues(v,d=d)
-        cat(paste("running",m,"vote-specific probits\nfor start values for item/bill parameters\n"))
-        bstart <- b.startvalues(v,xstart,d=d)
-        bstart <- ifelse(abs(bstart - bp) < 2/sqrt(bpv), bstart, bp + 2*sign(bstart-bp)/sqrt(bpv))
-      }
+      xstart <- x.startvalues(v,d=d)        
   }
 
+  if(is.null(bstart)){                       ## no beta start values
+    if(verbose)
+      cat(paste("running",
+                m,
+                "vote-specific probits\n",
+                "for start values for item/bill parameters\n"))
+    bstart <- b.startvalues(v,xstart,d=d)
+    bstart <- ifelse(abs(bstart - bp) < 2/sqrt(bpv),
+                     bstart,
+                     bp + 2*sign(bstart-bp)/sqrt(bpv))
+  }
+  
   xstart <- as.vector(t(xstart))
   bstart <- as.vector(t(bstart))
   options(warn=0)
@@ -237,7 +320,11 @@ ideal <- function(object,
 
   yToC <- ifelse(is.na(v), 9, v)
   yToC <- as.vector(t(yToC))
-  cat("\nStarting iterations...\n")
+  cat("\nStarting MCMC Iterations...\n")
+
+  ## ############################################
+  ## two versions, one with usefile option
+  ## ############################################
   if (usefile) {
     if (length(legis.names) == n) {
       cat(paste("\"",c("Iteration",legis.names),"\"", sep="", collapse=","),
@@ -248,12 +335,14 @@ ideal <- function(object,
                 sep="", collapse=","),
           file=file)
     }
-
+    
     if (store.item){
-            cat(",", paste("\"",c(paste("b",
-                                        as.vector(apply(expand.grid(1:m,1:(d+1)),1,paste,collapse=".")),
-                                        sep=".")),"\"",
-                           sep="", collapse=","),
+            cat(",",
+                paste("\"",
+                      c(paste("b",
+                              as.vector(apply(expand.grid(1:m,1:(d+1)),1,paste,collapse=".")),
+                              sep=".")),"\"",
+                      sep="", collapse=","),
                 sep="", file=file, append=TRUE)
           }
     cat("\n", file=file, append=TRUE)
@@ -265,7 +354,8 @@ ideal <- function(object,
                  as.double(bpv), as.double(xstart), as.double(bstart),
                  xoutput=NULL,
                  boutput=NULL,as.integer(burnin),
-                 as.integer(usefile), as.integer(store.item), as.character(file))
+                 as.integer(usefile), as.integer(store.item), as.character(file),
+                 as.integer(verbose))
   }
 
   else if (!store.item) {
@@ -277,7 +367,8 @@ ideal <- function(object,
                  as.double(bpv), as.double(xstart), as.double(bstart),
                  xoutput=as.double(rep(0,n*d*numrec)),
                  boutput=NULL,as.integer(burnin),
-                 as.integer(usefile), as.integer(store.item), as.character(file))
+                 as.integer(usefile), as.integer(store.item), as.character(file),
+                 as.integer(verbose))
   }
   else {
     output <- .C("IDEAL",
@@ -288,12 +379,13 @@ ideal <- function(object,
                  as.double(bpv), as.double(xstart), as.double(bstart),
                  xoutput=as.double(rep(0,n*d*numrec)),
                  boutput=as.double(rep(0,m*(d+1)*numrec)),as.integer(burnin),
-                 as.integer(usefile), as.integer(store.item), as.character(file))
+                 as.integer(usefile), as.integer(store.item), as.character(file),
+                 as.integer(verbose))
   }
 
   cat("\n")
 
-  ## read output
+  ## parse returns from C job
   if (!usefile) {
     x <- output$xoutput
     x <- matrix(x,nrow=numrec,byrow=T)
@@ -319,7 +411,8 @@ ideal <- function(object,
   ## compute some summary stats now, since we almost always use them
   xbar <- betabar <- NULL
   if(!is.null(x)){
-    cat("MCMC sampling done, computing posterior means for ideal points...\n")
+    if(verbose)
+      cat("MCMC sampling done, computing posterior means for ideal points...\n")
     keep <- x[,1] > burnin
     xbar <- apply(x[keep,-1],2,mean)
     xbar <- matrix(xbar,n,d,byrow=TRUE)
@@ -329,13 +422,16 @@ ideal <- function(object,
         mnames <- c(mnames,paste("Dimension",j))
     }
     dimnames(xbar) <- list(legis.names,mnames)
+    if(verbose)
     cat("done\n")
   }
   
   if(store.item){
-    cat("and for bill parameters...")
+    if(verbose)
+      cat("and for bill parameters...")
     betabar <- apply(b[keep,-1],2,mean)
-    betabar <- matrix(betabar,m,d+1,byrow=T)
+    betabar <- matrix(betabar,m,d+1,byrow=TRUE)
+    if(verbose)
     cat("done\n")
   }
 

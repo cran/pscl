@@ -1,3 +1,16 @@
+0.73		* added seats vote class and ca2006 data
+		* cleaned up startvalues processing in ideal
+		* improved priors in ideal
+		* added verbose option to ideal
+		* less console output from ideal.c
+		* some changes to documentation, e.g., postProcess gets extra references
+		* sort output by posterior means of ideal points in summary.ideal
+		* improved tracex
+		* fixed bug in dropRollCall (was dropping legis.data attributes)
+		* fixed bug in partyLoyalty (called by summary.rollcall(...,verbose=TRUE)
+		* finally changed ideal model to have a negative intercept; required changes to 
+			updatex.c, updatey.c, and xreg.c
+
 0.72     * fixed error in bioChemists data found by Bettina Grün
   	 <gruen@ci.tuwien.ac.at>, variable kids5 was off by 1 unit, now runs
   	 from min of zero (no kids).

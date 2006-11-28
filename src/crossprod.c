@@ -163,7 +163,7 @@ void crosscheck(double **x, double **ystar, int **ok,
 		double **xpx, double *xpy)
 {
   int i,k,l, okij;
-  double *xrow, ystarij;
+  double *xrow, ystarij, xk, xl;
   for(k=0;k<q;k++){        /* initializations */
     xpy[k]=0.0;
     for(l=0;l<q;l++){
@@ -177,9 +177,11 @@ void crosscheck(double **x, double **ystar, int **ok,
       xrow = x[i];
       ystarij = ystar[i][j];
       for(k=0;k<q;k++){                    /* loop over cols */
-	xpy[k] += xrow[k]*ystarij;          /* X'y contribution */
+	xk = xrow[k];
+	xpy[k] += xk*ystarij;            /* X'y contribution */
 	for(l=0;l<q;l++){
-	  xpx[k][l] += xrow[k]*xrow[l];     /* X'X contribution */
+	  xl = xrow[l];
+	  xpx[k][l] += xk*xl;           /* X'X contribution */
 	}
       }
     }
@@ -193,7 +195,7 @@ void crosscheckx(double **beta, double **w, int **ok,
 		 double **bpb, double *bpw)
 {
   int j,k,l, okij;
-  double *betarow, wij;
+  double *betarow, wij, bk;
 
   for(k=0;k<d;k++){
     bpw[k]=0.0;
@@ -208,9 +210,10 @@ void crosscheckx(double **beta, double **w, int **ok,
     if(okij){
       betarow = beta[j];
       for(k=0;k<d;k++){
-	bpw[k] += betarow[k]*wij;  /* bpw contribution */
+	bk = betarow[k];
+	bpw[k] += bk*wij;  /* bpw contribution */
 	for(l=0;l<d;l++){
-	  bpb[k][l] += betarow[k]*betarow[l]; /* bpb contribution */
+	  bpb[k][l] += bk*betarow[l]; /* bpb contribution */
 	}
       }
     }

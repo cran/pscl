@@ -15,7 +15,8 @@ ideal(object, codes = object$codes,
       d = 1, maxiter = 10000, thin = 100, burnin = 5000,
       impute = FALSE, meanzero = FALSE,
       priors = NULL, startvals = NULL,
-      store.item = FALSE, file = NULL)
+      store.item = FALSE, file = NULL,
+      verbose=FALSE)
 }
 
 \arguments{
@@ -43,6 +44,7 @@ ideal(object, codes = object$codes,
     for unidimensional models, and is sufficient to locally identify the
     model parameters in this case; more restrictions are required for
     identification when \code{d > 1}.  See Details.}
+
   \item{priors}{a \code{list} of parameters (means and variances)
     specifying normal priors for the legislators' ideal points. The
     default is \code{NULL}, in which case prior values will be generated
@@ -50,18 +52,29 @@ ideal(object, codes = object$codes,
     ideal points, the default prior parameters are mean zero and
     variance one; for the item parameters the defaults are mean zero and
     variance 100).  If not \code{NULL}, \code{priors} must be a
-    \code{list} containing the elements \code{xp, xpv, bp, bpv}, which
-    should be matrices: where
+    \code{list} with as many as four named components \code{xp, xpv, bp,
+      bpv}, where
     \item{\code{xp}}{a \code{n} by \code{d} matrix
-      of prior \emph{means} for the legislators' ideal points}
+      of prior \emph{means} for the legislators' ideal points;
+      or alternatively, a scalar, which will be replicated to fill a \code{n}
+      by \code{d} matrix}.
     \item{\code{xpv}}{a \code{n} by \code{d} matrix of prior
-      \emph{precisions} (inverse variances)} 
+      \emph{precisions} (inverse variances);
+      or alternatively, a scalar, which will be replicated to fill a \code{n}
+      by \code{d} matrix.} 
     \item{\code{bp}}{a \code{m} by \code{d+1} matrix of prior means for the
-      item parameters (with the item difficulty parameter coming last)}
+      item parameters (with the item difficulty parameter coming last);
+      or alternatively, a scalar, which will be replicated to fill a \code{m}
+      by \code{d+1} matrix.}
     \item{\code{bpv}}{a \code{m} by \code{d+1} matrix of prior
-      precisions for the item parameters.  None of these elements may
-      contain \code{NA}.}
-  }
+      precisions for the item parameters;
+      or alternatively, a scalar, which will be replicated to fill a \code{m}
+      by \code{d+1} matrix.}  
+    None of the components should contain \code{NA}.  If any
+    of the four possible components are not provided, then the
+    corresponding component of \code{priors} is assigned using the default
+    values described above.}
+
   \item{startvals}{a \code{list} containing start values for
     legislators' ideal points and item parameters.  Default is
     \code{NULL}, in which case start values will be generated for both
@@ -79,6 +92,8 @@ ideal(object, codes = object$codes,
     \code{NULL}, in which case MCMC output is stored in memory.
     Note that post-estimation commands like \code{plot} will not
     work unless MCMC output is stored in memory.}
+  \item{verbose}{logical, default is \code{FALSE}, which generates
+  relatively little output to the R console during execution}
 }
 
 \details{The function fits a \code{d}+1 parameter item-response model to
@@ -235,25 +250,27 @@ ideal(object, codes = object$codes,
 \examples{
 data(s109)
 
-## short run for examples
+## ridiculously short run for examples
 id1 <- ideal(s109,
              d=1,
              meanzero=TRUE,
              store.item=TRUE,
              maxiter=500,
              burnin=100,
-             thin=10)  
+             thin=10,
+             verbose=TRUE)  
 summary(id1)
 
 \dontrun{
 ## more realistic long run
 idLong <- ideal(s109,
                 d=1,
+                priors=list(xpv=1e-12,bpv=1e-12),
                 meanzero=TRUE,
                 store.item=TRUE,
-                maxiter=251e3,
-                burnin=1000,
-                thin=1e3)  
+                maxiter=260e3,
+                burnin=1e4,
+                thin=100)  
 }
 }
 \keyword{models}

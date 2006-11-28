@@ -220,8 +220,15 @@ descriptionExtract <- function(recs){
 ## parse K&H dictionary files
 dtlParser <- function(file,debug=TRUE){
   cat(paste("attempting to read dtl file",file,"\n"))
-  data <- readFromFunc(file,debug=debug)
-
+  warnLevel <- options()$warn
+  options(warn=-1)
+  data <- try(readLines(con=file),silent=TRUE)
+  if(inherits(data,"try-error")){
+    cat(paste("Could not read",file,"\n"))
+    return(invisible(NULL))
+  }
+  options(warn=warnLevel)
+  
   out <- NULL
   if(!is.null(data)){
     number <- as.numeric(substring(data,1,4))

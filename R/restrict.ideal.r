@@ -49,7 +49,9 @@ constrain.legis <- function(obj,
   cat("constrain.legis: generating start values for bill parameters,\n")
   cat("conditional on start values for legislators\n")
   bstart <- b.startvalues(v,xstart,d=d)
-  bstart <- ifelse(abs(bstart - bp) < 2/sqrt(bpv), bstart, bp + 2*sign(bstart-bp)/sqrt(bpv))
+  bstart <- ifelse(abs(bstart - bp) < 2/sqrt(bpv),
+                   bstart,
+                   bp + 2*sign(bstart-bp)/sqrt(bpv))
   options(warn=0)
 
   return(list(xp=xp,xpv=xpv,bp=bp,bpv=bpv,xstart=xstart,bstart=bstart))

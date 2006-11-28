@@ -244,7 +244,9 @@ tracex <- function(object,
                    d=1,
                    conf.int=0.95,
                    showAll=FALSE,
-                   burnin=NULL){
+                   burnin=NULL,
+                   span=.25,
+                   legendLoc="topright"){
 
   warnOption <- options()$warn
   options(warn=-1)
@@ -265,7 +267,8 @@ tracex <- function(object,
     old.par <- par(no.readonly=TRUE)  
   else
     old.par <- par()
-  
+
+
   ## try matching names
   legis.names <- as.vector(dimnames(object$x)[[2]])
   nLegis <- length(legis)
@@ -314,60 +317,85 @@ tracex <- function(object,
     keep <- checkBurnIn(object,burnin)
   start <- object$x[keep,1][1]
   
+  ## #######################################################
   ## one-dimensional stuff
+  ## #######################################################
   if(length(d)==1){
     options(warn=0)
     checkD(object,d)
+
+    if(span<=0 | span>=1)
+      stop("span must be between 0 and 1")
     
     if((conf.int<=0)||(conf.int>=1))
       stop("conf.int must be between 0 and 1")
+    
     rw <- 3
     if (nLegis < 3)
       rw <- nLegis
     count <- 0
-    par(mfrow=c(rw+1,1))
+    if(rw < 4 & dev.interactive())
+      par(mfrow=c(rw,1))
+    if(length(legendLoc)==1)
+      legendLoc <- rep(legendLoc,nLegis)
+
+    
     for (i in 1:nLegis){
       meat <- object$x[keep,p[[i]]+d-1]
       iter <- object$x[keep,1]
       par(mar=c(4, 4, 4, 2) + 0.1)      
+
+      mainText <- plotName[i]
+      if(object$d>1)
+        mainText <- paste(mainText,
+                          ", Dimension ",d,sep="")
       plot(y=meat,
            x=iter,
            type="l",
            xlab="Iteration",ylab="",
-           main=paste(plotName[i],", Dimension ",d,sep=""))
+           main=mainText)
       runmean <- cumsum(meat)/1:length(iter)
       lines(iter,runmean,col="red",lwd=3)
       
-      lf <- loess(meat~iter,span=.25)
+      lf <- loess(meat~iter,span=span)   ## loess overlay
       lines(iter,predict(lf),col="blue",lwd=3)
       
       xbar <- mean(meat)
       q <- c((1-conf.int)/2, 1-((1-conf.int)/2))
       q <- quantile(meat,q)
       
-      abline(h=xbar,lwd=3,col="grey")
-      abline(h=q[1],lty=2,col="grey")
+      abline(h=xbar,lwd=3,col="grey")    ## posterior mean
+      abline(h=q[1],lty=2,col="grey")    ## confidence intervals
       abline(h=q[2],lty=2,col="grey")
+
       count <- count + 1
+
       ## do legend
-      if ((count==3)||(i==length(p))){
-        par(mar=rep(1,4))
-        plot(x=c(0,5,10),y=c(-1,0,1),type="n",axes=F,
-             xlab="",ylab="",main="")
-        legend(x=0,y=-1,
+      if(!is.null(legendLoc[i]))
+        legend(x=legendLoc[i],
                bty="n",
                legend=c("Trace",
                  "Cumulative Mean",
-                 "Moving Average (loess, span=.25)",
+                 paste("Moving Average (loess, span=",
+                       round(span,2),
+                       ")",
+                       sep=""),
                  "Posterior Mean",
                  paste(round(100*conf.int),"% Confidence Interval",sep="")),
-               lty=c(1,1,1,1,2),lwd=c(1,3,3,3,1),
-               col=c("black","red","blue","grey","grey"),yjust=0)
+               lty=c(1,1,1,1,2),
+               lwd=c(2,3,3,3,2),
+               col=c("black","red","blue","grey","grey"),
+               yjust=0,cex=.75)
+      
+      ## prompt user for more plots if we are in interactive mode
+      ##cat("dev.interactive returns ",
+      ##    dev.interactive(),"\n")
+      ##cat(paste("count=",count,"\n"))
+      ##cat(paste("nLegis=",nLegis,"\n"))
+      if((count==3) & (nLegis > 3) & (dev.interactive())){
+        count <- 0
+        readline("Press return/enter to see next set of plots: ")
       }
-    }
-    if(count==3){
-      count <- 0
-      readline("Press any key to see next set of plots: ")
     }
   }
   
@@ -450,7 +478,7 @@ tracex <- function(object,
         title(plotName[i])
         count <- count + 1
       }
-      if(count==3){
+      if(count==3 & dev.interactive()){
         count <- 0
         readline("Press any key to see next set of plots:  ")
       }

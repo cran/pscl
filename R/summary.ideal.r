@@ -37,6 +37,7 @@ print.ideal <- function(x, ...) {
 summary.ideal <- function(object,
                           quantiles=c(.025,.975),
                           burnin=NULL,
+                          sort=TRUE,
                           include.beta=FALSE,
                           ...){
 
@@ -83,6 +84,8 @@ summary.ideal <- function(object,
                       "%",
                       sep=""))
     dimnames(xResults[[j]])[[2]] <- cNames
+    if(sort)
+      xResults[[j]] <- xResults[[j]][order(xResults[[j]][,1]),]
   }
 
   ##################################################################
@@ -147,9 +150,9 @@ summary.ideal <- function(object,
   #####################################################################
   ## summarize by party
   pall.final <- NULL
-  party <- eval(object$rollcall)$legis.data$partyName
+  party <- eval(object$call$object)$legis.data$partyName
   if(is.null(party))
-    party <- eval(object$rollcall)$legis.data$party
+    party <- eval(object$call$object)$legis.data$party
   if(!is.null(party)){                       ## we have some party info
     nms <- NULL
     for (b in 1:object$d){       ## loop over dimensions
@@ -176,7 +179,8 @@ summary.ideal <- function(object,
               xResults=xResults,
               bResults=bResults,
               bSig=bSig,
-              party.quant=pall.final)
+              party.quant=pall.final,
+              sort=sort)
 
   class(out) <- "summary.ideal"
 
@@ -201,10 +205,15 @@ print.summary.ideal <- function(x, digits=3, ...){
   if(!is.null(x$party.quant)) {
     cat("Ideal Points (Posterior Means), by Party\n")
     print(round(x$party.quant,digits))
+    cat("\n")
   }  
 
   for(j in 1:d){
-    cat(paste("Ideal Points, Dimension ",j,":\n",sep=""))
+    if(x$sort)
+      cat(paste("Ideal Points, Dimension ",j,
+                "(sorted by posterior means):\n",sep=""))
+    else
+      cat(paste("Ideal Points, Dimension ",j,":\n",sep=""))
     print(round(x$xResults[[j]],digits))
     cat("\n")
   }

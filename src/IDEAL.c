@@ -25,11 +25,11 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
 	   int *impute1, int *meanzero1, double *xpriormeans1, 
 	   double  *xpriorprec1, double *bpriormeans1, double *bpriorprec1, 
 	   double *xstart1, double *bstart1, double *xoutput, double *boutput,
-	   int *burnin1, int *usefile, int *bsave, char **filename1)
+	   int *burnin1, int *usefile, int *bsave, char **filename1, int *verbose1)
 {
   int e, xocursor, bocursor, xlength, blength, q, nm, iter;
-  int inloop, **ok, burnin,prn,n,m,d,maxiter,thin,impute,meanzero;
-  double **ystar, **x, **xreg, **y, **beta, **bp, **bpv;
+  int inloop, **ok, burnin, n, m, d, maxiter, thin, impute, meanzero, verbose;
+  double **ystar, **x, **xreg, **y, **beta, **bp, **bpv, iterPerCent;
   double **xp, **xpv, *xtemp, *btemp;
   FILE *ofp;
    // extern double **bpb, *xprior, **xpriormat, *xbar, **xvpost, *bpw, **w;
@@ -43,9 +43,8 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
   thin=*thin1;
   impute=*impute1;
   meanzero=*meanzero1;
+  verbose=*verbose1;
   burnin=*burnin1;
-
-  prn=0;
 
   /*Creating the matrices we'll need*/
   iter = 0;                  /* initialize iter count */ 
@@ -70,6 +69,7 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
     }
   }
 
+  /* get random number seed */
   GetRNGstate();
 
 
@@ -202,8 +202,21 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
 
                            
   while(iter<maxiter){                       /* Gibbs sampler loop */
+    
     for(inloop=0;inloop<thin;inloop++){     /* thinning loop */
       iter++;                     /* increment iter count */
+
+      /* printing to R console? */
+      if(verbose){
+	iterPerCent = iter/(maxiter*1.0) * 20.0;
+	if (iterPerCent == round(iterPerCent)){
+	  Rprintf("\nCurrent Iteration: %d (%.0lf%% of %d iterations requested)",
+		  iter,
+		  round(iterPerCent*5.0),  
+		  maxiter);
+	} 
+      }
+
       if(iter>maxiter)                    /* are we done? */
 	break;
       //Rprintf("\niter: %d\n",iter);
@@ -227,10 +240,6 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
     /**********************************************************************/
     /*I N P U T I N G   N E W   V A L U E S  I N T O  E X P O R T  V E C S*/
     /**********************************************************************/ 
-    if (++prn==3) {
-      Rprintf("\nCurrent Iteration: %d",iter);
-      prn=0;
-    } 
     if (iter>=burnin) {
       // the x matrix into a vector for this iteration
       if (*usefile == 1) {

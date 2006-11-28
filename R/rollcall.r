@@ -300,10 +300,12 @@ partyLoyalty <- function(object){
   partyDirections <- matrix(NA,object$m,nParties)
   for(p in 1:nParties){
     thisParty <- object$legis.data$party==theParties[p]
-    ## only do this if the party is bigger than one legislator
-    if(sum(thisParty,na.rm=TRUE)>1){
+    ## only do this if the party is bigger than two legislators
+    if(sum(thisParty,na.rm=TRUE)>2){
       foo <- apply(object$votes[thisParty,],2,
                    majOutcome)
+      if(is.list(foo))
+        foo <- unlist(foo)
       partyDirections[,p] <- foo
      }
    }
@@ -324,9 +326,13 @@ partyLoyalty <- function(object){
   }
   
   for(i in 1:object$n){   ## loop over legislators
-    theDirections <- partyDirections[,legisParty[i]]  
-    partyLoyalty[i] <- goodCompare(theDirections,
-                                   object$votes[i,])
+    ## dont do it where partyDirections are undefined
+    ## (i.e., small numbers of indeps etc)
+    if(!all(is.na(partyDirections[,legisParty[i]]))){  
+      theDirections <- partyDirections[,legisParty[i]]  
+      partyLoyalty[i] <- goodCompare(theDirections,
+                                     object$votes[i,])
+    }
   }
   partyLoyalty
 }
@@ -369,7 +375,7 @@ vectorRepresentation <- function(object,
       dropCodes <- c(dropCodes,codes[[j]])
   }
   cat(paste("vectorRepresentation: dropCodes=",
-            paste(dropCodes,collapse=""),
+            paste(dropCodes,collapse=", "),
             "\n"))
   
   n <- tmpRollCall$n
@@ -468,7 +474,8 @@ summary.rollcall <- function(object,
     
     lopSided <- lopLook(voteTab,floor(.05*tmpRollCall$n))
     names(lopSided) <- as.character(0:floor(.05*tmpRollCall$n))
-    
+
+    ## party loyalty
     if(haveParty){
       cat("and party loyalty scores")
       partyLoyaltyScores <- partyLoyalty(tmpRollCall)

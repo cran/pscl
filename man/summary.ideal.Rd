@@ -10,6 +10,7 @@
 \usage{
 \method{summary}{ideal}(object, quantiles = c(.025, .975),
               burnin=NULL,
+              sort=TRUE,
               include.beta=FALSE,...)
 }
 
@@ -21,9 +22,13 @@
     ideal point and each item's discrimination parameter (if stored in
     the \code{ideal} object).}
   
- \item{burnin}{of the recorded MCMC samples, how many to discard as
+  \item{burnin}{of the recorded MCMC samples, how many to discard as
     burnin?  Default is \code{NULL}, in which case the value of
     \code{burnin} in the \code{\link{ideal}} object is used.}
+  
+  \item{sort}{logical, default is \code{TRUE}, indicating that the
+    summary of the ideal points be sorted by the estimated posterior means
+    (lowest to highest)}
   
   \item{include.beta}{whether or not to calculate summary statistics of
     beta, if beta is available.  If the item parameters were not stored

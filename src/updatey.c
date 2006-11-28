@@ -20,15 +20,16 @@ void updatey(double **ystar, double **y, double **x, double **beta,
 	     int n, int m, int d, int iter)
 {
   int i,j,k;
-  double mu, sd=1.00;
+  double *xrow, *brow, mu, sd=1.00;
   //  float z;
 
   for(i=0;i<n;i++){               /* loop over legislators */
-
+    xrow = x[i];
     for(j=0;j<m;j++){             /* loop over proposals */
-      mu = beta[j][d];          /* intercept */ /*d+1*/
+      brow = beta[j];
+      mu = -1.0*brow[d];          /* intercept */ /*d+1*/
       for(k=0;k<d;k++)
-	mu += beta[j][k]*x[i][k];  
+	mu += brow[k]*xrow[k];  
       if (y[i][j]==9.0){         /* sample untruncated, missing responses */
 	ystar[i][j] = rnorm(mu,1.0);
       }

@@ -22,6 +22,8 @@ export("computeMargins",
        "tracex",
        "vectorRepresentation")
 
+export("seatsVotes", "plot.seatsVotes")
+
 importFrom("MASS", "glm.nb")
 importFrom("stats", "logLik")
 
@@ -72,3 +74,8 @@ importFrom("stats", "logLik")
 ## misc methods
   S3method("dropUnanimous", "matrix")
   S3method("predprob", "glm")
+
+## methods for class seatsVotes
+   S3method("print", "seatsVotes")
+   S3method("plot", "seatsVotes")
+   S3method("summary", "seatsVotes")

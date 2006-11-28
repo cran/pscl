@@ -103,5 +103,13 @@ dropList <- alist(lop=3,
                  code="notInLegis")
 s109.working <- dropRollCall(s109,dropList=dropList)
 
+\dontrun{
+## read 102nd House from Poole web site
+h102 <- readKH("ftp://voteview.ucsd.edu/dtaord/hou102kh.ord")
+
+## drop President from roll call matrix
+h102 <- dropRollCall(h102,
+                     dropList=alist(dropLegis=state=="USA"))
+}
 }
 \keyword{manip}

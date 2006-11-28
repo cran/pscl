@@ -91,7 +91,7 @@ readKH(file,
     \item{\code{partyName}}{character string, the name of each legislator's
       political party}
     \item{\code{party}}{numeric, code for each legislator's political
-      party; see \url{http://voteview.com/party3.dat}}
+      party; see \url{http://voteview.com/PARTY3.HTM}}
   }
   The \code{\link{rownames}} attribute of this data frame is a
   concatenation of the legislators' names, party abbreviations (for

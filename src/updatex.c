@@ -36,7 +36,7 @@ void updatex(double **ystar, int **ok, double **beta,
   //w = dmatrix(n,m);
   for(i=0;i<n;i++){
     for(j=0;j<m;j++){
-      w[i][j] = ystar[i][j] - beta[j][d]; /*d+1*/
+      w[i][j] = ystar[i][j] + beta[j][d]; /*d+1*/
     }
   }
   
@@ -109,17 +109,17 @@ void updatex(double **ystar, int **ok, double **beta,
     for(k=0;k<d;k++){  /* loop over dimensions */
       mu = 0.0; var=0.0;
       for(i=0;i<n;i++){
-	mu += x[i][k];  /* compute mean */
+		mu += x[i][k];  /* compute mean */
       }
       mu = mu/(n*1.0);
 
       for(i=0;i<n;i++){
-	var += (x[i][k]-mu)*(x[i][k]-mu);  /* compute variance */
+		var += (x[i][k]-mu)*(x[i][k]-mu);  /* compute variance */
       }
       var = var/(n - 1.0);
 
       for(i=0;i<n;i++){
-	x[i][k] = (x[i][k]-mu)/sqrt(var);
+		x[i][k] = (x[i][k]-mu)/sqrt(var);
       }
     }
   }

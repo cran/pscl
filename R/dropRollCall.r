@@ -7,11 +7,11 @@ dropRollCall <- function(object,dropList=NULL){
   tmpRollCall <- object
   
   if(!is.list(dropList)){
-    cat("dropList must be a non-null list or alist. No subsetting will occur.")
+    cat("dropList must be a non-null list or alist.\nNo subsetting will occur.\n")
     return(object)
   }
 
-  cat("Dropping elements of rollcall matrix using the following dropList:\n")
+  cat("Dropping elements of rollcall matrix\nusing the following dropList:\n")
   print(dropList)
 
   flag <- TRUE   ## raise the flag
@@ -118,16 +118,27 @@ dropRollCall <- function(object,dropList=NULL){
       cat("Dropped Votes:\n")
       print(dimnames(tmpRollCall$votes)[[2]][dropVotes])
     }
+
+    if(sum(dropLegis>0) | sum(dropVotes)>0)
+      tmpRollCall$votes <- tmpRollCall$votes[!dropLegis,!dropVotes]
     
-    tmpRollCall$votes <- tmpRollCall$votes[!dropLegis,!dropVotes]
-    
-    if(!is.null(tmpRollCall$legis.data))
+    if(!is.null(tmpRollCall$legis.data) & sum(dropLegis)>0){
       tmpRollCall$legis.data <- tmpRollCall$legis.data[!dropLegis,]
-    
-    if(!is.null(tmpRollCall$vote.data))
+      if(class(object$legis.data)=="data.frame"){
+        class(tmpRollCall$legis.data) <- "data.frame"
+        names(tmpRollCall$legis.data) <- names(object$legis.data)
+      }
+    }
+
+    if(!is.null(tmpRollCall$vote.data) & sum(dropVotes)>0){
       tmpRollCall$vote.data <- tmpRollCall$vote.data[!dropVotes,]
-    
-    if(!is.null(tmpRollCall$voteMargins))
+      if(class(object$vote.data)=="data.frame"){
+        class(tmpRollCall$vote.data) <- "data.frame"
+        names(tmpRollCall$vote.data) <- names(object$vote.data)
+      }
+    }
+
+    if(!is.null(tmpRollCall$voteMargins) & sum(dropVotes)>0)
       tmpRollCall$voteMargins <- tmpRollCall$voteMargins[!dropVotes,]
 
     dimNew <- dim(tmpRollCall$votes)

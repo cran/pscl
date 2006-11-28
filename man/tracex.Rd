@@ -10,7 +10,8 @@
 
 \usage{
 tracex(object, legis=NULL, d=1, conf.int=0.95,
-       showAll = FALSE, burnin=NULL)
+       showAll = FALSE, burnin=NULL,span=.25,
+       legendLoc="topright")
 }
 
 \arguments{
@@ -28,6 +29,13 @@ tracex(object, legis=NULL, d=1, conf.int=0.95,
  \item{burnin}{of the recorded MCMC samples, how many to discard as
     burnin?  Default is \code{NULL}, in which case the value of
     \code{burnin} in the \code{\link{ideal}} object is used.}
+  \item{span}{numeric, a proportion, the \code{span} to be used when
+    calling \code{loess} to generate a moving average for trace plots when
+    \code{d=1}}
+  \item{legendLoc}{numeric or character, and possibly a vector,
+  specifying where to place the legend when \code{d=1}; setting
+  \code{legendLoc=NULL} will suppress the legend for all requested trace
+  plots}
 }
 
 \details{Produces a trace plot showing the history of the MCMC
@@ -42,10 +50,21 @@ tracex(object, legis=NULL, d=1, conf.int=0.95,
 
   When \code{d} is a vector of length two, a 2-dimensional trace plot is
   displayed, with the \code{d[1]} dimension on the horizontal axis, and
-  the \code{d[2]} dimension on the vertical axis.}
+  the \code{d[2]} dimension on the vertical axis.
+
+  When \code{d=1}, a legend will be placed on the plot; the option
+  \code{legendLoc} controls the placing of the legend.  \code{legendLoc}
+  may be a vector, specifying a unique legend location for each
+  requested trace plots.  If
+  \code{legendLoc} is of length 1, it will be \code{\link{rep}}licated
+  to have length equal to the number of requested trace plots.
+}
+
+
 
 \seealso{\code{\link{ideal}}; \code{\link{pmatch}} for matching
-  legislators' names.}
+  legislators' names.  See \code{\link{legend}} for valid options to
+  \code{legendLoc}.} 
 
 \examples{
 data(s109)
@@ -53,11 +72,12 @@ data(s109)
 id1 <- ideal(s109,
              meanzero=TRUE,
              maxiter=500,
-             burnin=100,thin=10)
-tracex(id1,legis="KENNEDY")
+             burnin=100,thin=10,
+             verbose=TRUE)
+tracex(id1,legis="KENN")
 
-## n.b., no such legislator has Horrendous Goblin
-tracex(id1,legis=c("KENNEDY","BOXER","KYL","Horrendous Goblin"))
+## n.b., no such legislator named Horrendous Goblin
+tracex(id1,legis=c("KENN","BOX","KYL","Horrendous Goblin"))
 
 \dontrun{
 id2 <- ideal(s109,

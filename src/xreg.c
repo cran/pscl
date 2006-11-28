@@ -14,9 +14,9 @@ void makexreg(double **xreg, double **x, int n, int d, int q)
   int i,j;
   
   for (i=0;i<n;i++){               /* initialize */
-    xreg[i][d] = 1.0;               /* add intercept on end */
+    xreg[i][d] = -1.0;             /* add negative intercept on end */
     for (j=0;j<d;j++)
-      xreg[i][j] = x[i][j];         /* copy over xreg */
+      xreg[i][j] = x[i][j];        /* copy over xreg */
   }             
 
 }
