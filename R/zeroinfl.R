@@ -46,12 +46,12 @@ zeroinfl <- function(formula, data, subset, na.action,
 		      "negbin" = ziNegBin)
 
   ## binary link processing
-  link <- match.arg(link)
-  linkinv <- make.link(link)$linkinv
+  linkstr <- match.arg(link)
+  linkinv <- make.link(linkstr)$linkinv
 
   if(control$trace) cat("Zero-inflated Count Model\n",
     paste("count model:", dist, "with log link\n"),
-    paste("zero-inflation model: binomial with", link, "link\n"), sep = "")
+    paste("zero-inflation model: binomial with", linkstr, "link\n"), sep = "")
 	     
   
   ## set up model.frame() call  
@@ -152,7 +152,7 @@ zeroinfl <- function(formula, data, subset, na.action,
   if(is.null(start)) {
     if(control$trace) cat("generating starting values...")
     model_count <- glm.fit(X, Y, family = poisson(), weights = as.integer(Y1))
-    model_zero <- glm.fit(Z, as.integer(Y0), family = binomial(link = link))
+    model_zero <- glm.fit(Z, as.integer(Y0), family = binomial(link = linkstr))
     start <- list(count = model_count$coefficients, zero = model_zero$coefficients)
     if(dist == "negbin") start$theta <- 1
 
@@ -169,7 +169,7 @@ zeroinfl <- function(formula, data, subset, na.action,
       while(abs((ll_old - ll_new)/ll_old) > control$reltol) {
         ll_old <- ll_new
         model_count <- glm.fit(X, Y, weights = 1-probi, family = poisson(), start = start$count)
-        model_zero <- suppressWarnings(glm.fit(Z, probi, family = binomial(link = link), start = start$zero))
+        model_zero <- suppressWarnings(glm.fit(Z, probi, family = binomial(link = linkstr), start = start$zero))
         lambdai <- model_count$fitted
         probi <- model_zero$fitted
         probi <- probi/(probi + (1-probi) * dpois(0, lambdai))
@@ -195,7 +195,7 @@ zeroinfl <- function(formula, data, subset, na.action,
       while(abs((ll_old - ll_new)/ll_old) > control$reltol) {
         ll_old <- ll_new
         model_count <- suppressWarnings(glm.fit(X, Y, weights = 1-probi, family = negative.binomial(1), start = start$count))
-        model_zero <- suppressWarnings(glm.fit(Z, probi, family = binomial(link = link), start = start$zero))
+        model_zero <- suppressWarnings(glm.fit(Z, probi, family = binomial(link = linkstr), start = start$zero))
         start <- list(count = model_count$coefficients, zero = model_zero$coefficients)
         lambdai <- model_count$fitted
         probi <- model_zero$fitted
@@ -221,7 +221,7 @@ zeroinfl <- function(formula, data, subset, na.action,
       while(abs((ll_old - ll_new)/ll_old) > control$reltol) {
         ll_old <- ll_new
         model_count <- suppressWarnings(glm.nb(Y ~ 0 + X, weights = 1-probi, start = start$count, init.theta = start$theta))
-        model_zero <- suppressWarnings(glm.fit(Z, probi, family = binomial(link = link), start = start$zero))
+        model_zero <- suppressWarnings(glm.fit(Z, probi, family = binomial(link = linkstr), start = start$zero))
         start <- list(count = model_count$coefficients, zero = model_zero$coefficients, theta = model_count$theta)
         lambdai <- model_count$fitted
         probi <- model_zero$fitted
@@ -288,7 +288,7 @@ zeroinfl <- function(formula, data, subset, na.action,
     loglik = fit$value,
     vcov = vc,
     dist = dist,
-    link = link,
+    link = linkstr,
     linkinv = linkinv,
     converged = fit$convergence < 1,
     call = cl,

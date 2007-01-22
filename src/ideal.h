@@ -7,7 +7,7 @@ double dtnorm(double *mu, double *sd, double *y);
 void updatex(double **ystar, int **ok, double **beta, 
 	     double **x, double **xp, double **xpv,
 	     int n, int m, int d, 
-	     int impute, int meanzero);
+	     int impute);
 void makexreg(double **xreg, double **x, int n, int d, int q);
 void updateb(double **ystar, int **ok, double **beta, double **xreg,
 	     double **bp, double **bpv,

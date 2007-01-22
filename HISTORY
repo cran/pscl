@@ -1,4 +1,22 @@
-0.73		* added seats vote class and ca2006 data
+0.75		* version bump, requested by CRAN maintainers 
+		* minor typo in help for predict.ideal
+		* fixed bugs with interactive() in ideal.r
+		* trouble-shooting predict.ideal as per request of
+		Boris Shor
+		* bug (?) in predict.ideal; after 0.73 change to
+		negative intercept, need change in predict.ideal.r to match
+		* in zeroinfl(): binomial(link = link) is deprecated, use
+		  	binomial(link = linkstr) instead
+
+0.74		* deprecating meanzero option in ideal, replace with normalize
+		* new options for specifying start values in ideal (eigen, random, or user-supplied list);
+			this fixes a bug reported by Boris Shor <boris@bshor.com> when working with 
+			large rollcall objects
+		* removed bad escape "\," in readKH 
+			reported by Kurt Hornick <Kurt.Hornik@wu-wien.ac.at> 
+		* dummy entry to force svn commit/update (testing new svn server)
+
+0.73		* added seatsVote class and ca2006 data
 		* cleaned up startvalues processing in ideal
 		* improved priors in ideal
 		* added verbose option to ideal
@@ -7,7 +25,7 @@
 		* sort output by posterior means of ideal points in summary.ideal
 		* improved tracex
 		* fixed bug in dropRollCall (was dropping legis.data attributes)
-		* fixed bug in partyLoyalty (called by summary.rollcall(...,verbose=TRUE)
+		* fixed bug in partyLoyalty, called by summary.rollcall(...,verbose=TRUE)
 		* finally changed ideal model to have a negative intercept; required changes to 
 			updatex.c, updatey.c, and xreg.c
 

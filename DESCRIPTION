@@ -1,7 +1,7 @@
 Package: pscl
-Version: 0.73
+Version: 0.75
 Type: Package
-Date: 2006-11-28
+Date: 2007-01-22
 Title: Political Science Computational Laboratory, Stanford University
 Author: Simon Jackman <jackman@stanford.edu>, with contributions from Alex Tahk, Achim Zeileis, Christina Maimone and Jim Fearon
 Maintainer: Simon Jackman <jackman@stanford.edu>
@@ -11,4 +11,4 @@ Description: Bayesian analysis of item-response theory (IRT) models, roll call a
 SaveImage: yes
 License: GPL
 URL: http://pscl.stanford.edu
-Packaged: Wed Nov 29 10:11:58 2006; hornik
+Packaged: Wed Jan 24 18:00:52 2007; root

@@ -22,13 +22,13 @@ double **bpb, *xprior, **xpriormat, *xbar, **xvpost, *bpw, **w;
 double **xpx, **bvpost, **bpriormat, *bprior, *bbar, *xpy;
 
 void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
-	   int *impute1, int *meanzero1, double *xpriormeans1, 
+	   int *impute1, double *xpriormeans1, 
 	   double  *xpriorprec1, double *bpriormeans1, double *bpriorprec1, 
 	   double *xstart1, double *bstart1, double *xoutput, double *boutput,
 	   int *burnin1, int *usefile, int *bsave, char **filename1, int *verbose1)
 {
   int e, xocursor, bocursor, xlength, blength, q, nm, iter;
-  int inloop, **ok, burnin, n, m, d, maxiter, thin, impute, meanzero, verbose;
+  int inloop, **ok, burnin, n, m, d, maxiter, thin, impute, verbose;
   double **ystar, **x, **xreg, **y, **beta, **bp, **bpv, iterPerCent;
   double **xp, **xpv, *xtemp, *btemp;
   FILE *ofp;
@@ -42,7 +42,6 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
   maxiter=*maxiter1;
   thin=*thin1;
   impute=*impute1;
-  meanzero=*meanzero1;
   verbose=*verbose1;
   burnin=*burnin1;
 
@@ -223,7 +222,7 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
       updatey(ystar,y,x,beta,n,m,d,iter);   
       //Rprintf("past update y\n");
       
-      updatex(ystar,ok,beta,x,xp,xpv,n,m,d,impute,meanzero);
+      updatex(ystar,ok,beta,x,xp,xpv,n,m,d,impute);
       //Rprintf("past updatex\n"); 
 
       makexreg(xreg,x,n,d,q);

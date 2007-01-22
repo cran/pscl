@@ -117,7 +117,7 @@ readKH <- function(file,
 
 ## utility functions
 strip.after.comma <- function(x){
-  indx <- regexpr("\,",x)
+  indx <- regexpr(",",x)
   if (indx > 0)
     z <- substring(x,1,indx-1)
   else

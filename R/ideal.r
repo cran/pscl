@@ -17,9 +17,10 @@ ideal <- function(object,
                   thin=100,
                   burnin=5000,
                   impute=FALSE,
-                  meanzero=FALSE,
+                  normalize=FALSE,
+                  meanzero=normalize,
                   priors=NULL,
-                  startvals=NULL,
+                  startvals="eigen",
                   store.item=FALSE,
                   file=NULL,
                   verbose=FALSE){
@@ -44,10 +45,8 @@ ideal <- function(object,
     cl$impute <- impute
   if(is.null(cl$store.item))
     cl$store.item <- store.item
-  if(is.null(cl$meanzero))
-    cl$meanzero <- meanzero
-
-  localMeanZero <- meanzero   ## copy user-supplied argument
+  if(is.null(cl$normalize))
+    cl$normalize <- normalize
 
   ## check validity of user arguments
   if (!("rollcall" %in% class(object)))
@@ -82,7 +81,17 @@ ideal <- function(object,
   if (burnin >= maxiter)
     stop("burnin must be less than maxiter")
 
-  
+  if(!is.null(normalize) & d>1){
+    cat("normalize option is only meaningful when d=1\n")
+  }
+
+  if(normalize != meanzero){
+    normalize <- meanzero
+    cat("meanzero option is being phased out; normalize provides the same functionality\n")
+    cat(paste("For now, we will use your supplied value of meanzero, proceeding with normalize=",
+              meanzero,"\n"))
+  }
+              
   ## pre-process rollcall object
   tmpObject <- object
   if(!is.null(codes)){
@@ -122,23 +131,26 @@ ideal <- function(object,
 
   ## check to see how much information will need to be stored
   numrec <- (maxiter-burnin)/thin+1
-  if (((store.item)&&((n+m)*d*numrec>2000000))
-       ||((!store.item)&&((n*d*numrec)>2000000))){
+  if (interactive() &
+      ((store.item)&&((n+m)*d*numrec>2000000))
+      ||
+      ((!store.item)&&((n*d*numrec)>2000000))
+      ){
     ans <- readline(paste("The current call to ideal will result in a large object that\n",
                           "will take up a large amount of memory.  Do you want to\n",
-                          "continue with the current parameter values? (y/n): ",
+                          "continue with the current configuation? (y/n): ",
                           sep=""))
-
+    
     if ((substr(ans, 1, 1) == "n")||(substr(ans, 1, 1) == "N"))
       stop("User terminated execution of ideal.")
   }
 
-  if (numrec>1000) {
+  if (interactive() & numrec>1000) {
     ans <- readline(paste("You are attempting to save ",numrec," iterations.  This\n",
-                         "could result in a very large object and cause memory problems.\n",
+                          "could result in a very large object and cause memory problems.\n",
                          "Do you want to continue with the current call to ideal? (y/n): ",
                          sep=""))
-
+    
     if ((substr(ans, 1, 1) == "n")||(substr(ans, 1, 1) == "N"))
       stop("User terminated execution of ideal.")
   }
@@ -261,10 +273,28 @@ ideal <- function(object,
     cat("\nchecking start values...\n")
   xstart <- bstart <- NULL
   options(warn=-1)
-  if(!is.null(startvals)){                 ## parse used-supplied start values
-    if(!is.list(startvals))
-      stop("startval must be a list with components xstart and/or bstart")
 
+  if(!is.list(startvals)){
+    if(startvals=="eigen" | is.null(startvals)){
+      xstart <- x.startvalues(v,d=d,verbose=verbose)
+      bstart <- b.startvalues(v,xstart,d=d,verbose=verbose)
+      bstart <- ifelse(abs(bstart - bp) < 2/sqrt(bpv),
+                       bstart,
+                       bp + 2*sign(bstart-bp)/sqrt(bpv))
+    }
+
+    if(startvals=="random"){
+      if(verbose)
+        cat("generating start values for ideal points by iid sampling from N(0,1)\n")
+      xstart <- matrix(rnorm(n*d),n,d)
+      bstart <- b.startvalues(v,xstart,d=d,verbose=verbose)
+      bstart <- ifelse(abs(bstart - bp) < 2/sqrt(bpv),
+                       bstart,
+                       bp + 2*sign(bstart-bp)/sqrt(bpv))
+    }
+  }
+  
+  if(is.list(startvals)){
     if(!is.null(startvals$xstart)){
       if(length(startvals$xstart) != n*d)
         stop("length of xstart not n by d")
@@ -285,33 +315,28 @@ ideal <- function(object,
     } 
   } 
 
+  ## final check
   if(is.null(xstart)){
-    if((n>500) | (!is.null(priors))){
-      if (n>500)
-        cat(paste("n =",n,
-                  "is too many subjects/legislators for eigen-decomposition\n",
-                  "for start values (capped at n=500)\n"))
-      cat("setting start values to zero for all legislators\n")
-      xstart <- matrix(0,n,d)
-    }
-    else
-      xstart <- x.startvalues(v,d=d)        
-  }
-
-  if(is.null(bstart)){                       ## no beta start values
-    if(verbose)
-      cat(paste("running",
-                m,
-                "vote-specific probits\n",
-                "for start values for item/bill parameters\n"))
-    bstart <- b.startvalues(v,xstart,d=d)
+    cat("no user-supplied start values found\n")
+    xstart <- x.startvalues(v,d,verbose=TRUE)
+    bstart <-     bstart <- b.startvalues(v,xstart,d=d,verbose=verbose)
     bstart <- ifelse(abs(bstart - bp) < 2/sqrt(bpv),
                      bstart,
                      bp + 2*sign(bstart-bp)/sqrt(bpv))
   }
-  
+
+  ## report to user
+  if(verbose){
+    cat("using the following start values for ideal points (summary follows):\n")
+    print(summary(xstart))
+    
+    cat("using the following start values for item parameters (summary follows):\n")
+    print(summary(bstart))
+  }
+
   xstart <- as.vector(t(xstart))
   bstart <- as.vector(t(bstart))
+  
   options(warn=0)
 
   ##############################################################
@@ -337,33 +362,33 @@ ideal <- function(object,
     }
     
     if (store.item){
-            cat(",",
-                paste("\"",
-                      c(paste("b",
-                              as.vector(apply(expand.grid(1:m,1:(d+1)),1,paste,collapse=".")),
-                              sep=".")),"\"",
-                      sep="", collapse=","),
-                sep="", file=file, append=TRUE)
-          }
+      cat(",",
+          paste("\"",
+                c(paste("b",
+                        as.vector(apply(expand.grid(1:m,1:(d+1)),1,paste,collapse=".")),
+                        sep=".")),"\"",
+                sep="", collapse=","),
+          sep="", file=file, append=TRUE)
+    }
     cat("\n", file=file, append=TRUE)
     output <- .C("IDEAL",
                  PACKAGE=.package.Name,
                  as.integer(n), as.integer(m), as.integer(d), as.double(yToC), 
                  as.integer(maxiter), as.integer(thin), as.integer(impute),
-                 as.integer(localMeanZero), as.double(xp), as.double(xpv), as.double(bp),
+                 as.double(xp), as.double(xpv), as.double(bp),
                  as.double(bpv), as.double(xstart), as.double(bstart),
                  xoutput=NULL,
                  boutput=NULL,as.integer(burnin),
                  as.integer(usefile), as.integer(store.item), as.character(file),
                  as.integer(verbose))
   }
-
+  ## not saving output to file, saving output to memory
   else if (!store.item) {
     output <- .C("IDEAL",
                  PACKAGE=.package.Name,
                  as.integer(n), as.integer(m), as.integer(d), as.double(yToC), 
                  as.integer(maxiter), as.integer(thin), as.integer(impute),      
-                 as.integer(localMeanZero), as.double(xp), as.double(xpv), as.double(bp),
+                 as.double(xp), as.double(xpv), as.double(bp),
                  as.double(bpv), as.double(xstart), as.double(bstart),
                  xoutput=as.double(rep(0,n*d*numrec)),
                  boutput=NULL,as.integer(burnin),
@@ -375,7 +400,7 @@ ideal <- function(object,
                  PACKAGE=.package.Name,
                  as.integer(n), as.integer(m), as.integer(d), as.double(yToC),          
                  as.integer(maxiter), as.integer(thin), as.integer(impute),
-                 as.integer(localMeanZero), as.double(xp), as.double(xpv), as.double(bp),
+                 as.double(xp), as.double(xpv), as.double(bp),
                  as.double(bpv), as.double(xstart), as.double(bstart),
                  xoutput=as.double(rep(0,n*d*numrec)),
                  boutput=as.double(rep(0,m*(d+1)*numrec)),as.integer(burnin),
@@ -445,6 +470,12 @@ ideal <- function(object,
               call=cl)
 
   class(out) <- c("ideal")
+
+  ## and, finally, if the user wanted meanzero
+  if(normalize)
+    out <- postProcess(out,
+                       constraints="normalize")
+  
   return(out) 
 }
 
@@ -476,7 +507,10 @@ gencolnames <- function(name, d, beta=F) {
   dname
 }
 
-x.startvalues <- function(x,d,scale=TRUE,constraint=NULL){
+x.startvalues <- function(x,d,scale=TRUE,constraint=NULL,verbose=FALSE){
+  if(verbose)
+    cat("will use eigen-decomposition method to get start values for ideal points...")
+
   dc <- apply(x,2,function(x)x-mean(x,na.rm=T))
   dc <- apply(dc,2,function(x)x-mean(x,na.rm=T))
   dc <- dc + mean(x,na.rm=T)
@@ -494,6 +528,8 @@ x.startvalues <- function(x,d,scale=TRUE,constraint=NULL){
   if (!is.null(constraint)) {
     v <- predict(lm(constraint ~ v), newdata=as.data.frame(v)) 
   }
+  if(verbose)
+    cat("done\n")
   v
 }
 
@@ -506,12 +542,22 @@ probit <- function(y,x){
   b
 }
 
-b.startvalues <- function(v,x,d){
+b.startvalues <- function(v,x,d,verbose=FALSE){
   m <- dim(v)[2]
+  if(verbose)
+    cat(paste("running",
+              m,
+              "vote-specific probit GLMs\n",
+              "for start values for item/bill parameters\n",
+              "conditional on start values for ideal points..."))
+  
   b <- matrix(NA,m,d+1)
   for(j in 1:m){
     b[j,] <- probit(y=v[,j],x=x)
   }
+  b[,d+1] <- -b[,d+1]     ## flip the sign on the intercept, make it a difficulty parameter
+  if(verbose)
+    cat("done\n")
   b
 }
 

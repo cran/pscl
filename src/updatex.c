@@ -17,7 +17,7 @@
 void updatex(double **ystar, int **ok, double **beta, 
 	     double **x, double **xp, double **xpv,
 	     int n, int m, int d, 
-	     int impute, int meanzero)
+	     int impute)
 {
   int i, j, k, l;
   double mu, var;
@@ -105,24 +105,6 @@ void updatex(double **ystar, int **ok, double **beta,
     }
   }
 
-  if(meanzero==1){   /* make the ideal points have mean zero */
-    for(k=0;k<d;k++){  /* loop over dimensions */
-      mu = 0.0; var=0.0;
-      for(i=0;i<n;i++){
-		mu += x[i][k];  /* compute mean */
-      }
-      mu = mu/(n*1.0);
-
-      for(i=0;i<n;i++){
-		var += (x[i][k]-mu)*(x[i][k]-mu);  /* compute variance */
-      }
-      var = var/(n - 1.0);
-
-      for(i=0;i<n;i++){
-		x[i][k] = (x[i][k]-mu)/sqrt(var);
-      }
-    }
-  }
 
   /* free_dmatrix(bpb,d);
      free_dmatrix(w,n);

@@ -9,7 +9,7 @@ predict.ideal <- function(object,
   
   if(is.null(object$beta)){
     cat("Beta values must have be stored in ideal object to make predictions")
-    stop("try re-fitting model with store.items=TRUE.")
+    stop("try re-fitting model with store.item=TRUE.")
   }
 
   if(is.null(burnin))
@@ -56,7 +56,7 @@ predict.ideal <- function(object,
   }
   else{
     cat("Using posterior means in ideal object.\n")
-    x1 <- cbind(object$xbar,1)
+    x1 <- cbind(object$xbar,-1)   ## negative intercept !!! SDJ 01/22/07
     b <- object$betabar
   }
   mu <- tcrossprod(x1,b)        ## this should be n by (d+1) times (d+1) by m

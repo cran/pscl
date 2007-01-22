@@ -13,38 +13,50 @@
 ideal(object, codes = object$codes,
       dropList = list(codes = "notInLegis", lop = 0),
       d = 1, maxiter = 10000, thin = 100, burnin = 5000,
-      impute = FALSE, meanzero = FALSE,
-      priors = NULL, startvals = NULL,
+      impute = FALSE,
+      normalize = FALSE,
+      meanzero = normalize,
+      priors = NULL, startvals = "eigen",
       store.item = FALSE, file = NULL,
       verbose=FALSE)
 }
 
 \arguments{
   \item{object}{an object of class \code{\link{rollcall}}}
+  
   \item{codes}{a \code{\link{list}} describing the types of voting
     decisions in the roll call matrix (the \code{votes} component of the
     \code{\link{rollcall}} \code{object}); defaults to 
     \code{object$codes}, the codes in the rollcall object.} 
+  
   \item{dropList}{a \code{\link{list}} (or \code{\link{alist}})
-      listing voting decisions, legislators and/or votes to be dropped
-      from the analysis; see \code{\link{dropRollCall}} for details.}
+    listing voting decisions, legislators and/or votes to be dropped
+    from the analysis; see \code{\link{dropRollCall}} for details.}
+  
   \item{d}{numeric, (small) positive integer (defaults to 1).}
+
   \item{maxiter}{numeric, positive integer, multiple of \code{thin}}
+
   \item{thin}{numeric, positive integer, thinning interval used for
     recording MCMC iterations.}
+
   \item{burnin}{number of MCMC iterations to run before recording.  The
     iteration numbered \code{burnin} will be recorded.  Must be a
     multiple of \code{thin}.}
+
   \item{impute}{\code{\link{logical}}, whether to treat missing entries
     of the rollcall matrix as missing at random, sampling from the
     predictive density of the missing entries at each MCMC iteration.}
-  \item{meanzero}{\code{\link{logical}}, whether estimated ideal points
-    should have a mean of zero and standard deviation one.  If \code{TRUE},
-    any user-supplied priors will be ignored.  This option is helpful
-    for unidimensional models, and is sufficient to locally identify the
-    model parameters in this case; more restrictions are required for
-    identification when \code{d > 1}.  See Details.}
 
+  \item{normalize}{\code{\link{logical}}, impose identification with the
+    constraint that the ideal points have mean of zero and standard
+    deviation one.  This option is only recognized for unidimensional
+    models, and is sufficient to locally identify the model parameters
+    in this case; more restrictions are required for identification when
+    \code{d > 1}.  See Details.}
+
+  \item{meanzero}{to be deprecated/ignored; use \code{normalize} instead.}
+  
   \item{priors}{a \code{list} of parameters (means and variances)
     specifying normal priors for the legislators' ideal points. The
     default is \code{NULL}, in which case prior values will be generated
@@ -57,7 +69,7 @@ ideal(object, codes = object$codes,
     \item{\code{xp}}{a \code{n} by \code{d} matrix
       of prior \emph{means} for the legislators' ideal points;
       or alternatively, a scalar, which will be replicated to fill a \code{n}
-      by \code{d} matrix}.
+      by \code{d} matrix.}
     \item{\code{xpv}}{a \code{n} by \code{d} matrix of prior
       \emph{precisions} (inverse variances);
       or alternatively, a scalar, which will be replicated to fill a \code{n}
@@ -75,25 +87,23 @@ ideal(object, codes = object$codes,
     corresponding component of \code{priors} is assigned using the default
     values described above.}
 
-  \item{startvals}{a \code{list} containing start values for
-    legislators' ideal points and item parameters.  Default is
-    \code{NULL}, in which case start values will be generated for both
-    legislators' ideal points and item parameters. See Details.  If not
-    \code{NULL}, \code{startvals} must be a \code{list} containing the
-    elements \code{xstart} and \code{bstart}, which should be matrices.
-    \code{xstart} must be of dimensions equal to the number of individuals
-    (legislators) by \code{d}.  \code{bstart} must be of dimensions
-    number of items (votes) by \code{d}+1.  \code{xstart} and
-    \code{bstart} cannot contain \code{NA}.}
+  \item{startvals}{either a string naming a method for generating start
+    values, valid options are \code{"eigen"} (the default) or
+    \code{"random"}; or a \code{list} containing start values for
+    legislators' ideal points and item parameters.  See Details.}
+
   \item{store.item}{\code{\link{logical}}, whether item discrimination
     parameters should be stored.  Storing item discrimination parameters
     can consume a large amount of memory.}
+
   \item{file}{string, file to write MCMC output.  Default is
-    \code{NULL}, in which case MCMC output is stored in memory.
-    Note that post-estimation commands like \code{plot} will not
-    work unless MCMC output is stored in memory.}
-  \item{verbose}{logical, default is \code{FALSE}, which generates
-  relatively little output to the R console during execution}
+    \code{NULL}, in which case MCMC output is stored in memory.  Note
+    that post-estimation commands like \code{plot} will not work unless
+    MCMC output is stored in memory.}
+
+  \item{verbose}{logical, default
+    is \code{FALSE}, which generates relatively little output to the R
+    console during execution.}
 }
 
 \details{The function fits a \code{d}+1 parameter item-response model to
@@ -110,7 +120,7 @@ ideal(object, codes = object$codes,
     discussion provides some guidance.
 
   For one-dimensional models, a simple route to identification is the
-  \code{meanzero} option, which guarantees \emph{local} identification
+  \code{normalize} option, which guarantees \emph{local} identification
   (identification up to a 180 rotation of the recovered
   dimension). Near-degenerate\dQuote{spike} priors (priors with
   arbitrarily large precisions) or the \code{constrain.legis} option on
@@ -134,26 +144,20 @@ ideal(object, codes = object$codes,
   is, the user can run \code{ideal} without any identification
   constraints, but then use the function \code{\link{postProcess}} to
   map the MCMC output from the space of unidentified parameters into the
-  subspace of identified parameters.
+  subspace of identified parameters.  In fact, the when the
+  \code{normalize} option is set to \code{TRUE}, the \code{ideal} object
+  is simply post-processed with the \code{normalize} option.
   
   \strong{Start values}.  Start values can be supplied by the user, or
-  generated by the function itself.
-  \code{\link{constrain.legis}} 
-  or
-  \code{\link{constrain.items}} generate start values using the procedures discussed
-  below, but also impose any (identifying) constraints imposed by the user.
-  Start values for legislators'
-  ideal points are generated by double-centering the
-  roll call matrix (subtracting row means, and column means, adding in
-  the grand mean), forming a correlation matrix across legislators, and
-  extracting the first \code{d} eigenvectors, scaled by the square root
-  of the corresponding eigenvalues.  Any constraints from
-  \code{\link{constrain.legis}} are then considered, with the
-  unconstrained start values (linearly) transformed via least squares
-  regression, minimizing the sum of the squared differences between the
-  constrained and the unconstrained start values.
+  generated by the function itself. 
 
-  To generate start values for the rollcall/item parameters, a series of
+  The default method, corresponding to \code{startvals="eigen"}, first
+  forms a \code{n}-by-\code{n} correlation matrix from the
+  double-centered roll call matrix (subtracting row means, and column
+  means, adding in the grand mean), and then extracts the first \code{d}
+  principal components (eigenvectors), scaling the eigenvectors by the
+  square root of their corresponding eigenvector.  Then, to generate
+  start values for the rollcall/item parameters, a series of
   \code{\link[=family]{binomial}} \code{\link[=glm]{glms}} are estimated
   (with a probit \code{\link[=make.link]{link}}), one for each
   rollcall/item, \eqn{j = 1, \ldots, m}.  The votes on the \eqn{j}-th
@@ -162,9 +166,36 @@ ideal(object, codes = object$codes,
   (constrained or unconstrained) start values for legislators are used
   as predictors. The estimated coefficients from these probit models are
   stored to serve as start values for the item discrimination and
-  difficulty parameters.  Any constraints on particular item
-  discrimination parameters from \code{\link{constrain.legis}} are then
-  imposed.  }
+  difficulty parameters (with the intercepts from the probit GLMs
+  multiplied by -1 so as to make those coefficients difficulty parameters).
+
+  The default \code{eigen} method generates extremely good start values
+  for low-dimensional models fit to recent U.S. congresses (where high
+  rates of party line voting mean low dimensional models fit well).  The
+  \code{eigen} method may be computationally expensive or even
+  impossible to implement for \code{rollcall} objects with large numbers
+  of legislators.
+
+  The \code{random} method generates start values via iid sampling from
+  a N(0,1) density, via \code{\link{dnorm}}, and then uses the probit
+  method above to get start values for the rollcall/item parameters.
+  
+  If \code{startvals} is a \code{list}, it must contain the elements
+  \code{xstart} and/or \code{bstart}, which should be matrices.
+  \code{xstart} must be of dimensions equal to the number of individuals
+  (legislators) by \code{d}.  If supplied, \code{startvals$bstart} must
+  be of dimensions number of items (votes) by \code{d}+1.  The
+  \code{xstart} and \code{bstart} components cannot contain \code{NA}.
+  If \code{xstart} is not supplied when \code{startvals} is a list, then
+  start values are generated using the default \code{eiegn} method
+  described above, and start values for the rollcall/item parameters are
+  regenerated using the probit method, ignoring any user-supplied values
+  in \code{startvals$bstart}.  That is, user-supplied values in
+  \code{startvals$bstart} are only used when accompanied by a valid set
+  of start values for the ideal points in \code{startvals$xstart}.  If 
+
+}
+  
 
 \value{a \code{\link{list}} of class \code{ideal} with named components
 
@@ -253,7 +284,7 @@ data(s109)
 ## ridiculously short run for examples
 id1 <- ideal(s109,
              d=1,
-             meanzero=TRUE,
+             normalize=TRUE,
              store.item=TRUE,
              maxiter=500,
              burnin=100,
@@ -266,7 +297,7 @@ summary(id1)
 idLong <- ideal(s109,
                 d=1,
                 priors=list(xpv=1e-12,bpv=1e-12),
-                meanzero=TRUE,
+                normalize=TRUE,
                 store.item=TRUE,
                 maxiter=260e3,
                 burnin=1e4,
