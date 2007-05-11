@@ -1,6 +1,6 @@
 \name{ideal}
 \alias{ideal}
-\title{analysis of roll call data (IRT models) via Markov
+\title{analysis of educational testing data and roll call data with IRT models, via Markov
   chain Monte Carlo methods}
 
 \description{
@@ -48,12 +48,13 @@ ideal(object, codes = object$codes,
     of the rollcall matrix as missing at random, sampling from the
     predictive density of the missing entries at each MCMC iteration.}
 
-  \item{normalize}{\code{\link{logical}}, impose identification with the
-    constraint that the ideal points have mean of zero and standard
-    deviation one.  This option is only recognized for unidimensional
-    models, and is sufficient to locally identify the model parameters
-    in this case; more restrictions are required for identification when
-    \code{d > 1}.  See Details.}
+  \item{normalize}{\code{\link{logical}}, impose identification with
+    the constraint that the ideal points have mean zero and
+    standard deviation one.  This option is only functional for
+    unidimensional models (i.e., \code{d=1}), and is sufficient to
+    locally identify the model parameters in this case; more
+    identifying restrictions are required for identification when \code{d > 1}.
+    See Details.}
 
   \item{meanzero}{to be deprecated/ignored; use \code{normalize} instead.}
   
@@ -113,40 +114,50 @@ ideal(object, codes = object$codes,
   
   \strong{Identification}: The model parameters are \strong{not
     identified} without the user supplying some restrictions on the
-  model parameters (translations, rotations and re-scalings of the
+  model parameters (e.g., translations, rotations and re-scalings of the
   ideal points are observationally equivalent, via offsetting
   transformations of the item parameters).  It is the user's
-  responsibility to impose these restrictions; the following brief
+  responsibility to impose these identifying restrictions if desired; the following brief
     discussion provides some guidance.
 
-  For one-dimensional models, a simple route to identification is the
-  \code{normalize} option, which guarantees \emph{local} identification
-  (identification up to a 180 rotation of the recovered
-  dimension). Near-degenerate\dQuote{spike} priors (priors with
-  arbitrarily large precisions) or the \code{constrain.legis} option on
-  any two legislators' ideal points ensures \emph{global}
-  identification.
+  For one-dimensional models (i.e., \code{d=1}), a simple route to
+  identification is the \code{normalize} option, which guarantees
+  \emph{local} identification (identification up to a 180 rotation of
+  the recovered dimension). Near-degenerate\dQuote{spike} priors
+  (priors with arbitrarily large precisions) or the
+  \code{constrain.legis} option on any two legislators' ideal points
+  ensures \emph{global} identification.
 
-  Identification in higher dimensions can be obtained by supplying fixed
-  values for \code{d+1} legislators' ideal points, provided the supplied
-  points span a \code{d}-dimensional space (e.g., three supplied ideal
-  points form a triangle in \code{d=2} dimensions), via the
-  \code{constrain.legis} option. In this case the function defaults to
-  vague normal priors, but at each iteration the sampled ideal points
-  are transformed back into the space of identified parameters, applying
-  the linear transformation that maps the \code{d+1} fixed ideal points
-  from their sampled values to their fixed values.
+  Identification in higher dimensions can be obtained by supplying
+  fixed values for \code{d+1} legislators' ideal points, provided the
+  supplied points span a \code{d}-dimensional space (e.g., three
+  supplied ideal points form a triangle in \code{d=2} dimensions), via
+  the \code{\link{constrain.legis}} option. In this case the function
+  defaults to vague normal priors, but at each iteration the sampled
+  ideal points are transformed back into the space of identified
+  parameters, applying the linear transformation that maps the
+  \code{d+1} fixed ideal points from their sampled values to their
+  fixed values.  Alternatively (and equivalently), one can impose
+  restrictions on the item parameters via
+  \code{\link{constrain.items}}. See the examples in the documentation
+  for the \code{\link{constrain.legis}} and
+  \code{\link{constrain.items}}.
 
-  Alternatively, one can impose restrictions on the item parameters via
-  \code{constrain.items}.
 
   Another route to identification is via \emph{post-processing}.  That
   is, the user can run \code{ideal} without any identification
-  constraints, but then use the function \code{\link{postProcess}} to
-  map the MCMC output from the space of unidentified parameters into the
-  subspace of identified parameters.  In fact, the when the
-  \code{normalize} option is set to \code{TRUE}, the \code{ideal} object
-  is simply post-processed with the \code{normalize} option.
+  constraints (which does not pose any formal/technical problem in a
+  Bayesian analysis -- the posterior density is still well defined and
+  can be explored via MCMC methods) -- but then use the function
+  \code{\link{postProcess}} to map the MCMC output from the space of
+  unidentified parameters into the subspace of identified parameters.
+  See the example in the documentation for the
+  \code{\link{postProcess}} function.  When the
+  \code{normalize} option is set to \code{TRUE}, an unidentified model
+  is run, and the \code{ideal} object is post-processed with the
+  \code{normalize} option, and then returned to the user (but again,
+  note that the \code{normalize} option is only implemented for
+  unidimensional models).
   
   \strong{Start values}.  Start values can be supplied by the user, or
   generated by the function itself. 
@@ -154,20 +165,25 @@ ideal(object, codes = object$codes,
   The default method, corresponding to \code{startvals="eigen"}, first
   forms a \code{n}-by-\code{n} correlation matrix from the
   double-centered roll call matrix (subtracting row means, and column
-  means, adding in the grand mean), and then extracts the first \code{d}
-  principal components (eigenvectors), scaling the eigenvectors by the
-  square root of their corresponding eigenvector.  Then, to generate
-  start values for the rollcall/item parameters, a series of
-  \code{\link[=family]{binomial}} \code{\link[=glm]{glms}} are estimated
-  (with a probit \code{\link[=make.link]{link}}), one for each
-  rollcall/item, \eqn{j = 1, \ldots, m}.  The votes on the \eqn{j}-th
-  rollcall/item are binary responses (presumed to be conditionally
-  independent given each legislator's latent preference), and the
-  (constrained or unconstrained) start values for legislators are used
-  as predictors. The estimated coefficients from these probit models are
-  stored to serve as start values for the item discrimination and
-  difficulty parameters (with the intercepts from the probit GLMs
-  multiplied by -1 so as to make those coefficients difficulty parameters).
+  means, adding in the grand mean), and then extracts the first
+  \code{d} principal components (eigenvectors), scaling the
+  eigenvectors by the square root of their corresponding eigenvector.
+  If the user is imposing constraints on ideal points (via
+  \code{\link{constrain.legis}}), these are applied to the
+  corresponding elements of the start values generated from the eigen
+  decomposition.  Then, to generate start
+  values for the rollcall/item parameters, a series of
+  \code{\link[=family]{binomial}} \code{\link[=glm]{glms}} are
+  estimated (with a probit \code{\link[=make.link]{link}}), one for
+  each rollcall/item, \eqn{j = 1, \ldots, m}.  The votes on the
+  \eqn{j}-th rollcall/item are binary responses (presumed to be
+  conditionally independent given each legislator's latent
+  preference), and the (constrained or unconstrained) start values for
+  legislators are used as predictors. The estimated coefficients from
+  these probit models are stored to serve as start values for the item
+  discrimination and difficulty parameters (with the intercepts from
+  the probit GLMs multiplied by -1 so as to make those coefficients
+  difficulty parameters).
 
   The default \code{eigen} method generates extremely good start values
   for low-dimensional models fit to recent U.S. congresses (where high
@@ -176,9 +192,12 @@ ideal(object, codes = object$codes,
   impossible to implement for \code{rollcall} objects with large numbers
   of legislators.
 
-  The \code{random} method generates start values via iid sampling from
-  a N(0,1) density, via \code{\link{dnorm}}, and then uses the probit
-  method above to get start values for the rollcall/item parameters.
+  The \code{random} method generates start values via iid sampling
+  from a N(0,1) density, via \code{\link{rnorm}}, imposes any
+  constraints that may have been supplied via
+  \code{\link{constrain.legis}}, and then uses the probit method
+  described above to get start values for the rollcall/item
+  parameters.
   
   If \code{startvals} is a \code{list}, it must contain the elements
   \code{xstart} and/or \code{bstart}, which should be matrices.

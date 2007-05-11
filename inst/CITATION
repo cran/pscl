@@ -1,18 +1,37 @@
 citHeader("To cite pscl/ideal in publications use")
 
 citEntry(entry="Manual",
-         title = "pscl: classes and methods for R developed in the Political Science Computational Laboratory, Stanford University",
-         author = person(last="Jackman",first="Simon",email="jackman@stanford.edu"),
+         title = "pscl: Classes and Methods for {R} Developed in the Political Science Computational Laboratory, Stanford University",
+         author = person(last = "Jackman", first = "Simon", email = "jackman@stanford.edu"),
          organization = "Department of Political Science, Stanford University",
          address = "Stanford, California",
-         year = 2006,
-         url = "http://pscl.stanford.edu",
+         year = 2007,
+         url = "http://pscl.stanford.edu/",
 
          textVersion =
-         paste("Jackman, Simon. 2006. ",
-               "pscl: classes and methods for R developed in the Political Science Computational Laboratory, Stanford University. ",
+         paste("Simon Jackman (2007). ",
+               "pscl: Classes and Methods for R Developed in the Political Science Computational Laboratory, Stanford University. ",
                "Department of Political Science, Stanford University. ",
                "Stanford, California. ",
-               "URL http://pscl.stanford.edu. ",
+               "URL http://pscl.stanford.edu/. ",
                sep="")
          )
+
+citEntry(entry="TechReport",
+         title = "Regression Models for Count Data in {R}",
+         author = personList(as.person("Achim Zeileis"), 
+	                     as.person("Christian Kleiber"),
+                             as.person("Simon Jackman")),
+         institution  = "Department of Statistics and Mathematics, Wirtschaftsuniversitaet Wien, Research Report Series",
+         year         = "2007",
+	 type         = "Report",
+	 number       = "53",
+	 month        = "April",
+	 url          = "http://epub.wu-wien.ac.at/",
+         
+         textVersion = 
+         paste("Achim Zeileis, Christian Kleiber, Simon Jackman (2007).", 
+               "Regression Models for Count Data in R.",
+	       "Report 53, Department of Statistics and Mathematics, Wirtschaftsuniversitaet Wien, Research Report Series."),
+	 header = "If count data regression models zeroinfl()/hurdle() are used, please cite:"
+)

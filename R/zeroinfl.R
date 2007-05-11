@@ -1,4 +1,4 @@
-zeroinfl <- function(formula, data, subset, na.action,
+zeroinfl <- function(formula, data, subset, na.action, weights, offset,
                      dist = c("poisson", "negbin", "geometric"),
                      link = c("logit", "probit", "cloglog", "cauchit", "log"),
 		     control = zeroinfl.control(...),
@@ -7,7 +7,7 @@ zeroinfl <- function(formula, data, subset, na.action,
   ## set up likelihood
   ziPoisson <- function(parms) {
     ## count mean
-    lambda <- as.vector(exp(X %*% parms[1:kx]))
+    lambda <- as.vector(exp(X %*% parms[1:kx] + offset))
     ## binary mean
     phi <- as.vector(linkinv(Z %*% parms[(kx+1):(kx+kz)]))
     
@@ -16,13 +16,13 @@ zeroinfl <- function(formula, data, subset, na.action,
     loglik1 <- log(1-phi) + dpois(Y, lambda, log = TRUE)
     
     ## collect and return
-    loglik <- sum(loglik0[Y0]) + sum(loglik1[Y1])
+    loglik <- sum(weights[Y0] * loglik0[Y0]) + sum(weights[Y1] * loglik1[Y1])
     loglik
   }
   
   ziNegBin <- function(parms) {
     ## count mean
-    lambda <- as.vector(exp(X %*% parms[1:kx]))
+    lambda <- as.vector(exp(X %*% parms[1:kx] + offset))
     ## binary mean
     phi <- as.vector(linkinv(Z %*% parms[(kx+1):(kx+kz)]))
     ## negbin size
@@ -33,7 +33,7 @@ zeroinfl <- function(formula, data, subset, na.action,
     loglik1 <- log(1-phi) + suppressWarnings(dnbinom(Y, size = theta, mu = lambda, log = TRUE))
 
     ## collect and return
-    loglik <- sum(loglik0[Y0]) + sum(loglik1[Y1])
+    loglik <- sum(weights[Y0] * loglik0[Y0]) + sum(weights[Y1] * loglik1[Y1])
     loglik
   }
   
@@ -58,7 +58,7 @@ zeroinfl <- function(formula, data, subset, na.action,
   cl <- match.call()
   if(missing(data)) data <- environment(formula)
   mf <- match.call(expand.dots = FALSE)
-  m <- match(c("formula", "data", "subset", "na.action"), names(mf), 0)
+  m <- match(c("formula", "data", "subset", "na.action", "weights", "offset"), names(mf), 0)
   mf <- mf[c(1, m)]
   mf$drop.unused.levels <- TRUE
   
@@ -95,7 +95,6 @@ zeroinfl <- function(formula, data, subset, na.action,
   Z <- model.matrix(mtZ, mf)
   Y <- model.response(mf, "numeric")
 
-
   ## sanity checks
   if(length(Y) < 1) stop("empty model")
   if(all(Y > 0)) stop("invalid dependent variable, minimum count is not zero")  
@@ -115,8 +114,21 @@ zeroinfl <- function(formula, data, subset, na.action,
   n <- length(Y)
   kx <- NCOL(X)
   kz <- NCOL(Z)
-  Y0 <- Y < 1
+  Y0 <- Y <= 0
   Y1 <- Y > 0
+
+  ## weights and offset
+  weights <- model.weights(mf)
+  if(is.null(weights)) weights <- 1
+  if(length(weights) == 1) weights <- rep(weights, n)
+  weights <- as.vector(weights)
+  names(weights) <- rownames(mf)
+  
+  offset <- model.offset(mf)
+  if(is.null(offset)) offset <- 0
+  if(length(offset) == 1) offset <- rep(offset, n)
+  offset <- as.vector(offset)
+
 
   ## starting values
   start <- control$start
@@ -151,8 +163,8 @@ zeroinfl <- function(formula, data, subset, na.action,
   
   if(is.null(start)) {
     if(control$trace) cat("generating starting values...")
-    model_count <- glm.fit(X, Y, family = poisson(), weights = as.integer(Y1))
-    model_zero <- glm.fit(Z, as.integer(Y0), family = binomial(link = linkstr))
+    model_count <- glm.fit(X, Y, family = poisson(), weights = weights * as.integer(Y1), offset = offset)
+    model_zero <- glm.fit(Z, as.integer(Y0), weights = weights, family = binomial(link = linkstr))
     start <- list(count = model_count$coefficients, zero = model_zero$coefficients)
     if(dist == "negbin") start$theta <- 1
 
@@ -168,8 +180,10 @@ zeroinfl <- function(formula, data, subset, na.action,
     
       while(abs((ll_old - ll_new)/ll_old) > control$reltol) {
         ll_old <- ll_new
-        model_count <- glm.fit(X, Y, weights = 1-probi, family = poisson(), start = start$count)
-        model_zero <- suppressWarnings(glm.fit(Z, probi, family = binomial(link = linkstr), start = start$zero))
+        model_count <- glm.fit(X, Y, weights = weights * (1-probi), offset = offset,
+	  family = poisson(), start = start$count)
+        model_zero <- suppressWarnings(glm.fit(Z, probi, weights = weights,
+	  family = binomial(link = linkstr), start = start$zero))
         lambdai <- model_count$fitted
         probi <- model_zero$fitted
         probi <- probi/(probi + (1-probi) * dpois(0, lambdai))
@@ -194,8 +208,10 @@ zeroinfl <- function(formula, data, subset, na.action,
     
       while(abs((ll_old - ll_new)/ll_old) > control$reltol) {
         ll_old <- ll_new
-        model_count <- suppressWarnings(glm.fit(X, Y, weights = 1-probi, family = negative.binomial(1), start = start$count))
-        model_zero <- suppressWarnings(glm.fit(Z, probi, family = binomial(link = linkstr), start = start$zero))
+        model_count <- suppressWarnings(glm.fit(X, Y, weights = weights * (1-probi),
+	  offset = ofsset, family = negative.binomial(1), start = start$count))
+        model_zero <- suppressWarnings(glm.fit(Z, probi, weights = weights,
+	  family = binomial(link = linkstr), start = start$zero))
         start <- list(count = model_count$coefficients, zero = model_zero$coefficients)
         lambdai <- model_count$fitted
         probi <- model_zero$fitted
@@ -220,8 +236,10 @@ zeroinfl <- function(formula, data, subset, na.action,
     
       while(abs((ll_old - ll_new)/ll_old) > control$reltol) {
         ll_old <- ll_new
-        model_count <- suppressWarnings(glm.nb(Y ~ 0 + X, weights = 1-probi, start = start$count, init.theta = start$theta))
-        model_zero <- suppressWarnings(glm.fit(Z, probi, family = binomial(link = linkstr), start = start$zero))
+        model_count <- suppressWarnings(glm.nb(Y ~ 0 + X + offset(offset), weights = weights * (1-probi),
+	  start = start$count, init.theta = start$theta))
+        model_zero <- suppressWarnings(glm.fit(Z, probi, weights = weights,
+	  family = binomial(link = linkstr), start = start$zero))
         start <- list(count = model_count$coefficients, zero = model_zero$coefficients, theta = model_count$theta)
         lambdai <- model_count$fitted
         probi <- model_zero$fitted
@@ -279,6 +297,8 @@ zeroinfl <- function(formula, data, subset, na.action,
     method = method,
     control = ocontrol,
     start = start,
+    weights = weights,
+    offset = if(identical(offset, rep(0, n))) NULL else offset,
     n = n,
     df.null = n - 2,
     df.residual = n - (kx + kz + (dist == "negbin")),

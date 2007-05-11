@@ -4,7 +4,7 @@
 
 extractRollCallObject <- function(object){
   if(!inherits(object,"ideal"))
-    stop("extractVotes only defined for objects of class ideal")
+    stop("extractRollCallObject only defined for objects of class ideal")
 
   rcObj <- eval(object$call$object)
   dropList <- eval(object$call$dropList)

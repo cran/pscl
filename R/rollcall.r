@@ -518,9 +518,9 @@ print.summary.rollcall <- function(x, digits=1, ...){
               ".\n",sep=""))
   if(!is.null(x$call$dropList$lop))
     if(x$call$dropList$lop==0)
-      cat("\nThis summary ignores unanimous roll calls.\n")
+      cat("\nThis summary computed after dropping unanimous roll calls.\n")
     else
-      cat(paste("\nThis summary ignores roll calls with",
+      cat(paste("\nThis summary computed after dropping roll calls with",
                 x$call$dropList$lop,
                 "or fewer legislators voting\nin the minority.\n"))
   if(length(x$call$dropList)>2){

@@ -1,6 +1,6 @@
 useDynLib("pscl")
 
-export("hurdle", "hurdle.control",
+export("hurdle", "hurdle.control", "hurdletest",
        "zeroinfl", "zeroinfl.control",
        "odTest",
        "predprob", "vuong", "ntable", "betaHPD")
@@ -19,10 +19,13 @@ export("computeMargins",
        "plot.predict.ideal",
        "plot.ideal",
        "postProcess",
+       "simpi",
        "tracex",
        "vectorRepresentation")
 
 export("seatsVotes", "plot.seatsVotes")
+
+export("hitmiss", "pR2")
 
 importFrom("MASS", "glm.nb")
 importFrom("stats", "logLik")
@@ -74,8 +77,19 @@ importFrom("stats", "logLik")
 ## misc methods
   S3method("dropUnanimous", "matrix")
   S3method("predprob", "glm")
+  S3method("logLik", "polr")
 
 ## methods for class seatsVotes
    S3method("print", "seatsVotes")
    S3method("plot", "seatsVotes")
    S3method("summary", "seatsVotes")
+
+## hitmiss methods
+   S3method("hitmiss", "glm")
+   S3method("hitmiss", "polr")
+   S3method("hitmiss", "multinom")
+
+## pR2 methods
+   S3method("pR2", "glm")
+   S3method("pR2", "polr")
+   S3method("pR2", "multinom")

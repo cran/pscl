@@ -2,13 +2,15 @@
 \alias{zeroinfl}
 \alias{print.zeroinfl}
 
+\encoding{latin1}
+
 \title{Zero-inflated Count Data Regression}
 \description{
   Fit zero-inflated regression models for count data via maximum likelihood.
 }
 
 \usage{
-zeroinfl(formula, data, subset, na.action,
+zeroinfl(formula, data, subset, na.action, weights, offset,
   dist = c("poisson", "negbin", "geometric"),
   link = c("logit", "probit", "cloglog", "cauchit", "log"),
   control = zeroinfl.control(\dots),
@@ -19,6 +21,9 @@ zeroinfl(formula, data, subset, na.action,
   \item{formula}{symbolic description of the model, see details.}
   \item{data, subset, na.action}{arguments controlling formula processing
     via \code{\link[stats]{model.frame}}.}
+  \item{weights}{optional numeric vector of weights.}
+  \item{offset}{optional numeric vector with an a priori known component to be
+    included in the linear predictor of the count model.}
   \item{dist}{character specification of count model family (a log link is 
     always used).}
   \item{link}{character specification of link function in the binary
@@ -88,6 +93,8 @@ zeroinfl(formula, data, subset, na.action,
     minimizing the negative log-likelihood,}
   \item{control}{the control arguments passed to the \code{optim} call,}
   \item{start}{the starting values for the parameters passed to the \code{optim} call,}
+  \item{weights}{the case weights used,}
+  \item{offset}{the offset vector used (if any),}
   \item{n}{number of observations,}
   \item{df.null}{residual degrees of freedom for the null model (= \code{n - 2}),}
   \item{df.residual}{residual degrees of freedom for fitted model,}
@@ -123,8 +130,13 @@ Data.} New York: Cambridge University Press.
 Cameron, A. Colin and Pravin K. Trivedi. 2005. \emph{Microeconometrics: Methods and Applications}.
 Cambridge: Cambridge University Press.
 
-Lambert, Diane. 1992. "Zero-Inflated Poisson Regression,
-with an Application to Defects in Manufacturing." \emph{Technometrics}.V34(1):1-14
+Lambert, Diane. 1992. \dQuote{Zero-Inflated Poisson Regression,
+with an Application to Defects in Manufacturing.} \emph{Technometrics}.V34(1):1-14
+
+Zeileis, Achim, Christian Kleiber and Simon Jackman 2007.
+\dQuote{Regression Models for Count Data in R.} Report 53,
+Department of Statistics and Mathematics, Wirtschaftsuniversität Wien, Research Report Series.
+\url{http://epub.wu-wien.ac.at/}.
 }
 
 \author{Achim Zeileis <Achim.Zeileis@R-project.org>}

@@ -293,7 +293,8 @@ ideal <- function(object,
                        bp + 2*sign(bstart-bp)/sqrt(bpv))
     }
   }
-  
+
+  ## user has passed something in startvals
   if(is.list(startvals)){
     if(!is.null(startvals$xstart)){
       if(length(startvals$xstart) != n*d)
@@ -319,7 +320,9 @@ ideal <- function(object,
   if(is.null(xstart)){
     cat("no user-supplied start values found\n")
     xstart <- x.startvalues(v,d,verbose=TRUE)
-    bstart <-     bstart <- b.startvalues(v,xstart,d=d,verbose=verbose)
+  }
+  if(is.null(bstart)){
+    bstart <- b.startvalues(v,xstart,d=d,verbose=verbose)
     bstart <- ifelse(abs(bstart - bp) < 2/sqrt(bpv),
                      bstart,
                      bp + 2*sign(bstart-bp)/sqrt(bpv))

@@ -1,6 +1,8 @@
 \name{hurdle}
 \alias{hurdle}
 
+\encoding{latin1}
+
 \title{Hurdle Models for Count Data Regression}
 
 \description{
@@ -8,7 +10,7 @@
 }
 
 \usage{
-hurdle(formula, data, subset, na.action,
+hurdle(formula, data, subset, na.action, weights, offset,
   dist = c("poisson", "negbin", "geometric"),
   zero.dist = c("binomial", "poisson", "negbin", "geometric"),
   link = c("logit", "probit", "cloglog", "cauchit", "log"),
@@ -20,6 +22,9 @@ hurdle(formula, data, subset, na.action,
   \item{formula}{symbolic description of the model, see details.}
   \item{data, subset, na.action}{arguments controlling formula processing
     via \code{\link[stats]{model.frame}}.}
+  \item{weights}{optional numeric vector of weights.}
+  \item{offset}{optional numeric vector with an a priori known component to be
+    included in the linear predictor of the count model.}
   \item{dist}{character specification of count model family.}
   \item{zero.dist}{character specification of the zero hurdle model family.}
   \item{link}{character specification of link function in the binomial
@@ -85,6 +90,8 @@ hurdle(formula, data, subset, na.action,
     minimizing the negative log-likelihood(s),}
   \item{control}{the control arguments passed to the \code{optim} call,}
   \item{start}{the starting values for the parameters passed to the \code{optim} call(s),}
+  \item{weights}{the case weights used,}
+  \item{offset}{the offset vector used (if any),}
   \item{n}{number of observations,}
   \item{df.null}{residual degrees of freedom for the null model (= \code{n - 2}),}
   \item{df.residual}{residual degrees of freedom for fitted model,}
@@ -124,6 +131,11 @@ Cambridge: Cambridge University Press.
 
 Mullahy, J. 1986. Specification and Testing of Some Modified Count Data Models.
   \emph{Journal of Econometrics}. V33: 341--365.
+
+Zeileis, Achim, Christian Kleiber and Simon Jackman 2007.
+\dQuote{Regression Models for Count Data in R.} Report 53,
+Department of Statistics and Mathematics, Wirtschaftsuniversität Wien, Research Report Series.
+\url{http://epub.wu-wien.ac.at/}.
 }
 
 \author{Achim Zeileis <Achim.Zeileis@R-project.org>}
