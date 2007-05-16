@@ -209,7 +209,7 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
       while(abs((ll_old - ll_new)/ll_old) > control$reltol) {
         ll_old <- ll_new
         model_count <- suppressWarnings(glm.fit(X, Y, weights = weights * (1-probi),
-	  offset = ofsset, family = negative.binomial(1), start = start$count))
+	  offset = offset, family = negative.binomial(1), start = start$count))
         model_zero <- suppressWarnings(glm.fit(Z, probi, weights = weights,
 	  family = binomial(link = linkstr), start = start$zero))
         start <- list(count = model_count$coefficients, zero = model_zero$coefficients)

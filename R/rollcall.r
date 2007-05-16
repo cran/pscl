@@ -38,50 +38,54 @@ rollcall <- function(data,
   else {
     v <- data
   }
-
+  
   if (!is.matrix(v)) {
     v <- as.matrix(v)
   }
-
+  
   ## check votes
   if(checkVotes(v,codes))
     stop("rollcall: bad votes")
   
-  ## identifying tags for legislators and votes
+  ## identifying tags for legislators
   nm <- legis.names
-  lbl <- vote.names
-
-  if ((length(nm)==nrow(v)) || (is.null(nm))) {
-    if (is.null(nm)){
-      if(length(data$legis.names)==nrow(v))
+  if(is.null(nm)) ## look for legis.names var in data
+    if(is.list(data))
+      if(!is.null(data$legis.names))
         nm <- data$legis.names
-      else {
-        for (i in 1:nrow(v)) 
-          nm <- c(nm,paste("Legislator ",i,sep=""))
-      }
+  
+  if(!is.null(nm)){  ## check that any names found by here are ok
+    if(length(unique(nm))!=nrow(v)){
+      cat("supplied legislator names do not match number of rows\n")
+      cat("in roll call matrix; will use default names\n")
+      nm <- NULL
     }
-    rownames(v) <- nm
   }
-  else {
-    stop("Length of legislator names is not equal to number of rows in votes")
+  
+  if(is.null(nm)){  ## make names
+    nm <- paste("Legislator",1:nrow(v))
   }
-
+  rownames(v) <- nm
+  
   ## vote labels
-  if((length(lbl)==ncol(v)) || (is.null(lbl))){
-    if (is.null(lbl)){
-      if(length(data$vote.names)==ncol(v))
+  lbl <- vote.names
+  if(is.null(lbl))
+    if(is.list(data))
+      if(!is.null(data$vote.names))  
         lbl <- data$vote.names
-      else {
-        for (i in 1:ncol(v)) 
-          lbl <- c(lbl,paste("Vote ",i,sep=""))
-      }
-    }
-    colnames(v) <- lbl
-  }
-  else{
-    stop("Length of votes labels is not equal to number of columns in votes")
-  }
 
+  if(!is.null(lbl)){  ## check that vote names are ok
+    if(length(unique(lbl))!=ncol(v)){
+      cat("supplied vote names do not match number of columns\n")
+      cat("in roll call matrix; will use default names\n")
+      lbl <- NULL
+    }
+  }
+  if(is.null(lbl)){  ## make name
+    lbl <- paste("Vote",1:ncol(v))
+  }
+  colnames(v) <- lbl
+  
   ## legislator attributes
   if(!is.null(legis.data)){
     if(nrow(legis.data)!=nrow(v))
@@ -100,8 +104,9 @@ rollcall <- function(data,
 
   ## description of roll call voting matrix
   dsc <- desc
-  if(!is.null(data$desc))
-    dsc <- data$desc
+  if(is.list(data))
+    if(!is.null(data$desc))
+      dsc <- data$desc
 
   ## package up for output
   out <- list(votes=v,

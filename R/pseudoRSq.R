@@ -24,7 +24,7 @@ pR2.glm <- function(object,...){
   objectNull <- update(object, ~ 1)
   llhNull <- logLik(objectNull)
   n <- dim(object$model)[1]
-  pR2Work(llh,llhNull,n,k)
+  pR2Work(llh,llhNull,n)
 }
 
 pR2.polr <- function(object,...){

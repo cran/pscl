@@ -903,9 +903,9 @@ Wald test
 
 Model 1: ofp ~ .
 Model 2: ofp ~ . | hosp + numchron + privins + school + gender
-  Res.Df   Df  Chisq Pr(>Chisq)
-1   4389                       
-2   4391   -2 4.1213     0.1274
+  Res.Df   Df      F Pr(>F)
+1   4389                   
+2   4391   -2 2.0607 0.1275
 \end{Soutput}
 \end{Schunk}
 or LR test
@@ -959,9 +959,9 @@ Wald test
 
 Model 1: ofp ~ .
 Model 2: ofp ~ . | hosp + numchron + privins + school + gender
-  Res.Df   Df  Chisq Pr(>Chisq)    
-1   4396                           
-2   4391    5 115.76  < 2.2e-16 ***
+  Res.Df   Df      F    Pr(>F)    
+1   4396                          
+2   4391    5 23.151 < 2.2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
 \end{Soutput}
@@ -1144,12 +1144,12 @@ re-used.
 \section*{Computational details}
 
 The results in this paper were obtained using
-\proglang{R}~2.5.0 with the packages
+\proglang{R}~2.6.0 with the packages
 \pkg{MASS}~7.2--33,
-\pkg{pscl}~0.91,
+\pkg{pscl}~0.92,
 \pkg{sandwich}~2.0--2,
 \pkg{car}~1.2--1,
-\pkg{lmtest}~0.9--19.
+\pkg{lmtest}~0.9--18.
 \proglang{R} itself and all packages used are available from
 CRAN at \url{http://CRAN.R-project.org/}.
 

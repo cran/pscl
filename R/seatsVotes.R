@@ -72,8 +72,8 @@ print.seatsVotes <- function(x,...){
 }
 
 summary.seatsVotes <- function(object,...){
-  if(!inherits(x,"seatsVotes"))
-    cat("print.svCurve only defined for objects of class seatsVotes\n")
+  if(!inherits(object,"seatsVotes"))
+    cat("summary.svCurve only defined for objects of class seatsVotes\n")
   object
 }
 

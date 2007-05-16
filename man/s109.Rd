@@ -43,7 +43,7 @@ s109 <- readKH("http://adric.sscnet.ucla.edu/rollcall/static/S109.ord",
 url <- "http://adric.sscnet.ucla.edu/rollcall/static/S109desc.csv"
 s109$vote.data <- data.frame(read.csv(file=url,header=TRUE))
 s109$vote.data$date <- as.Date(s109$vote.data$date,
-                               format="%Y-%m-%d")
+                               format="\%Y-\%m-\%d")
 dimnames(s109$votes)[[2]] <- paste(s109$vote.data$session,
                                    s109$vote.data$number,sep="-")
 }

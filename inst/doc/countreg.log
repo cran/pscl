@@ -1,4 +1,4 @@
-This is pdfeTeXk, Version 3.141592-1.30.4-2.2 (Web2C 7.5.5) (format=pdflatex 2006.11.26)  12 MAY 2007 15:14
+This is pdfeTeXk, Version 3.141592-1.30.4-2.2 (Web2C 7.5.5) (format=pdflatex 2006.12.1)  15 MAY 2007 16:49
 entering extended mode
  file:line:error style messages enabled.
 **\nonstopmode \input /Users/jackman/Documents/Projects/pscl/trunk/pscl/inst/do
@@ -62,62 +62,53 @@ File: color.cfg 2005/02/03 v1.3 color configuration of teTeX/TeXLive
 )
 Package color Info: Driver file: pdftex.def on input line 130.
 )
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/hyperref/hyperref.sty
-Package: hyperref 2003/11/30 v6.74m Hypertext links for LaTeX
+(/usr/local/teTeX/share/texmf.local/tex/latex/hyperref/hyperref.sty
+Package: hyperref 2006/11/15 v6.75g Hypertext links for LaTeX
 \@linkdim=\dimen105
 \Hy@linkcounter=\count88
 \Hy@pagecounter=\count89
 
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/hyperref/pd1enc.def
-File: pd1enc.def 2003/11/30 v6.74m Hyperref: PDFDocEncoding definition (HO)
+(/usr/local/teTeX/share/texmf.local/tex/latex/hyperref/pd1enc.def
+File: pd1enc.def 2006/11/15 v6.75g Hyperref: PDFDocEncoding definition (HO)
 )
 (/usr/local/teTeX/share/texmf.tetex/tex/latex/hyperref/hyperref.cfg
 File: hyperref.cfg 2002/06/06 v1.2 hyperref configuration of TeXLive and teTeX
 )
-Package hyperref Info: Hyper figures OFF on input line 1880.
-Package hyperref Info: Link nesting OFF on input line 1885.
-Package hyperref Info: Hyper index ON on input line 1888.
-Package hyperref Info: Plain pages ON on input line 1893.
-Package hyperref Info: Backreferencing OFF on input line 1900.
+(/usr/local/teTeX/share/texmf.local/tex/latex/oberdiek/kvoptions.sty
+Package: kvoptions 2006/08/22 v2.4 Connects package keyval with LaTeX options (
+HO)
+)
+Package hyperref Info: Hyper figures OFF on input line 2137.
+Package hyperref Info: Link nesting OFF on input line 2142.
+Package hyperref Info: Hyper index ON on input line 2145.
+Package hyperref Info: Plain pages OFF on input line 2152.
+Package hyperref Info: Backreferencing OFF on input line 2157.
 
 Implicit mode ON; LaTeX internals redefined
-Package hyperref Info: Bookmarks ON on input line 2004.
+Package hyperref Info: Bookmarks ON on input line 2287.
 (/usr/local/teTeX/share/texmf.tetex/tex/latex/url/url.sty
 \Urlmuskip=\muskip10
 Package: url 2004/03/15  ver 3.1  Verb mode for urls, etc.
 )
-LaTeX Info: Redefining \url on input line 2143.
+LaTeX Info: Redefining \url on input line 2442.
 \Fld@menulength=\count90
 \Field@Width=\dimen106
 \Fld@charsize=\dimen107
 \Choice@toks=\toks15
 \Field@toks=\toks16
-Package hyperref Info: Hyper figures OFF on input line 2618.
-Package hyperref Info: Link nesting OFF on input line 2623.
-Package hyperref Info: Hyper index ON on input line 2626.
-Package hyperref Info: backreferencing OFF on input line 2633.
-Package hyperref Info: Link coloring OFF on input line 2638.
-\c@Item=\count91
-\c@Hfootnote=\count92
+Package hyperref Info: Hyper figures OFF on input line 2920.
+Package hyperref Info: Link nesting OFF on input line 2925.
+Package hyperref Info: Hyper index ON on input line 2928.
+Package hyperref Info: backreferencing OFF on input line 2935.
+Package hyperref Info: Link coloring OFF on input line 2940.
+\Hy@abspage=\count91
+\c@Item=\count92
+\c@Hfootnote=\count93
 )
 *hyperref using default driver hpdftex*
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/hyperref/hpdftex.def
-File: hpdftex.def 2003/11/30 v6.74m Hyperref driver for pdfTeX
-
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/psnfss/pifont.sty
-Package: pifont 2004/09/15 PSNFSS-v9.2 Pi font support (SPQR) 
-LaTeX Font Info:    Try loading font information for U+pzd on input line 63.
-
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/psnfss/upzd.fd
-File: upzd.fd 2001/06/04 font definitions for U/pzd.
-)
-LaTeX Font Info:    Try loading font information for U+psy on input line 64.
-
-(/usr/local/teTeX/share/texmf.tetex/tex/latex/psnfss/upsy.fd
-File: upsy.fd 2001/06/04 font definitions for U/psy.
-))
-\Fld@listcount=\count93
-\@outlinefile=\write3
+(/usr/local/teTeX/share/texmf.local/tex/latex/hyperref/hpdftex.def
+File: hpdftex.def 2006/11/15 v6.75g Hyperref driver for pdfTeX
+\Fld@listcount=\count94
 )
 (/usr/local/teTeX/share/texmf.tetex/tex/latex/ae/ae.sty
 Package: ae 2001/02/12 1.3 Almost European Computer Modern
@@ -138,17 +129,17 @@ File: t1aer.fd 1997/11/16 Font definitions for T1/aer.
 Package: fancyvrb 1998/07/17
 
 Style option: `fancyvrb' v2.6, with DG/SPQR fixes <1998/07/17> (tvz)
-\FV@CodeLineNo=\count94
+\FV@CodeLineNo=\count95
 \FV@InFile=\read1
 \FV@TabBox=\box26
-\c@FancyVerbLine=\count95
-\FV@StepNumber=\count96
-\FV@OutFile=\write4
+\c@FancyVerbLine=\count96
+\FV@StepNumber=\count97
+\FV@OutFile=\write3
 
 No file fancyvrb.cfg.
 ) (/usr/local/teTeX/share/texmf.tetex/tex/generic/thumbpdf/thumbpdf.sty
 Package: thumbpdf 2005/07/06 v3.8 Inclusion of thumbnails (HO)
-\c@thumb=\count97
+\c@thumb=\count98
 
 (./countreg.tpt))
 (/usr/local/teTeX/share/texmf.local/tex/latex/base/fontenc.sty
@@ -163,7 +154,7 @@ Package: natbib 2003/06/06 7.1 (PWD)
 \bibhang=\skip43
 \bibsep=\skip44
 LaTeX Info: Redefining \cite on input line 518.
-\c@NAT@ctr=\count98
+\c@NAT@ctr=\count99
 )
 \preXLskip=\skip45
 \preLskip=\skip46
@@ -199,26 +190,37 @@ LaTeX Font Info:    ... okay on input line 39.
 
 (/usr/local/teTeX/share/texmf.local/tex/context/base/supp-pdf.tex
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count99
+\scratchcounter=\count100
 \scratchdimen=\dimen108
 \scratchbox=\box27
-\nofMPsegments=\count100
-\nofMParguments=\count101
-\MPscratchCnt=\count102
+\nofMPsegments=\count101
+\nofMParguments=\count102
+\MPscratchCnt=\count103
 \MPscratchDim=\dimen109
-\MPnumerator=\count103
+\MPnumerator=\count104
 \everyMPtoPDFconversion=\toks17
 )
 Package hyperref Info: Link coloring ON on input line 39.
- (/usr/local/teTeX/share/texmf.tetex/tex/latex/hyperref/nameref.sty
-Package: nameref 2003/12/03 v2.21 Cross-referencing by name of section
-\c@section@level=\count104
+ (/usr/local/teTeX/share/texmf.local/tex/latex/hyperref/nameref.sty
+Package: nameref 2006/08/15 v2.26 Cross-referencing by name of section
+
+(/usr/local/teTeX/share/texmf.tetex/tex/latex/oberdiek/refcount.sty
+Package: refcount 2000/09/07 v2.0 Converting references to numbers (HO)
+)
+
+LaTeX Warning: You have requested, on input line 24, version
+               `2006/02/12' of package refcount,
+               but only version
+               `2000/09/07 v2.0 Converting references to numbers (HO)'
+               is available.
+
+\c@section@level=\count105
 )
 LaTeX Info: Redefining \ref on input line 39.
 LaTeX Info: Redefining \pageref on input line 39.
-
-(./countreg.out) (./countreg.out)
-\openout3 = `countreg.out'.
+ (./countreg.out) (./countreg.out)
+\@outlinefile=\write4
+\openout4 = `countreg.out'.
 
 LaTeX Font Info:    Try loading font information for T1+aess on input line 39.
 
@@ -358,13 +360,13 @@ Overfull \hbox (10.0pt too wide) has occurred while \output is active
 
 [21] (./countreg.aux) ) 
 Here is how much of TeX's memory you used:
- 3899 strings out of 95206
- 61393 string characters out of 1184876
- 2099150 words of memory out of 4554152
- 6825 multiletter control sequences out of 10000+50000
- 57782 words of font info for 106 fonts, out of 2000000 for 2000
- 22 hyphenation exceptions out of 5000
- 35i,9n,34p,325b,319s stack positions out of 5000i,500n,6000p,200000b,40000s
+ 4060 strings out of 94412
+ 64317 string characters out of 1172319
+ 2105035 words of memory out of 4556599
+ 7068 multiletter control sequences out of 10000+50000
+ 57092 words of font info for 104 fonts, out of 2000000 for 2000
+ 582 hyphenation exceptions out of 5000
+ 35i,9n,34p,325b,469s stack positions out of 5000i,500n,6000p,200000b,40000s
 PDF statistics:
  463 PDF objects out of 300000
  97 named destinations out of 131072
@@ -394,4 +396,4 @@ ts/type1/bluesky/cm/cmr9.pfb></usr/local/teTeX/share/texmf.tetex/fonts/type1/bl
 uesky/cm/cmbx9.pfb></usr/local/teTeX/share/texmf.tetex/fonts/type1/bluesky/cm/c
 mr10.pfb></usr/local/teTeX/share/texmf.tetex/fonts/type1/bluesky/cm/cmssbx10.pf
 b></usr/local/teTeX/share/texmf.tetex/fonts/type1/bluesky/cm/cmbx12.pfb>
-Output written on countreg.pdf (21 pages, 675889 bytes).
+Output written on countreg.pdf (21 pages, 675832 bytes).

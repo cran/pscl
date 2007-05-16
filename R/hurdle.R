@@ -568,7 +568,7 @@ hurdletest <- function(object, ...) {
   stopifnot(require("car"))
   nam <- names(object$coefficients$count)
   lh <- paste("count_", nam, " = ", "zero_", nam, sep = "")
-  rval <- linear.hypothesis(object, lh, ...)
+  rval <- car::linear.hypothesis(object, lh, ...)
   attr(rval, "heading")[1] <- "Wald test for hurdle models\n\nRestrictions:"
   return(rval)
 }

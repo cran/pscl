@@ -19,9 +19,11 @@ ntable(x,y=NULL,
   \item{row}{logical, if \code{TRUE}, print row marginals}
   \item{col}{logical, if \code{TRUE}, print column marginals}
 }
+
 \details{A wrapper function to \code{\link{prop.table}} that produces prettier
-  looking results.}
+  looking results.
 }
+
 \value{
   nothing returned; the function prints the table and
   exits silently.

@@ -1,3 +1,10 @@
+0.92 * minor errors in various functions spotted with
+       stricter code checking in R-devel 2.6
+	* unescaped "%" in documentation for s109
+	* need negative 1 for negative intercept in 
+	another part of predict.ideal (for the case where the researcher
+	did not supply burn-in; 05/15/2007).
+
 0.91	* added Monte Carlo simulation of pi (simpi)
 
 0.90	* version bump as requested by Achim

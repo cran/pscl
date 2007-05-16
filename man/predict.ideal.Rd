@@ -18,9 +18,12 @@
 }
 \arguments{
   \item{object}{an object of class \code{ideal} (produced by
-    \code{\link{ideal}}) with item parameters (beta) stored.}
-  \item{cutoff}{numeric, a value between 0 and 1, the threshold to be used for sepatating predicted
-    probabilities into yea and nay votes.}
+    \code{\link{ideal}}) with item parameters (beta) stored; i.e.,
+    \code{store.item=TRUE} was set when the \code{ideal} object was
+    fitted} 
+  \item{cutoff}{numeric, a value between 0 and 1, the threshold to be
+    used for classifying predicted probabilities of a Yea 
+    votes as predicted Yea and Nay votes.}
   \item{burnin}{of the recorded MCMC samples, how many to discard as
     burnin?  Default is \code{NULL}, in which case the value of
     \code{burnin} in the \code{\link{ideal}} object is used.}

@@ -483,15 +483,15 @@ ideal <- function(object,
 }
 
 
-gencolnames <- function(name, d, beta=F) {
+gencolnames <- function(name, d, beta=FALSE) {
   if(d>1){            ## more than one dimension?
     dname <- NULL
     for(i in 1:d){
       dname <- c(dname,paste(name,"d",i,sep=""))
     }
     if(beta)
-      dname <- c(dname,paste(name,"Intercept",sep=""))
-    dname <- matrix(dname,ncol=length(name),byrow=T)
+      dname <- c(dname,paste(name,"Difficulty",sep=""))
+    dname <- matrix(dname,ncol=length(name),byrow=TRUE)
     dname <- as.vector(dname)
     dname <- c("Iteration",dname)
   }
@@ -514,8 +514,8 @@ x.startvalues <- function(x,d,scale=TRUE,constraint=NULL,verbose=FALSE){
   if(verbose)
     cat("will use eigen-decomposition method to get start values for ideal points...")
 
-  dc <- apply(x,2,function(x)x-mean(x,na.rm=T))
-  dc <- apply(dc,2,function(x)x-mean(x,na.rm=T))
+  dc <- apply(x,2,function(x)x-mean(x,na.rm=TRUE))
+  dc <- apply(dc,2,function(x)x-mean(x,na.rm=TRUE))
   dc <- dc + mean(x,na.rm=T)
   r <- cor(t(dc),use="pairwise")
   r[is.na(r)] <- 0

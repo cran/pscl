@@ -40,14 +40,18 @@ rollcall(data,
     call was recorded (e.g., deceased, retired, yet to be elected).}
   
   \item{legis.names}{a vector of names of the legislators or
-    individuals.  If \code{data} is a list and contains an element
-    named legis.names, then the list element will be used.  Names will
-    be generated if not supplied.}
+    individuals.  If \code{data} is a \code{list} or \code{data.frame}
+    and has a component named \code{legis.names}, then this will be
+    used.  Names will be generated if not supplied, or if there are
+    fewer unique names supplied than legislators/subjects (rows of the
+    roll call matrix).}
   
   \item{vote.names}{a vector of names or labels for the votes or items.
-    If \code{data} is a list and contains an element
-    named vote.names, then the list element will be used.  Names will be
-    generated if not supplied.}
+    If \code{data} is a \code{list} or \code{data.frame} and has a
+    component named \code{vote.names}, then this will be used.  Names
+    will be generated if not supplied, or if there are fewer unique
+    names supplied than votes/test-items (columns of the roll call
+    matrix).}
   
   \item{legis.data}{a \code{\link{matrix}} or \code{\link{data.frame}}
     containing covariates specific to each legislator/test-taker; e.g.,

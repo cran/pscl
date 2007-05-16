@@ -53,18 +53,16 @@ ideal(object, codes = object$codes,
     standard deviation one.  This option is only functional for
     unidimensional models (i.e., \code{d=1}), and is sufficient to
     locally identify the model parameters in this case; more
-    identifying restrictions are required for identification when \code{d > 1}.
+    restrictions are required for identification when \code{d > 1}.
     See Details.}
 
   \item{meanzero}{to be deprecated/ignored; use \code{normalize} instead.}
   
   \item{priors}{a \code{list} of parameters (means and variances)
     specifying normal priors for the legislators' ideal points. The
-    default is \code{NULL}, in which case prior values will be generated
-    for both legislators' ideal points and roll call parameters (for the
-    ideal points, the default prior parameters are mean zero and
-    variance one; for the item parameters the defaults are mean zero and
-    variance 100).  If not \code{NULL}, \code{priors} must be a
+    default is \code{NULL}, in which case the normal priors used have mean zero and
+    variance 1 for the ideal points (ability parameters) and mean zero and
+    variance 100 for the bill parameters (item parameters).  If not \code{NULL}, \code{priors} must be a
     \code{list} with as many as four named components \code{xp, xpv, bp,
       bpv}, where
     \item{\code{xp}}{a \code{n} by \code{d} matrix
@@ -95,7 +93,8 @@ ideal(object, codes = object$codes,
 
   \item{store.item}{\code{\link{logical}}, whether item discrimination
     parameters should be stored.  Storing item discrimination parameters
-    can consume a large amount of memory.}
+    can consume a large amount of memory.  These need to be stored for
+    prediction; see \code{\link{predict.ideal}}.}
 
   \item{file}{string, file to write MCMC output.  Default is
     \code{NULL}, in which case MCMC output is stored in memory.  Note

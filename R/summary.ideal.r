@@ -49,7 +49,10 @@ summary.ideal <- function(object,
   else
     keep <- checkBurnIn(object,burnin)
   
-  xm <- bm <- xQuantTab <- bQuantTab <- NULL
+  xm <- NULL
+  bm <- NULL
+  xQuantTab <- NULL
+  bQuantTab <- NULL
   xResults <- list()
   bResults <- list()
   bSig <- list()
@@ -62,12 +65,13 @@ summary.ideal <- function(object,
                                  probs=localQuantiles,
                                  na.rm=T))
   }
-  if (length(quantiles) > 1)
+  if(length(quantiles) > 1)
     xQuantTab <- t(xQuantTab)
   rownames(xQuantTab) <- colnames(object$x)[-1]
+  ## get mean of x
   if(is.null(burnin))
-    xm <- object$xbar
-  else{
+    xm <- object$xbar    ## use xbar in fitted model
+  else{                  ## otherwise re-compute
     xm <- apply(object$x[keep,-1],2,mean)
     xm <- matrix(xm,ncol=object$d,byrow=TRUE)
   }
@@ -125,7 +129,7 @@ summary.ideal <- function(object,
     }
     names(bResults) <- c(paste("Discrimination Parameter Dimension",
                                1:object$d),
-                         "Intercept")
+                         "Difficulty")
     
     ## "significance tests" for discrimination parameters
     nQ <- length(quantiles)

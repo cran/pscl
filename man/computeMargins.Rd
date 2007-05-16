@@ -25,7 +25,7 @@ computeMargins(object, dropList = NULL)
   the encoding information in the \code{codes} component of the
   \code{\link{rollcall}} object via the \code{\link{convertCodes}}
   function.  The matrix of vote counts are added to the \code{\link{rollcall}}
-  object as a component \code{voteMargins}.}
+  object as a component \code{voteMargins}.
 }
 
 \value{

@@ -50,7 +50,7 @@ predict.ideal <- function(object,
     cat("Computing posterior means using ideal object.\n")
     x1 <- matrix(apply(object$x[keep,-1],2,mean),
                  nrow=object$n,ncol=object$d,byrow=TRUE)
-    x1 <- cbind(x1,1)
+    x1 <- cbind(x1,-1)            ## negative intercept !!! SDJ 05/15/07
     b <- matrix(apply(object$beta[keep,-1],2,mean),
                 nrow=object$m,ncol=object$d+1,byrow=TRUE)
   }
