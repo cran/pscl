@@ -58,7 +58,7 @@
     \code{\link{ideal}} was called (\code{store.item=FALSE}), or
     \code{include.beta=FALSE}, then \code{bResults}
     is a list of length zero.}
-  \item{bSig}{a \code{link{list}} of length \code{d}, each component a
+  \item{bSig}{a \code{\link{list}} of length \code{d}, each component a
     vector of length \code{m}, of mode \code{logical}, equal to
     \code{TRUE} if the corresponding discrimination parameter is
     distinguishible from zero; see Details.  If \code{store.item} was
@@ -70,13 +70,15 @@
     ideal points by party, by dimension.  If no party information is
     available, then \code{party.quant=NULL}.}
 }
-\details{The tests of whether a discrimination parameters are
+
+\details{The test of whether a given discrimination parameter is
   distinguishible from zero first checks to see if the two most extreme
-  \code{quantiles} are symmetric (e.g., as are the default value of .025
-  and .975).  If so, the corresponding quantiles of the MCMC samples for
-  each discrimination parameter are inspected to see if they have
-  the same sign. If they do, then the corresponding discrimination
-  parameter is flagged as distinguishible from zero; otherwise not.
+  \code{quantiles} are symmetric around .5 (e.g., as are the default
+  value of .025 and .975).  If so, the corresponding quantiles of the
+  MCMC samples for each discrimination parameter are inspected to see if
+  they have the same sign. If they do, then the corresponding
+  discrimination parameter is flagged as distinguishible from zero;
+  otherwise not.
 }
 
 \note{When specifying a value of \code{burnin} different from that used

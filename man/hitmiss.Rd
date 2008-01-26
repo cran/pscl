@@ -15,7 +15,7 @@
 \usage{
 hitmiss(obj, digits = max(3, getOption("digits") - 3), ...)
 
-hitmiss.glm(obj,digits=max(3,getOption("digits")-3),
+\method{hitmiss}{glm}(obj,digits=max(3,getOption("digits")-3),
             ...,
             k=.5)
 }

@@ -10,6 +10,7 @@
 \alias{logLik.hurdle}
 \alias{fitted.hurdle}
 \alias{predprob.hurdle}
+\alias{extractAIC.hurdle}
 
 \title{Methods for hurdle Objects}
 \description{
@@ -19,7 +20,7 @@
 
 \usage{
 \method{predict}{hurdle}(object, newdata,
-  type = c("response", "prob"), na.action = na.pass, \dots)
+  type = c("response", "prob", "count", "zero"), na.action = na.pass, \dots)
 \method{residuals}{hurdle}(object, type = c("pearson", "response"), \dots)
 
 \method{coef}{hurdle}(object, model = c("full", "count", "zero"), \dots)
@@ -35,7 +36,7 @@
   \item{newdata}{optionally, a data frame in which to look for variables with
     which to predict. If omitted, the original observations are used.}
   \item{type}{character specifying the type of predictions or residuals,
-    respectively.}
+    respectively. For details see below.}
   \item{na.action}{function determining what should be done with missing values
     in \code{newdata}. The default is to predict \code{NA}.}
   \item{model}{character specifying for which component of the model the
@@ -60,10 +61,12 @@
   argument, the estimates for the corresponding model component can be extracted.
   
   Both the \code{\link[stats]{fitted}} and \code{\link[stats]{predict}} methods can
-  compute fitted responses. The latter additionally provides fitted probabilities, both
-  for the original and for new data. The \code{\link[stats]{residuals}} method can compute
-  raw residuals (observed - fitted) and Pearson residuals (raw residuals scaled by square
-  root of fitted).
+  compute fitted responses. The latter additionally provides the predicted density
+  (i.e., probabilities for the observed counts), the predicted mean from the count
+  component (without zero hurdle) and the predicted ratio of probabilities for
+  observing a non-zero count. The \code{\link[stats]{residuals}} method can compute
+  raw residuals (observed - fitted) and Pearson residuals (raw residuals scaled by
+  square root of variance function).
   
   The \code{\link[stats]{terms}} and \code{\link[stats]{model.matrix}} extractors can
   be used to extract the relevant information for either component of the model.

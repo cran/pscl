@@ -15,14 +15,15 @@ constrain.legis(obj, dropList = list(codes = "notInLegis", lop = 0),
 
 \arguments{
   \item{obj}{an object of class \code{\link{rollcall}}.}
-   \item{dropList}{a \code{\link{list}} (or \code{\link{alist}})
+
+  \item{dropList}{a \code{\link{list}} (or \code{\link{alist}})
     indicating which voting decisions, legislators and/or roll calls are
     to be excluded from the subsequent analysis; see
     \code{\link{dropRollCall}} for details.}
 
-  \item{x}{a \code{\link{list}} containing elements with names matching
-    legislators found in \code{dimnames(object$votes)[[1]]} (but after
-    any subseting specified by \code{dropList}).  Each element must be a
+  \item{x}{a \code{\link{list}} containing elements with names partially
+    matching legislators found in \code{dimnames(object$votes)[[1]]} (but after
+    any sub-setting specified by \code{dropList}).  Each element must be a
     vector containing \code{d} elements, specifying the value to which
     the ideal point should be constrained in each of \code{d}
     dimensions. \code{x} must have at least \code{d+1} components; i.e.,
@@ -36,19 +37,23 @@ constrain.legis(obj, dropList = list(codes = "notInLegis", lop = 0),
 
 \details{
   \code{constrain.items} and its cousin,
-  \code{\link{constrain.legis}} are usefully thougt of as
-  \dQuote{pre-processor} functions, generating priors \emph{and} start
+  \code{\link{constrain.legis}} are usefully thought of as
+  \dQuote{pre-processor} functions, implementing identification
+  constraints for the ideal point model by generating priors \emph{and} start
   values for both the item parameters and the ideal points.
 
   For the legislators specified in \code{x}, the prior mean for each
   dimension is set to the specified value and the prior precision for
   each dimension is set to \code{1e12} (i.e., a near-degenerate
-  \dQuote{spike} prior).  For the other legislators, the priors on their
-  ideal points are set to a mean of 0 and precision .01.  All of the
-  item parameter priors are set to mean 0, precision 0.01.
+  \dQuote{spike} prior, and, for all practical purposes, constraining
+  that parameter to a fixed value).  For the other legislators, the
+  priors on their ideal points are set to a mean of 0 and a small
+  precision of .01, corresponding to a prior variance of 100, or a prior
+  95 percent confidence interval of -20 to 20.  All of the item
+  parameter priors are set to mean 0, precision 0.01.
 
   Start values are also generated for both ideal points and item
-  parameters.  The start values for the legislators specified in
+  parameters.  The start values for the legislators named in
   \code{x} are set to the values specified in \code{x}.  The list
   resulting from \code{constrain.legis} can then be given as the value
   for the parameters \code{priors} and \code{startvals} when
@@ -94,13 +99,17 @@ constrain.legis(obj, dropList = list(codes = "notInLegis", lop = 0),
 
 \seealso{
   \code{\link{rollcall}}, \code{\link{ideal}},
-  \code{\link{constrain.items}} }
+  \code{\link{constrain.items}}.
+  See \code{\link{pmatch}} on how supplied names are matched against the
+  names in the \code{\link{rollcall}} object.
+} 
+
 
 \examples{
 data(s109)
 cl <- constrain.legis(s109,
-                      x=list("KENNEDY (D MA)"=-1,
-                        "ENZI (R WY)"=1),
+                      x=list("KENNEDY"=-1,
+                        "ENZI"=1),
                       d=1)
 
 ## short run for examples
@@ -114,9 +123,9 @@ id1Constrained <- ideal(s109,
 summary(id1Constrained)
 
 cl2 <- constrain.legis(s109,
-                       x=list("KENNEDY (D MA)"=c(-1,0),
-                         "ENZI (R WY)"=c(1,0),
-                         "CHAFEE (R RI)"=c(0,-.5)),
+                       x=list("KENNEDY"=c(-1,0),
+                         "ENZI"=c(1,0),
+                         "CHAFEE"=c(0,-.5)),
                        d=2)
 
 \dontrun{

@@ -10,6 +10,7 @@
 \alias{logLik.zeroinfl}
 \alias{fitted.zeroinfl}
 \alias{predprob.zeroinfl}
+\alias{extractAIC.zeroinfl}
 
 \title{Methods for zeroinfl Objects}
 \description{
@@ -19,7 +20,7 @@
 
 \usage{
 \method{predict}{zeroinfl}(object, newdata,
-  type = c("response", "prob"), na.action = na.pass, \dots)
+  type = c("response", "prob", "count", "zero"), na.action = na.pass, \dots)
 \method{residuals}{zeroinfl}(object, type = c("pearson", "response"), \dots)
 
 \method{coef}{zeroinfl}(object, model = c("full", "count", "zero"), \dots)
@@ -35,7 +36,7 @@
   \item{newdata}{optionally, a data frame in which to look for variables with
     which to predict. If omitted, the original observations are used.}
   \item{type}{character specifying the type of predictions or residuals,
-    respectively.}
+    respectively. For details see below.}
   \item{na.action}{function determining what should be done with missing values
     in \code{newdata}. The default is to predict \code{NA}.}
   \item{model}{character specifying for which component of the model the
@@ -60,10 +61,12 @@
   argument, the estimates for the corresponding model components can be extracted.
   
   Both the \code{\link[stats]{fitted}} and \code{\link[stats]{predict}} methods can
-  compute fitted responses. The latter additionally provides fitted probabilities, both
-  for the original and for new data. The \code{\link[stats]{residuals}} method can compute
-  raw residuals (observed - fitted) and Pearson residuals (raw residuals scaled by square
-  root of fitted).
+  compute fitted responses. The latter additionally provides the predicted density
+  (i.e., probabilities for the observed counts), the predicted mean from the count
+  component (without zero inflation) and the predicted probability for the zero
+  component. The \code{\link[stats]{residuals}} method can compute
+  raw residuals (observed - fitted) and Pearson residuals (raw residuals scaled by
+  square root of variance function).
   
   The \code{\link[stats]{terms}} and \code{\link[stats]{model.matrix}} extractors can
   be used to extract the relevant information for either component of the model.

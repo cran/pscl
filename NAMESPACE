@@ -43,6 +43,7 @@ importFrom("stats", "logLik")
   S3method("predprob", "zeroinfl")
   S3method("terms", "zeroinfl")
   S3method("model.matrix", "zeroinfl")
+  S3method("extractAIC", "zeroinfl")
 
 ## methods for class hurdle
   S3method("print", "hurdle")
@@ -57,6 +58,7 @@ importFrom("stats", "logLik")
   S3method("predprob", "hurdle")
   S3method("terms", "hurdle")
   S3method("model.matrix", "hurdle")
+  S3method("extractAIC", "hurdle")
 
 ## methods for class ideal
   S3method("plot", "ideal")
@@ -77,7 +79,6 @@ importFrom("stats", "logLik")
 ## misc methods
   S3method("dropUnanimous", "matrix")
   S3method("predprob", "glm")
-  S3method("logLik", "polr")
 
 ## methods for class seatsVotes
    S3method("print", "seatsVotes")

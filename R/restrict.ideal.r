@@ -31,12 +31,17 @@ constrain.legis <- function(obj,
   xstart <- x.startvalues(v,d=d)
   xcnst <- xstart*NA
   cat("constrain.legis: implementing constraints\n")
-  for (i in 1:length(x)) {
+  ## loop over constraints
+  for (i in 1:length(x)){
+    thisLegis <- names(x)[i]
     if (length(x[[i]])!=d)
       stop("Each element of x must be of length d (dimension of model to be fitted).")
-    ind <- match(names(x)[i],rc$legis.names)
+    ind <- pmatch(thisLegis,rc$legis.names)
     if (is.na(ind))
-      stop(paste(names(x)[i],"was not found in legis.names"))
+      stop(paste(thisLegis,"was not found in legis.names"))
+    cat(paste("matching supplied name",
+              thisLegis,"with",
+              rc$legis.names[ind],"\n"))
     xp[ind,] <- x[[i]]
     xpv[ind,] <- rep(1e12,d)
     xstart[ind,] <- x[[i]]
@@ -88,9 +93,12 @@ constrain.items <- function(obj,
   for (i in 1:length(x)) {
     if (length(x[[i]])!=(d))
       stop("Each element of x must be of length d (dimension of model to be fitted).")
-    ind <- match(names(x)[i],rc$vote.names)
+    ind <- pmatch(names(x)[i],rc$vote.names)
     if (is.na(ind))
       stop(paste(names(x)[i]," was not found in rc$vote.names"))
+     cat(paste("matching supplied name",
+              names(x)[i],"with",
+              rc$legis.names[ind],"\n"))
     bp[ind,] <- c(x[[i]],0)
     bpv[ind,] <- c(rep(1e12,d),0.01)
     bstart[ind,1:d] <- x[[i]]

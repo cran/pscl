@@ -7,13 +7,13 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
   ## set up likelihood
   ziPoisson <- function(parms) {
     ## count mean
-    lambda <- as.vector(exp(X %*% parms[1:kx] + offset))
+    mu <- as.vector(exp(X %*% parms[1:kx] + offset))
     ## binary mean
     phi <- as.vector(linkinv(Z %*% parms[(kx+1):(kx+kz)]))
     
     ## log-likelihood for y = 0 and y >= 1
-    loglik0 <- log( phi + exp( log(1-phi) - lambda ) ) ## -lambda = dpois(0, lambda, log = TRUE)
-    loglik1 <- log(1-phi) + dpois(Y, lambda, log = TRUE)
+    loglik0 <- log( phi + exp( log(1-phi) - mu ) ) ## -mu = dpois(0, lambda = mu, log = TRUE)
+    loglik1 <- log(1-phi) + dpois(Y, lambda = mu, log = TRUE)
     
     ## collect and return
     loglik <- sum(weights[Y0] * loglik0[Y0]) + sum(weights[Y1] * loglik1[Y1])
@@ -22,15 +22,15 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
   
   ziNegBin <- function(parms) {
     ## count mean
-    lambda <- as.vector(exp(X %*% parms[1:kx] + offset))
+    mu <- as.vector(exp(X %*% parms[1:kx] + offset))
     ## binary mean
     phi <- as.vector(linkinv(Z %*% parms[(kx+1):(kx+kz)]))
     ## negbin size
     theta <- exp(parms[(kx+kz)+1])
     
     ## log-likelihood for y = 0 and y >= 1
-    loglik0 <- log( phi + exp( log(1-phi) + suppressWarnings(dnbinom(0, size = theta, mu = lambda, log = TRUE)) ) )
-    loglik1 <- log(1-phi) + suppressWarnings(dnbinom(Y, size = theta, mu = lambda, log = TRUE))
+    loglik0 <- log( phi + exp( log(1-phi) + suppressWarnings(dnbinom(0, size = theta, mu = mu, log = TRUE)) ) )
+    loglik1 <- log(1-phi) + suppressWarnings(dnbinom(Y, size = theta, mu = mu, log = TRUE))
 
     ## collect and return
     loglik <- sum(weights[Y0] * loglik0[Y0]) + sum(weights[Y1] * loglik1[Y1])
@@ -38,16 +38,89 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
   }
   
   ziGeom <- function(parms) ziNegBin(c(parms, 0))
+
+  gradPoisson <- function(parms) {
+    ## count mean
+    eta <- as.vector(X %*% parms[1:kx] + offset)
+    mu <- exp(eta)
+    ## binary mean
+    etaz <- as.vector(Z %*% parms[(kx+1):(kx+kz)])
+    muz <- linkinv(etaz)
   
+    ## densities at 0
+    clogdens0 <- -mu
+    dens0 <- muz * (1 - as.numeric(Y1)) + exp(log(1 - muz) + clogdens0)
+
+    ## working residuals  
+    wres_count <- ifelse(Y1, Y - mu, -exp(-log(dens0) + log(1 - muz) + clogdens0 + log(mu)))
+    wres_zero <- ifelse(Y1, -1/(1-muz) * linkobj$mu.eta(etaz),
+      (linkobj$mu.eta(etaz) - exp(clogdens0) * linkobj$mu.eta(etaz))/dens0)
+      
+    colSums(cbind(wres_count * weights * X, wres_zero * weights * Z))
+  }
+  
+  gradGeom <- function(parms) {
+    ## count mean
+    eta <- as.vector(X %*% parms[1:kx] + offset)
+    mu <- exp(eta)
+    ## binary mean
+    etaz <- as.vector(Z %*% parms[(kx+1):(kx+kz)])
+    muz <- linkinv(etaz)
+
+    ## densities at 0
+    clogdens0 <- dnbinom(0, size = 1, mu = mu, log = TRUE)
+    dens0 <- muz * (1 - as.numeric(Y1)) + exp(log(1 - muz) + clogdens0)
+
+    ## working residuals  
+    wres_count <- ifelse(Y1, Y - mu * (Y + 1)/(mu + 1), -exp(-log(dens0) +
+      log(1 - muz) + clogdens0 - log(mu + 1) + log(mu)))
+    wres_zero <- ifelse(Y1, -1/(1-muz) * linkobj$mu.eta(etaz),
+      (linkobj$mu.eta(etaz) - exp(clogdens0) * linkobj$mu.eta(etaz))/dens0)
+      
+    colSums(cbind(wres_count * weights * X, wres_zero * weights * Z))
+  }
+
+  gradNegBin <- function(parms) {
+    ## count mean
+    eta <- as.vector(X %*% parms[1:kx] + offset)
+    mu <- exp(eta)
+    ## binary mean
+    etaz <- as.vector(Z %*% parms[(kx+1):(kx+kz)])
+    muz <- linkinv(etaz)
+    ## negbin size
+    theta <- exp(parms[(kx+kz)+1])
+
+    ## densities at 0
+    clogdens0 <- dnbinom(0, size = theta, mu = mu, log = TRUE)
+    dens0 <- muz * (1 - as.numeric(Y1)) + exp(log(1 - muz) + clogdens0)
+
+    ## working residuals  
+    wres_count <- ifelse(Y1, Y - mu * (Y + theta)/(mu + theta), -exp(-log(dens0) +
+      log(1 - muz) + clogdens0 + log(theta) - log(mu + theta) + log(mu)))
+    wres_zero <- ifelse(Y1, -1/(1-muz) * linkobj$mu.eta(etaz),
+      (linkobj$mu.eta(etaz) - exp(clogdens0) * linkobj$mu.eta(etaz))/dens0)
+    wres_theta <- theta * ifelse(Y1, digamma(Y + theta) - digamma(theta) +
+      log(theta) - log(mu + theta) + 1 - (Y + theta)/(mu + theta),
+      exp(-log(dens0) + log(1 - muz) + clogdens0) *
+      (log(theta) - log(mu + theta) + 1 - theta/(mu + theta)))
+
+    colSums(cbind(wres_count * weights * X, wres_zero * weights * Z, wres_theta))
+  }
+    
   dist <- match.arg(dist)
   loglikfun <- switch(dist,
                       "poisson" = ziPoisson,
 		      "geometric" = ziGeom,
 		      "negbin" = ziNegBin)
+  gradfun <- switch(dist,
+                      "poisson" = gradPoisson,
+		      "geometric" = gradGeom,
+		      "negbin" = gradNegBin)
 
   ## binary link processing
   linkstr <- match.arg(link)
-  linkinv <- make.link(linkstr)$linkinv
+  linkobj <- make.link(linkstr)
+  linkinv <- linkobj$linkinv
 
   if(control$trace) cat("Zero-inflated Count Model\n",
     paste("count model:", dist, "with log link\n"),
@@ -163,16 +236,16 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
   
   if(is.null(start)) {
     if(control$trace) cat("generating starting values...")
-    model_count <- glm.fit(X, Y, family = poisson(), weights = weights * as.integer(Y1), offset = offset)
+    model_count <- glm.fit(X, Y, family = poisson(), weights = weights, offset = offset)
     model_zero <- glm.fit(Z, as.integer(Y0), weights = weights, family = binomial(link = linkstr))
     start <- list(count = model_count$coefficients, zero = model_zero$coefficients)
     if(dist == "negbin") start$theta <- 1
 
     ## EM estimation of starting values
     if(control$EM & dist == "poisson") {
-      lambdai <- model_count$fitted
+      mui <- model_count$fitted
       probi <- model_zero$fitted
-      probi <- probi/(probi + (1-probi) * dpois(0, lambdai))
+      probi <- probi/(probi + (1-probi) * dpois(0, mui))
       probi[Y1] <- 0
 
       ll_new <- loglikfun(c(start$count, start$zero))
@@ -184,9 +257,9 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
 	  family = poisson(), start = start$count)
         model_zero <- suppressWarnings(glm.fit(Z, probi, weights = weights,
 	  family = binomial(link = linkstr), start = start$zero))
-        lambdai <- model_count$fitted
+        mui <- model_count$fitted
         probi <- model_zero$fitted
-        probi <- probi/(probi + (1-probi) * dpois(0, lambdai))
+        probi <- probi/(probi + (1-probi) * dpois(0, mui))
         probi[Y1] <- 0
         start <- list(count = model_count$coefficients, zero = model_zero$coefficients)
         ll_new <- loglikfun(c(start$count, start$zero))
@@ -194,9 +267,9 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
     }
 
     if(control$EM & dist == "geometric") {
-      lambdai <- model_count$fitted
+      mui <- model_count$fitted
       probi <- model_zero$fitted
-      probi <- probi/(probi + (1-probi) * dnbinom(0, size = 1, mu = lambdai))
+      probi <- probi/(probi + (1-probi) * dnbinom(0, size = 1, mu = mui))
       probi[Y1] <- 0
 
       ll_new <- loglikfun(c(start$count, start$zero))
@@ -213,18 +286,18 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
         model_zero <- suppressWarnings(glm.fit(Z, probi, weights = weights,
 	  family = binomial(link = linkstr), start = start$zero))
         start <- list(count = model_count$coefficients, zero = model_zero$coefficients)
-        lambdai <- model_count$fitted
+        mui <- model_count$fitted
         probi <- model_zero$fitted
-        probi <- probi/(probi + (1-probi) * dnbinom(0, size = 1, mu = lambdai))
+        probi <- probi/(probi + (1-probi) * dnbinom(0, size = 1, mu = mui))
         probi[Y1] <- 0
         ll_new <- loglikfun(c(start$count, start$zero))
       }
     }
 
     if(control$EM & dist == "negbin") {
-      lambdai <- model_count$fitted
+      mui <- model_count$fitted
       probi <- model_zero$fitted
-      probi <- probi/(probi + (1-probi) * dnbinom(0, size = start$theta, mu = lambdai))
+      probi <- probi/(probi + (1-probi) * dnbinom(0, size = start$theta, mu = mui))
       probi[Y1] <- 0
 
       ll_new <- loglikfun(c(start$count, start$zero, log(start$theta)))      
@@ -241,9 +314,9 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
         model_zero <- suppressWarnings(glm.fit(Z, probi, weights = weights,
 	  family = binomial(link = linkstr), start = start$zero))
         start <- list(count = model_count$coefficients, zero = model_zero$coefficients, theta = model_count$theta)
-        lambdai <- model_count$fitted
+        mui <- model_count$fitted
         probi <- model_zero$fitted
-        probi <- probi/(probi + (1-probi) * dnbinom(0, size = start$theta, mu = lambdai))
+        probi <- probi/(probi + (1-probi) * dnbinom(0, size = start$theta, mu = mui))
         probi[Y1] <- 0
         ll_new <- loglikfun(c(start$count, start$zero, log(start$theta)))
       }
@@ -259,7 +332,7 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
   hessian <- control$hessian
   ocontrol <- control
   control$method <- control$hessian <- control$EM <- control$start <- NULL
-  fit <- optim(fn = loglikfun,
+  fit <- optim(fn = loglikfun, gr = gradfun,
     par = c(start$count, start$zero, if(dist == "negbin") log(start$theta) else NULL),
     method = method, hessian = hessian, control = control)
   if(fit$convergence > 0) warning("optimization failed to converge")
@@ -269,7 +342,6 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
   names(coefc) <- names(start$count) <- colnames(X)
   coefz <- fit$par[(kx+1):(kx+kz)]
   names(coefz) <- names(start$zero) <- colnames(Z)
-
 
   vc <- -solve(as.matrix(fit$hessian))
   if(dist == "negbin") {
@@ -435,14 +507,15 @@ print.summary.zeroinfl <- function(x, digits = max(3, getOption("digits") - 3), 
   invisible(x)
 }
 
-predict.zeroinfl <- function(object, newdata, type = c("response", "prob"), na.action = na.pass, ...)
+predict.zeroinfl <- function(object, newdata, type = c("response", "prob", "count", "zero"),
+  na.action = na.pass, ...)
 {
     type <- match.arg(type)
 
     ## if no new data supplied
     if(missing(newdata)) {
       rval <- object$fitted.values
-      if(type == "prob") {
+      if(type != "response") {
         if(!is.null(object$x)) {
 	  X <- object$x$count
 	  Z <- object$x$zero
@@ -463,8 +536,11 @@ predict.zeroinfl <- function(object, newdata, type = c("response", "prob"), na.a
       mu <- exp(X %*% object$coefficients$count)[,1]
       phi <- object$linkinv(Z %*% object$coefficients$zero)[,1]
       rval <- (1-phi) * mu
-    }   
-
+    }
+    
+    ## predicted means for count/zero component
+    if(type == "count") rval <- mu
+    if(type == "zero") rval <- phi
     
     ## predicted probabilities
     if(type == "prob") {
@@ -502,8 +578,16 @@ fitted.zeroinfl <- function(object, ...) {
 
 residuals.zeroinfl <- function(object, type = c("pearson", "response"), ...) {
   type <- match.arg(type)
-  if(type == "pearson") return(object$residuals/sqrt(object$fitted.values))
-    else return(object$residuals)
+  if(type == "response") return(object$residuals) else {
+    mu <- predict(object, type = "count")
+    phi <- predict(object, type = "zero")
+    theta1 <- switch(object$dist,
+      "poisson" = 0,
+      "geometric" = 1,
+      "negbin" = 1/object$theta)
+    vv <- object$fitted.values * (1 + (phi + theta1) * mu)
+    return(object$residuals/sqrt(vv))  
+  }  
 }
 
 terms.zeroinfl <- function(x, model = c("count", "zero"), ...) {
@@ -518,8 +602,10 @@ model.matrix.zeroinfl <- function(object, model = c("count", "zero"), ...) {
   return(rval)
 }
 
-predprob.zeroinfl <- function(obj, ...){
+predprob.zeroinfl <- function(obj, ...) {
     predict(obj, type = "prob", ...)
 }
 
-## estfun.zeroinfl?
+extractAIC.zeroinfl <- function(fit, scale = NULL, k = 2, ...) {
+  c(attr(logLik(fit), "df"), AIC(fit, k = k))
+}

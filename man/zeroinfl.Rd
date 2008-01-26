@@ -62,12 +62,9 @@ zeroinfl(formula, data, subset, na.action, weights, offset,
   All parameters are estimated by maximum likelihood using \code{\link[stats]{optim}},
   with control options set in \code{\link{zeroinfl.control}}.
   Starting values can be supplied, estimated by the EM (expectation maximization)
-  algorithm, or by \code{\link[stats]{glm.fit}} (the default). The latter corresponds
-  to the first iteration of the EM algorithm and initializes the unobserved state
-  as \code{y > 0}, i.e., all zeros are in the perfect component and only the non-zero
-  counts in the count component. Standard errors are derived numerically using
-  the Hessian matrix returned by \code{\link[stats]{optim}}. See
-  \code{\link{zeroinfl.control}} for details.
+  algorithm, or by \code{\link[stats]{glm.fit}} (the default). Standard errors
+  are derived numerically using the Hessian matrix returned by \code{\link[stats]{optim}}.
+  See \code{\link{zeroinfl.control}} for details.
   
   The returned fitted model object is of class \code{"zeroinfl"} and is similar
   to fitted \code{"glm"} objects. For elements such as \code{"coefficients"} or
@@ -147,7 +144,7 @@ Department of Statistics and Mathematics, Wirtschaftsuniversität Wien, Research 
 }
 
 \examples{
-## from Long (1997)
+## data
 data("bioChemists", package = "pscl")
 
 ## without inflation
@@ -157,14 +154,14 @@ fm_qpois <- glm(art ~ ., data = bioChemists, family = quasipoisson)
 fm_nb <- glm.nb(art ~ ., data = bioChemists)
 
 ## with simple inflation
-## (no regressors for 0 component)
+## (no regressors for 0 component: art ~ . | 1)
 fm_zip <- zeroinfl(art ~ ., data = bioChemists)
-fm_zinb <- zeroinfl(art ~ ., data = bioChemists, dist = "negbin", EM = TRUE)
+fm_zinb <- zeroinfl(art ~ ., data = bioChemists, dist = "negbin")
 
-## inflation with regressors (choose starting values by EM)
+## inflation with regressors
 ## ("art ~ . | ." is "art ~ fem + mar + kid5 + phd + ment | fem + mar + kid5 + phd + ment")
-fm_zip2 <- zeroinfl(art ~ . | ., data = bioChemists, EM = TRUE)
-fm_zinb2 <- zeroinfl(art ~ . | ., data = bioChemists, dist = "negbin", EM = TRUE)
+fm_zip2 <- zeroinfl(art ~ . | ., data = bioChemists)
+fm_zinb2 <- zeroinfl(art ~ . | ., data = bioChemists, dist = "negbin")
 }
 
 \keyword{regression}

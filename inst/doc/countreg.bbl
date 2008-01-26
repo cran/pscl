@@ -1,4 +1,4 @@
-\begin{thebibliography}{20}
+\begin{thebibliography}{21}
 \newcommand{\enquote}[1]{``#1''}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
@@ -30,6 +30,13 @@ Deb P, Trivedi PK (1997).
   Approach.}
 \newblock \emph{Journal of Applied Econometrics}, \textbf{12}, 313--336.
 
+\bibitem[{Erhardt(2007)}]{countreg:Erhardt:2007}
+Erhardt V (2007).
+\newblock \emph{\pkg{ZIGP}: Zero-inflated Generalized {P}oisson Regression
+  Models}.
+\newblock \proglang{R} package version 2.0,
+  \urlprefix\url{http://CRAN.R-project.org/}.
+
 \bibitem[{Fox(2002)}]{countreg:Fox:2002}
 Fox J (2002).
 \newblock \emph{An \textsf{R} and \textsf{S-PLUS} Companion to Applied
@@ -50,7 +57,7 @@ Jackman S (2007).
   the Political Science Computational Laboratory, Stanford University}.
 \newblock Department of Political Science, Stanford University, Stanford,
   California.
-\newblock \proglang{R} package version 0.90,
+\newblock \proglang{R} package version 0.93,
   \urlprefix\url{http://pscl.stanford.edu/}.
 
 \bibitem[{Kleiber and Zeileis(2008)}]{countreg:Kleiber+Zeileis:2008}
@@ -87,7 +94,7 @@ Mullahy J (1986).
 Mwalili SM (2006).
 \newblock \emph{\pkg{zicounts}: Classical and Censored Zero-inflated Count Data
   Models}.
-\newblock \proglang{R} package version 1.1.4,
+\newblock \proglang{R} package version 1.1.5 (orphaned),
   \urlprefix\url{http://CRAN.R-project.org/}.
 
 \bibitem[{Nelder and Wedderburn(1972)}]{countreg:Nelder+Wedderburn:1972}

@@ -8,9 +8,9 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
   ## set up likelihood components
   zeroPoisson <- function(parms) {
     ## mean
-    lambda <- as.vector(exp(Z %*% parms))
+    mu <- as.vector(exp(Z %*% parms))
     ## log-likelihood
-    loglik0 <- -lambda ## = dpois(0, lambda, log = TRUE)
+    loglik0 <- -mu ## = dpois(0, lambda = mu, log = TRUE)
     ## collect and return
     loglik <- sum(weights[Y0] * loglik0[Y0]) + sum(weights[Y1] * log(1 - exp(loglik0[Y1])))
     loglik
@@ -18,10 +18,10 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
 
   countPoisson <- function(parms) {
     ## mean
-    lambda <- as.vector(exp(X %*% parms + offset))[Y1]
+    mu <- as.vector(exp(X %*% parms + offset))[Y1]
     ## log-likelihood
-    loglik0 <- -lambda ## = dpois(0, lambda, log = TRUE)
-    loglik1 <- dpois(Y[Y1], lambda, log = TRUE)
+    loglik0 <- -mu ## = dpois(0, lambda = mu, log = TRUE)
+    loglik1 <- dpois(Y[Y1], lambda = mu, log = TRUE)
     ## collect and return
     loglik <- sum(weights[Y1] * loglik1) - sum(weights[Y1] * log(1 - exp(loglik0)))
     loglik
@@ -29,10 +29,10 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
 
   zeroNegBin <- function(parms) {
     ## parameters
-    lambda <- as.vector(exp(Z %*% parms[1:kz]))
+    mu <- as.vector(exp(Z %*% parms[1:kz]))
     theta <- exp(parms[kz+1])
     ## log-likelihood
-    loglik0 <- suppressWarnings(dnbinom(0, size = theta, mu = lambda, log = TRUE))
+    loglik0 <- suppressWarnings(dnbinom(0, size = theta, mu = mu, log = TRUE))
     ## collect and return
     loglik <- sum(weights[Y0] * loglik0[Y0]) + sum(weights[Y1] * log(1 - exp(loglik0[Y1])))
     loglik
@@ -40,27 +40,92 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
 
   countNegBin <- function(parms) {
     ## parameters
-    lambda <- as.vector(exp(X %*% parms[1:kx] + offset))[Y1]
+    mu <- as.vector(exp(X %*% parms[1:kx] + offset))[Y1]
     theta <- exp(parms[kx+1])
     ## log-likelihood
-    loglik0 <- suppressWarnings(dnbinom(0, size = theta, mu = lambda, log = TRUE))
-    loglik1 <- suppressWarnings(dnbinom(Y[Y1], size = theta, mu = lambda, log = TRUE))
+    loglik0 <- suppressWarnings(dnbinom(0, size = theta, mu = mu, log = TRUE))
+    loglik1 <- suppressWarnings(dnbinom(Y[Y1], size = theta, mu = mu, log = TRUE))
     ## collect and return
     loglik <- sum(weights[Y1] * loglik1) - sum(weights[Y1] * log(1 - exp(loglik0)))
     loglik
   }
 
   zeroGeom <- function(parms) zeroNegBin(c(parms, 0))
+  
   countGeom <- function(parms) countNegBin(c(parms, 0))
 
   zeroBinom <- function(parms) {
     ## mean
-    lambda <- as.vector(linkinv(Z %*% parms))
+    mu <- as.vector(linkinv(Z %*% parms))
     ## log-likelihood
-    loglik <- sum(weights[Y0] * log(1 - lambda[Y0])) + sum(weights[Y1] * log(lambda[Y1]))
+    loglik <- sum(weights[Y0] * log(1 - mu[Y0])) + sum(weights[Y1] * log(mu[Y1]))
     loglik  
   }
 
+  countGradPoisson <- function(parms) {
+    eta <- as.vector(X %*% parms + offset)[Y1]
+    mu <- exp(eta)
+    colSums(((Y[Y1] - mu) - exp(ppois(0, lambda = mu, log.p = TRUE) -
+      ppois(0, lambda = mu, lower.tail = FALSE, log.p = TRUE) + eta)) * weights[Y1] * X[Y1, , drop = FALSE])
+  }
+  
+  countGradGeom <- function(parms) {
+    eta <- as.vector(X %*% parms + offset)[Y1]
+    mu <- exp(eta)      
+    colSums(((Y[Y1] - mu * (Y[Y1] + 1)/(mu + 1)) -
+      exp(pnbinom(0, mu = mu, size = 1, log.p = TRUE) -
+        pnbinom(0, mu = mu, size = 1, lower.tail = FALSE, log.p = TRUE) -
+	log(mu + 1) + eta)) * weights[Y1] * X[Y1, , drop = FALSE])
+  }
+
+  countGradNegBin <- function(parms) {
+    eta <- as.vector(X %*% parms[1:kx] + offset)[Y1]
+    mu <- exp(eta)      
+    theta <- exp(parms[kx+1])
+    logratio <- pnbinom(0, mu = mu, size = theta, log.p = TRUE) -
+        pnbinom(0, mu = mu, size = theta, lower.tail = FALSE, log.p = TRUE)
+    rval <- colSums(((Y[Y1] - mu * (Y[Y1] + theta)/(mu + theta)) -
+      exp(logratio + log(theta) - log(mu + theta) + eta)) * weights[Y1] * X[Y1, , drop = FALSE])
+    rval2 <- sum((digamma(Y[Y1] + theta) - digamma(theta) +    
+      log(theta) - log(mu + theta) + 1 - (Y[Y1] + theta)/(mu + theta) +
+      exp(logratio) * (log(theta) - log(mu + theta) + 1 - theta/(mu + theta))) * weights[Y1]) * theta
+    c(rval, rval2)
+  }  
+  
+  zeroGradPoisson <- function(parms) {
+    eta <- as.vector(Z %*% parms)
+    mu <- exp(eta)
+    colSums(ifelse(Y0, -mu, exp(ppois(0, lambda = mu, log.p = TRUE) -
+      ppois(0, lambda = mu, lower.tail = FALSE, log.p = TRUE) + eta)) * weights * Z)
+  }
+
+  zeroGradGeom <- function(parms) {
+    eta <- as.vector(Z %*% parms)
+    mu <- exp(eta)
+    colSums(ifelse(Y0, -mu/(mu + 1), exp(pnbinom(0, mu = mu, size = 1, log.p = TRUE) -
+      pnbinom(0, mu = mu, size = 1, lower.tail = FALSE, log.p = TRUE) - log(mu + 1) + eta)) * weights * Z)
+  }
+
+  zeroGradNegBin <- function(parms) {
+    eta <- as.vector(Z %*% parms[1:kz])
+    mu <- exp(eta)
+    theta <- exp(parms[kz+1])
+    logratio <- pnbinom(0, mu = mu, size = theta, log.p = TRUE) -
+      pnbinom(0, mu = mu, size = theta, lower.tail = FALSE, log.p = TRUE)
+    rval <- colSums(ifelse(Y0, -mu * theta/(mu + theta),
+      exp(logratio + log(theta) - log(mu + theta) + eta)) * weights * Z)
+    rval2 <- sum(ifelse(Y0, log(theta) - log(mu + theta) + 1 - theta/(mu + theta),
+      -exp(logratio) * (log(theta) - log(mu + theta) + 1 - theta/(mu + theta))) * weights * theta)
+    c(rval, rval2)
+  }
+
+  zeroGradBinom <- function(parms) {
+    eta <- as.vector(Z %*% parms)
+    mu <- linkinv(eta)
+    colSums(ifelse(Y0, -1/(1-mu), 1/mu)  * linkobj$mu.eta(eta) * weights * Z)  
+  }
+
+  ## collect likelihood components
   dist <- match.arg(dist)
   zero.dist <- match.arg(zero.dist)
   countDist <- switch(dist,
@@ -72,12 +137,25 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
 		     "geometric" = zeroGeom,
 		     "negbin" = zeroNegBin,
 		     "binomial" = zeroBinom)
+  countGrad <- switch(dist,
+                     "poisson" = countGradPoisson,
+		     "geometric" = countGradGeom,
+		     "negbin" = countGradNegBin)
+  zeroGrad <- switch(zero.dist,
+                     "poisson" = zeroGradPoisson,
+		     "geometric" = zeroGradGeom,
+		     "negbin" = zeroGradNegBin,
+		     "binomial" = zeroGradBinom)
   loglikfun <- function(parms) countDist(parms[1:(kx + (dist == "negbin"))]) +
     zeroDist(parms[(kx + (dist == "negbin") + 1):(kx + kz + (dist == "negbin") + (zero.dist == "negbin"))])
+  gradfun <- function(parms) c(countGrad(parms[1:(kx + (dist == "negbin"))]),
+    zeroGrad(parms[(kx + (dist == "negbin") + 1):(kx + kz + (dist == "negbin") + (zero.dist == "negbin"))]))
+
 
   ## binary link processing
   linkstr <- match.arg(link)
-  linkinv <- make.link(linkstr)$linkinv
+  linkobj <- make.link(linkstr)
+  linkinv <- linkobj$linkinv
 
   if(control$trace) cat("Hurdle Count Model\n",
     paste("count model:", dist, "with log link\n"),
@@ -161,7 +239,6 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
   if(length(offset) == 1) offset <- rep(offset, n)
   offset <- as.vector(offset)
 
-
   ## starting values
   start <- control$start
   if(!is.null(start)) {
@@ -222,12 +299,12 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
   ## separate estimation of censored and truncated component...
   if(separate) {
     if(control$trace) cat("calling optim() for count component estimation:\n")
-    fit_count <- optim(fn = countDist,
+    fit_count <- optim(fn = countDist, gr = countGrad,
       par = c(start$count, if(dist == "negbin") log(start$theta["count"]) else NULL),
       method = method, hessian = hessian, control = control)
 
     if(control$trace) cat("calling optim() for zero hurdle component estimation:\n")
-    fit_zero <- optim(fn = zeroDist,
+    fit_zero <- optim(fn = zeroDist, gr = zeroGrad,
       par = c(start$zero,  if(zero.dist == "negbin") log(start$theta["zero"]) else NULL),
       method = method, hessian = hessian, control = control)
     if(control$trace) cat("done\n")
@@ -255,7 +332,7 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
   } else {
   ## ...or joint.
     if(control$trace) cat("calling optim() for joint count and zero hurlde estimation:\n")
-    fit <- optim(fn = loglikfun,
+    fit <- optim(fn = loglikfun, gr = gradfun,
       par = c(start$count, if(dist == "negbin") log(start$theta["count"]) else NULL,
               start$zero,  if(zero.dist == "negbin") log(start$theta["zero"]) else NULL),
       method = method, hessian = hessian, control = control)
@@ -289,18 +366,18 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
   ## fitted and residuals
   phi <- if(zero.dist == "binomial") linkinv(Z %*% coefz)[,1] else exp(Z %*% coefz)[,1]
   p0_zero <- switch(zero.dist,
-                    "binomial" = 1-phi,
-		    "poisson" = exp(-phi),
-		    "negbin" = dnbinom(0, size = theta["zero"], mu = phi),
-		    "geometric" = dnbinom(0, size = 1, mu = phi))
+  		    "binomial" = log(phi),
+        	    "poisson" = ppois(0, lambda = phi, lower.tail = FALSE, log.p = TRUE),
+        	    "negbin" = pnbinom(0, size = theta["zero"], mu = phi, lower.tail = FALSE, log.p = TRUE),
+        	    "geometric" = pnbinom(0, size = 1, mu = phi, lower.tail = FALSE, log.p = TRUE))
 
   mu <- exp(X %*% coefc)[,1]
   p0_count <- switch(dist,
-		    "poisson" = exp(-mu),
-		    "negbin" = dnbinom(0, size = theta["count"], mu = mu),
-		    "geometric" = dnbinom(0, size = 1, mu = mu))
+        	    "poisson" = ppois(0, lambda = mu, lower.tail = FALSE, log.p = TRUE),
+        	    "negbin" = pnbinom(0, size = theta["count"], mu = mu, lower.tail = FALSE, log.p = TRUE),
+        	    "geometric" = pnbinom(0, size = 1, mu = mu, lower.tail = FALSE, log.p = TRUE))
+  Yhat <- exp((p0_zero - p0_count) + log(mu))
 
-  Yhat <- (1 - p0_zero) * mu / (1 - p0_count)
   res <- Y - Yhat
 
 
@@ -476,13 +553,14 @@ model.matrix.hurdle <- function(object, model = c("count", "zero"), ...) {
   return(rval)
 }
 
-predict.hurdle <- function(object, newdata, type = c("response", "prob"), na.action = na.pass, ...)
+predict.hurdle <- function(object, newdata, type = c("response", "prob", "count", "zero"),
+  na.action = na.pass, ...)
 {
     type <- match.arg(type)
 
     ## if no new data supplied
     if(missing(newdata)) {
-      if(type == "prob") {
+      if(type != "response") {
         if(!is.null(object$x)) {
 	  X <- object$x$count
 	  Z <- object$x$zero
@@ -504,18 +582,22 @@ predict.hurdle <- function(object, newdata, type = c("response", "prob"), na.act
     phi <- if(object$dist$zero == "binomial") object$linkinv(Z %*% object$coefficients$zero)[,1]
       else exp(Z %*% object$coefficients$zero)[,1]
     p0_zero <- switch(object$dist$zero,
-                      "binomial" = 1-phi,
-		      "poisson" = exp(-phi),
-		      "negbin" = dnbinom(0, size = object$theta["zero"], mu = phi),
-		      "geometric" = dnbinom(0, size = 1, mu = phi))
+                      "binomial" = log(phi),
+		      "poisson" = ppois(0, lambda = mu, lower.tail = FALSE, log.p = TRUE),
+		      "negbin" = pnbinom(0, size = object$theta["zero"], mu = phi, lower.tail = FALSE, log.p = TRUE),
+		      "geometric" = pnbinom(0, size = 1, mu = phi, lower.tail = FALSE, log.p = TRUE))
 
     mu <- exp(X %*% object$coefficients$count)[,1]
     p0_count <- switch(object$dist$count,
-		      "poisson" = exp(-mu),
-		      "negbin" = dnbinom(0, size = object$theta["count"], mu = mu),
-		      "geometric" = dnbinom(0, size = 1, mu = mu))
-
+		      "poisson" = ppois(0, lambda = mu, lower.tail = FALSE, log.p = TRUE),
+		      "negbin" = pnbinom(0, size = object$theta["count"], mu = mu, lower.tail = FALSE, log.p = TRUE),
+		      "geometric" = pnbinom(0, size = 1, mu = mu, lower.tail = FALSE, log.p = TRUE))
+    logphi <- p0_zero - p0_count
     
+    if(type == "response") rval <- exp(logphi + log(mu))
+    if(type == "count") rval <- mu
+    if(type == "zero") rval <- exp(logphi)
+
     ## predicted probabilities
     if(type == "prob") {
       if(!is.null(object$y)) y <- object$y
@@ -527,19 +609,17 @@ predict.hurdle <- function(object, newdata, type = c("response", "prob"), na.act
       rval <- matrix(NA, nrow = length(mu), ncol = nUnique)
       dimnames(rval) <- list(rownames(X), yUnique)
       
-      rval[,1] <- p0_zero
+      rval[,1] <- 1 - exp(p0_zero)
       switch(object$dist$count,
              "poisson" = {
-               for(i in 2:nUnique) rval[,i] <- (1-p0_zero)/(1-p0_count) * dpois(yUnique[i], lambda = mu)
+               for(i in 2:nUnique) rval[,i] <- exp(logphi + dpois(yUnique[i], lambda = mu, log = TRUE))
 	     },
 	     "negbin" = {
-               for(i in 2:nUnique) rval[,i] <- (1-p0_zero)/(1-p0_count) * dnbinom(yUnique[i], mu = mu, size = object$theta["count"])
+               for(i in 2:nUnique) rval[,i] <- exp(logphi + dnbinom(yUnique[i], mu = mu, size = object$theta["count"], log = TRUE))
 	     },
 	     "geometric" = {
-               for(i in 2:nUnique) rval[,i] <- (1-p0_zero)/(1-p0_count) * dnbinom(yUnique[i], mu = mu, size = 1)
+               for(i in 2:nUnique) rval[,i] <- exp(logphi + dnbinom(yUnique[i], mu = mu, size = 1, log = TRUE))
 	     })
-    } else {
-      rval <- (1 - p0_zero) * mu / (1 - p0_count)
     }
    
     rval
@@ -551,15 +631,25 @@ fitted.hurdle <- function(object, ...) {
 
 residuals.hurdle <- function(object, type = c("pearson", "response"), ...) {
   type <- match.arg(type)
-  if(type == "pearson") return(object$residuals/sqrt(object$fitted.values))
-    else return(object$residuals)
+  if(type == "response") return(object$residuals) else {
+    mu <- predict(object, type = "count")
+    phi <- predict(object, type = "zero")
+    theta1 <- switch(object$dist$count,
+      "poisson" = 0,
+      "geometric" = 1,
+      "negbin" = 1/object$theta)
+    vv <- object$fitted.values * (1 + ((1-phi) + theta1) * mu)
+    return(object$residuals/sqrt(vv))  
+  }  
 }
 
 predprob.hurdle <- function(obj, ...){
     predict(obj, type = "prob", ...)
 }
 
-## estfun.hurdle?
+extractAIC.hurdle <- function(fit, scale = NULL, k = 2, ...) {
+  c(attr(logLik(fit), "df"), AIC(fit, k = k))
+}
 
 hurdletest <- function(object, ...) {
   stopifnot(inherits(object, "hurdle"))

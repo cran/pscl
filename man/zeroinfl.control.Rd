@@ -34,10 +34,8 @@ zeroinfl.control(method = "BFGS", maxit = 10000, trace = FALSE,
   of starting values for calling \code{optim}.
 
   Starting values can be supplied, estimated by the EM (expectation maximization)
-  algorithm, or by \code{\link[stats]{glm.fit}} (the default). The latter corresponds
-  to the first iteration of the EM algorithm and initializes the unobserved state
-  as \code{y > 0}, i.e., all zeros are in the perfect component and only the non-zero
-  counts in the count component. Standard errors are derived numerically using
+  algorithm, or by \code{\link[stats]{glm.fit}} (the default). Standard errors are
+  derived numerically using
   the Hessian matrix returned by \code{\link[stats]{optim}}. To supply starting 
   values, \code{start} should be a list with elements \code{"count"} and \code{"zero"}
   and potentially \code{"theta"} (for negative binomial components only) containing

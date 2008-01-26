@@ -1,46 +1,46 @@
-This is BibTeX, Version 0.99c (Web2C 7.5.5)
+This is BibTeX, Version 0.99c (Web2C 7.5.6)
 The top-level auxiliary file: countreg.aux
 The style file: jss.bst
 Database file #1: countreg.bib
 Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
-You've used 20 entries,
+You've used 21 entries,
             3179 wiz_defined-function locations,
-            777 strings with 8618 characters,
-and the built_in function-call counts, 14001 in all, are:
-= -- 1148
-> -- 308
-< -- 19
-+ -- 120
-- -- 96
-* -- 1052
-:= -- 1934
-add.period$ -- 77
-call.type$ -- 20
-change.case$ -- 117
-chr.to.int$ -- 20
-cite$ -- 20
-duplicate$ -- 1310
-empty$ -- 1341
-format.name$ -- 158
-if$ -- 2858
+            782 strings with 8783 characters,
+and the built_in function-call counts, 14521 in all, are:
+= -- 1191
+> -- 318
+< -- 20
++ -- 124
+- -- 99
+* -- 1084
+:= -- 2011
+add.period$ -- 80
+call.type$ -- 21
+change.case$ -- 123
+chr.to.int$ -- 21
+cite$ -- 21
+duplicate$ -- 1360
+empty$ -- 1389
+format.name$ -- 162
+if$ -- 2962
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 216
-newline$ -- 119
-num.names$ -- 81
-pop$ -- 478
+missing$ -- 224
+newline$ -- 124
+num.names$ -- 85
+pop$ -- 498
 preamble$ -- 1
-purify$ -- 112
+purify$ -- 117
 quote$ -- 0
-skip$ -- 354
+skip$ -- 372
 stack$ -- 0
-substring$ -- 1053
-swap$ -- 439
+substring$ -- 1084
+swap$ -- 454
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 156
+type$ -- 165
 warning$ -- 0
-while$ -- 110
+while$ -- 114
 width$ -- 0
-write$ -- 282
+write$ -- 295

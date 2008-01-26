@@ -210,11 +210,9 @@ ideal(object, codes = object$codes,
   regenerated using the probit method, ignoring any user-supplied values
   in \code{startvals$bstart}.  That is, user-supplied values in
   \code{startvals$bstart} are only used when accompanied by a valid set
-  of start values for the ideal points in \code{startvals$xstart}.  If 
-
+  of start values for the ideal points in \code{startvals$xstart}.
 }
   
-
 \value{a \code{\link{list}} of class \code{ideal} with named components
 
   \item{n}{\code{\link{numeric}}, integer, number of legislators in the

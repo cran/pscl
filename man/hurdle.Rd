@@ -146,7 +146,7 @@ Department of Statistics and Mathematics, Wirtschaftsuniversität Wien, Research 
 }
 
 \examples{
-## from Long (1997)
+## data
 data("bioChemists", package = "pscl")
 
 ## logit-poisson
