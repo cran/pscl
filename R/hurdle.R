@@ -371,7 +371,7 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
         	    "negbin" = pnbinom(0, size = theta["zero"], mu = phi, lower.tail = FALSE, log.p = TRUE),
         	    "geometric" = pnbinom(0, size = 1, mu = phi, lower.tail = FALSE, log.p = TRUE))
 
-  mu <- exp(X %*% coefc)[,1]
+  mu <- exp(X %*% coefc + offset)[,1]
   p0_count <- switch(dist,
         	    "poisson" = ppois(0, lambda = mu, lower.tail = FALSE, log.p = TRUE),
         	    "negbin" = pnbinom(0, size = theta["count"], mu = mu, lower.tail = FALSE, log.p = TRUE),
@@ -570,6 +570,7 @@ predict.hurdle <- function(object, newdata, type = c("response", "prob", "count"
 	} else {
 	  stop("predicted probabilities cannot be computed with missing newdata")
 	}
+	offset <- if(is.null(object$offset)) rep(0, NROW(X)) else object$offset
       } else {
         return(object$fitted.values)
       }
@@ -577,6 +578,10 @@ predict.hurdle <- function(object, newdata, type = c("response", "prob", "count"
       mf <- model.frame(delete.response(object$terms$full), newdata, na.action = na.action, xlev = object$levels)
       X <- model.matrix(delete.response(object$terms$count), mf, contrasts = object$contrasts$count)
       Z <- model.matrix(delete.response(object$terms$zero),  mf, contrasts = object$contrasts$zero)
+      offset <- if(!is.null(off.num <- attr(object$terms$full, "offset"))) 
+          eval(attr(object$terms$full, "variables")[[off.num + 1]], newdata)
+        else if(!is.null(object$offset)) eval(object$call$offset, newdata)
+      if(is.null(offset)) offset <- rep(0, NROW(X))
     }
 
     phi <- if(object$dist$zero == "binomial") object$linkinv(Z %*% object$coefficients$zero)[,1]
@@ -587,7 +592,7 @@ predict.hurdle <- function(object, newdata, type = c("response", "prob", "count"
 		      "negbin" = pnbinom(0, size = object$theta["zero"], mu = phi, lower.tail = FALSE, log.p = TRUE),
 		      "geometric" = pnbinom(0, size = 1, mu = phi, lower.tail = FALSE, log.p = TRUE))
 
-    mu <- exp(X %*% object$coefficients$count)[,1]
+    mu <- exp(X %*% object$coefficients$count + offset)[,1]
     p0_count <- switch(object$dist$count,
 		      "poisson" = ppois(0, lambda = mu, lower.tail = FALSE, log.p = TRUE),
 		      "negbin" = pnbinom(0, size = object$theta["count"], mu = mu, lower.tail = FALSE, log.p = TRUE),

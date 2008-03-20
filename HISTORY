@@ -1,3 +1,7 @@
+0.95 * fixed fitted() and predict() methods for "hurdle" and
+       "zeroinfl" for the case when an offset is specified
+       (this had been erroneously ignored previously)
+
 0.94 * added analytical gradients for hurdle() and zeroinfl()
        (speed-up of factor 5-10)
      * new package "sandwich" (2.1-0) provides estfun() and bread()

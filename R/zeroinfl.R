@@ -357,7 +357,7 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
                                     paste("zero",  colnames(Z), sep = "_"))
 
   ## fitted and residuals
-  mu <- exp(X %*% coefc)[,1]
+  mu <- exp(X %*% coefc + offset)[,1]
   phi <- linkinv(Z %*% coefz)[,1]
   Yhat <- (1-phi) * mu
   res <- Y - Yhat
@@ -525,15 +525,20 @@ predict.zeroinfl <- function(object, newdata, type = c("response", "prob", "coun
 	} else {
 	  stop("predicted probabilities cannot be computed with missing newdata")
 	}
-        mu <- exp(X %*% object$coefficients$count)[,1]
-        phi <- object$linkinv(Z %*% object$coefficients$zero)[,1]
+	offset <- if(is.null(object$offset)) rep(0, NROW(X)) else object$offset
+        mu <- exp(X %*% object$coefficients$count + offset)[,1]
+        phi <- object$linkinv(Z %*% object$coefficients$zero)[,1]	
       }
     } else {
       mf <- model.frame(delete.response(object$terms$full), newdata, na.action = na.action, xlev = object$levels)
       X <- model.matrix(delete.response(object$terms$count), mf, contrasts = object$contrasts$count)
       Z <- model.matrix(delete.response(object$terms$zero),  mf, contrasts = object$contrasts$zero)
+      offset <- if(!is.null(off.num <- attr(object$terms$full, "offset"))) 
+          eval(attr(object$terms$full, "variables")[[off.num + 1]], newdata)
+        else if(!is.null(object$offset)) eval(object$call$offset, newdata)	
+      if(is.null(offset)) offset <- rep(0, NROW(X))
 
-      mu <- exp(X %*% object$coefficients$count)[,1]
+      mu <- exp(X %*% object$coefficients$count + offset)[,1]
       phi <- object$linkinv(Z %*% object$coefficients$zero)[,1]
       rval <- (1-phi) * mu
     }
