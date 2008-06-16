@@ -66,8 +66,8 @@ normalizeIdeal <- function(object){
       beta0 <- matrix(object$beta[iter,-1],
                       nrow=d+1,
                       byrow=FALSE)
-      beta0[,2] <- beta0[,2] - xMeans[iter]*beta0[,1]
-      beta0[,1] <- beta0[,1]*xSd[iter]
+      beta0[2,] <- beta0[2,] - xMeans[iter]*beta0[1,]
+      beta0[1,] <- beta0[1,]*xSd[iter]
       newBeta[iter,-1] <- as.vector(beta0)
     }
   }

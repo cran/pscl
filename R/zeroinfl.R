@@ -127,7 +127,7 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
     paste("zero-inflation model: binomial with", linkstr, "link\n"), sep = "")
 	     
   
-  ## set up model.frame() call  
+  ## call and formula
   cl <- match.call()
   if(missing(data)) data <- environment(formula)
   mf <- match.call(expand.dots = FALSE)
@@ -147,12 +147,12 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
     ffc[[3]] <- ff[[3]][[2]]
     ffz[[3]] <- ff[[3]][[3]]
     ffz[[2]] <- NULL
-    if(any(sapply(unlist(as.list(ffz[[2]])), function(x) identical(x, as.name("."))))) {
-      ffz <- eval(parse(text = sprintf( paste("%s -", deparse(ffc[[2]])), deparse(ffz) )))
-    }
   } else {
-    ffc <- ff <- formula
-    ffz <- ~ 1
+    ffz <- ffc <- ff <- formula
+    ffz[[2]] <- NULL
+  }
+  if(any(sapply(unlist(as.list(ffz[[2]])), function(x) identical(x, as.name("."))))) {
+    ffz <- eval(parse(text = sprintf( paste("%s -", deparse(ffc[[2]])), deparse(ffz) )))
   }
 
   ## call model.frame()
@@ -167,6 +167,7 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
   mtZ <- terms(update(mtZ, ~ .), data = data)
   Z <- model.matrix(mtZ, mf)
   Y <- model.response(mf, "numeric")
+
 
   ## sanity checks
   if(length(Y) < 1) stop("empty model")

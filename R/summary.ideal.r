@@ -154,9 +154,18 @@ summary.ideal <- function(object,
   #####################################################################
   ## summarize by party
   pall.final <- NULL
-  party <- eval(object$call$object)$legis.data$partyName
-  if(is.null(party))
-    party <- eval(object$call$object)$legis.data$party
+  if(!is.null(object$call$dropList)){
+    party <- dropRollCall(eval(object$call$object),
+                          eval(object$call$dropList))$legis.data$partyName
+    if(is.null(party))
+      party <- dropRollCall(eval(object$call$object),
+                            eval(object$call$dropList))$legis.data$party
+  }
+  else{
+    party <- eval(object$call$object)$legis.data$partyName
+    if(is.null(party))
+      party <- eval(object$call$object)$legis.data$party
+  }
   if(!is.null(party)){                       ## we have some party info
     nms <- NULL
     for (b in 1:object$d){       ## loop over dimensions

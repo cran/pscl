@@ -1,4 +1,4 @@
-\documentclass{Z}
+\documentclass[nojss]{jss}
 
 %% need no \usepackage{Sweave}
 \usepackage{thumbpdf}
@@ -15,7 +15,7 @@
 \title{Regression Models for Count Data in \proglang{R}}
 \Plaintitle{Regression Models for Count Data in R}
 
-\Keywords{GLM, Poisson model, negative binomial model, zero-inflated model, hurdle model}
+\Keywords{GLM, Poisson model, negative binomial model, hurdle model, zero-inflated model}
 
 \Abstract{
   The classical Poisson, geometric and negative binomial regression models 
@@ -23,11 +23,11 @@
   are available at the core of the statistics toolbox in the \proglang{R}
   system for statistical computing. After reviewing the conceptual and
   computational features of these methods, a new implementation of
-  zero-inflated and hurdle regression models in the functions \fct{zeroinfl}
-  and \fct{hurdle} from the package \pkg{pscl} is introduced. It re-uses
+  hurdle and zero-inflated regression models in the functions \fct{hurdle}
+  and \fct{zeroinfl} from the package \pkg{pscl} is introduced. It re-uses
   design and functionality of the basic \proglang{R} functions just
   as the underlying conceptual tools extend the classical models.
-  Both zero-inflated and hurdle models, are able to incorporate over-dispersion and
+  Both hurdle and zero-inflated model, are able to incorporate over-dispersion and
   excess zeros---two problems
   that typically occur in count data sets in economics and the social
   sciences---better than their classical counterparts.
@@ -36,12 +36,22 @@
   inspected and tested in practice.
 }
 
+\Address{
+  Achim Zeileis\\
+  Department of Statistics and Mathematics\\
+  Wirtschaftsuniversit\"at Wien\\
+  Augasse 2--6\\
+  A-1090 Wien, Austria\\
+  E-mail: \email{Achim.Zeileis@R-project.org}\\
+  URL: \url{http://statmath.wu-wien.ac.at/~zeileis/}
+}
+
 \begin{document}
 
 \SweaveOpts{engine=R, eps=FALSE, keep.source = TRUE}
 %\VignetteIndexEntry{Regression Models for Count Data in R}
 %\VignetteDepends{sandwich,zoo,lmtest,MASS,car}
-%\VignetteKeywords{GLM, Poisson model, negative binomial model, zero-inflated model, hurdle model}
+%\VignetteKeywords{GLM, Poisson model, negative binomial model, hurdle model, zero-inflated model}
 %\VignettePackage{pscl}
 
 <<preliminaries, echo=FALSE, results=hide>>=
@@ -82,26 +92,25 @@ However, although these models typically can capture over-dispersion
 rather well, they are in many applications not sufficient for 
 modeling excess zeros. Since \cite{countreg:Mullahy:1986} and
 \cite{countreg:Lambert:1992} there is increased interest, both in the
-statistics and econometrics literature, in zero-augmented models
+econometrics and statistics literature, in zero-augmented models
 that address this issue by a second model component capturing zero counts.
-Zero-inflation models \citep{countreg:Lambert:1992}
-are mixture models that combine a count component and a point mass at zero.
-Hurdle models \citep{countreg:Mullahy:1986} take a somewhat different
-approach and combine a left-truncated count component with a
-right-censored hurdle component.
+Hurdle models \citep{countreg:Mullahy:1986} combine a left-truncated
+count component with a right-censored hurdle component. Zero-inflation
+models \citep{countreg:Lambert:1992} take a somewhat different
+approach: they are mixture models that combine a count component and a point mass at zero.
 An overview of count data models in econometrics, including 
-zero-inflated and hurdle models, is provided in
+hurdle and zero-inflated models, is provided in
 \cite{countreg:Cameron+Trivedi:1998,countreg:Cameron+Trivedi:2005}.
 
-In \proglang{R} \citep{countreg:R:2007}, GLMs are provided
+In \proglang{R} \citep{countreg:R:2008}, GLMs are provided
 by the model fitting functions \fct{glm} \citep{countreg:Chambers+Hastie:1992}
 in the \pkg{stats} package and \fct{glm.nb} in the \pkg{MASS}
 package \citep{countreg:Venables+Ripley:2002} along with associated
 methods for diagnostics and inference. Here, we discuss the implementation
-of zero-inflated and hurdle models in the functions \fct{zeroinfl}
-and \fct{hurdle} in the \pkg{pscl} package \citep{countreg:Jackman:2007},
+of hurdle and zero-inflated models in the functions \fct{hurdle} and
+\fct{zeroinfl} in the \pkg{pscl} package \citep{countreg:Jackman:2008},
 available from the Comprehensive \proglang{R} Archive Network (CRAN)
-at \url{http://CRAN.R-project.org/}.
+at \url{http://CRAN.R-project.org/package=pscl}.
 The design of both modeling functions as well as the methods operating
 on the associated fitted model objects follows that of the base \proglang{R}
 functionality so that the new software integrates easily into the
@@ -110,7 +119,7 @@ computational toolbox for modeling count data in \proglang{R}.
 The remainder of this paper is organized as follows: Section~\ref{sec:software}
 discusses both the classical and zero-augmented count data models and their
 \proglang{R} implementations. In Section~\ref{sec:illustrations}, all
-count regression models discussed are applied to a microeconometric
+count regression models discussed are applied to a microeconomic
 cross-section data set on the demand for medical care. The summary in
 Section~\ref{sec:summary} concludes the main part of the paper; further
 technical details are presented in the appendix.
@@ -118,58 +127,21 @@ technical details are presented in the appendix.
 
 \section{Models and software} \label{sec:software}
 
-In this section, we briefly outline the theory and its implementation in 
-\proglang{R} \citep{countreg:R:2007} for some basic count data regression
-models as well as their zero-augmented extensions (see Table~\ref{tab:overview}
-for an overview). The classical Poisson, geometric
-and negative binomial models are described in a generalized linear model (GLM)
-framework; they are implemented in \proglang{R} by the \fct{glm} function
-\citep{countreg:Chambers+Hastie:1992} in the \pkg{stats} package and the
-\fct{glm.nb} function in the \pkg{MASS} package \citep{countreg:Venables+Ripley:2002}.
-The zero-inflated and hurdle extensions of these models are provided by the
-functions \fct{zeroinfl} and \fct{hurdle} in package \pkg{pscl} \citep{countreg:Jackman:2007}.
-The original implementation of \cite{countreg:Jackman:2007} was improved
-by \cite{countreg:Kleiber+Zeileis:2008} for \pkg{pscl} to make the fitting functions and the
-fitted model objects more similar to their \fct{glm} and \fct{glm.nb} counterparts.
-The most important features of the new \fct{zeroinfl} and \fct{hurdle} functions
-are discussed below while some technical aspects are deferred to the appendix.
-An alternative implementation of zero-inflated count models is available in
-the function \fct{zicounts} from package \pkg{zicounts} \citep{countreg:Mwalili:2006}.
-Additionally, it provides censored versions of classical and zero-inflated count
-regression models. Another extension of zero-inflated Poisson models is available
-in package \pkg{ZIGP} \citep{countreg:Erhardt:2007} which allows dispersion---in addition to
-mean and zero-inflation level---to depend on regressors.
-However, the interfaces of both packages are less standard with fewer (or no)
-standard methods provided. Therefore, 
-re-using generic inference tools is more cumbersome and hence these packages are
-not discussed here. 
-
-
-In addition to zero-augmented models, there are many further extensions to
-the classical Poisson model which are not discussed here. Some important model
-classes include mixed-effects models---available in \proglang{R} in packages
-\pkg{lme4} and \pkg{nlme} \citep[see][]{countreg:Pinheiro+Bates:2000}---and
-finite mixture models---implemented in \proglang{R} in package \pkg{flexmix}
-\citep{countreg:Leisch:2004}---or generalized estimating equations
-(GEE)---provided in \proglang{R} by package \pkg{geepack}
-\citep{countreg:Halekoh+Hojsgaard+Yan:2006}. Further information about the models
-and alternative \proglang{R} implementations can be found in the respective
-references.
-
 \begin{table}[b!]
 \begin{center}
 \begin{tabular}{|l|l|l|p{7.4cm}|}
 \hline
 Type & Distribution & Method & Description \\ \hline
-GLM & Poisson & ML & Poisson regression (classical GLM, estimated by ML) \\
-    &         & quasi & quasi-Poisson regression
-                        (same mean function, estimated by quasi-ML/GEE,
-			 inference adjustment via additional dispersion parameter) \\
-    &         & adjusted & Poisson regression with sandwich covariances
-                           (same mean function, estimated by quasi-ML/GEE, inference
-			   adjustment for misspecification of remaining likelihood) \\
-    & NB      & ML    & NB regression
-                        (extended GLM, estimated by ML including additional shape parameter) \\ \hline
+GLM & Poisson & ML & Poisson regression: classical GLM, estimated by maximum likelihood (ML) \\
+    &         & quasi & ``quasi-Poisson regression'':
+                            same mean function, estimated by quasi-ML (QML) or equivalently
+			    generalized estimating equations (GEE),
+			    inference adjustment via estimated dispersion parameter \\
+    &         & adjusted & ``adjusted Poisson regression'': same mean function,
+                           estimated by QML/GEE,
+			   inference adjustment via sandwich covariances\\
+    & NB      & ML    & NB regression:
+                        extended GLM, estimated by ML including additional shape parameter \\ \hline
 zero-augmented & Poisson & ML & zero-inflated Poisson (ZIP), hurdle Poisson \\
                & NB      & ML & zero-inflated NB (ZINB), hurdle NB \\ \hline
 \end{tabular}
@@ -179,6 +151,47 @@ the remaining likelihood. The zero-augmented models extend the mean function by
 modifying (typically, increasing) the likelihood of zero counts.}
 \end{center}
 \end{table}
+
+In this section, we briefly outline the theory and its implementation in 
+\proglang{R} \citep{countreg:R:2008} for some basic count data regression
+models as well as their zero-augmented extensions (see Table~\ref{tab:overview}
+for an overview). The classical Poisson, geometric
+and negative binomial models are described in a generalized linear model (GLM)
+framework; they are implemented in \proglang{R} by the \fct{glm} function
+\citep{countreg:Chambers+Hastie:1992} in the \pkg{stats} package and the
+\fct{glm.nb} function in the \pkg{MASS} package \citep{countreg:Venables+Ripley:2002}.
+The hurdle and zero-inflated extensions of these models are provided by the
+functions \fct{hurdle} and \fct{zeroinfl} in package \pkg{pscl} \citep{countreg:Jackman:2008}.
+The original implementation of \cite{countreg:Jackman:2008} was improved
+by \cite{countreg:Kleiber+Zeileis:2008} for \pkg{pscl} to make the fitting functions and the
+fitted model objects more similar to their \fct{glm} and \fct{glm.nb} counterparts.
+The most important features of the new \fct{hurdle} and \fct{zeroinfl} functions
+are discussed below while some technical aspects are deferred to the appendix.
+
+An alternative implementation of zero-inflated count models is available in
+the currently orphaned package \pkg{zicounts}
+\citep{countreg:Mwalili:2007}. Another extension of zero-inflated Poisson models is available
+in package \pkg{ZIGP} \citep{countreg:Erhardt:2008} which allows dispersion---in addition to
+mean and zero-inflation level---to depend on regressors.
+However, the interfaces of both packages are less standard with fewer (or no)
+standard methods provided. Therefore, re-using generic inference tools is more
+cumbersome and hence these packages are not discussed here. 
+
+Two packages that embed zero-inflated models into more general implementations
+of GLMs and GAMs (generalized additive models) are \pkg{gamlss} 
+\citep{countreg:Stasinopoulos+Rigby:2007} and \pkg{VGAM} \citep{countreg:Yee:2008}.
+The latter also provides hurdle models (under the name zero-altered models).
+Both implementations allow specification of only one set of regressors.
+
+In addition to zero-augmented models, there are many further extensions to
+the classical Poisson model which are not discussed here. Some important model
+classes include finite mixture models---implemented in \proglang{R} in package \pkg{flexmix}
+\citep{countreg:Leisch:2004}---and generalized estimating equations
+(GEE)---provided in \proglang{R} by package \pkg{geepack}
+\citep{countreg:Halekoh+Hojsgaard+Yan:2006}---and mixed-effects models---available
+in \proglang{R} in packages \pkg{lme4} and \pkg{nlme} \citep[see][]{countreg:Pinheiro+Bates:2000}.
+Further information about the models and alternative \proglang{R} implementations
+can be found in the respective references.
 
 \subsection{Generalized linear models}
 
@@ -192,8 +205,8 @@ sketch some important aspects relating to the unifying conceptual properties
 and their implementation in \proglang{R}---for a detailed theoretical account of GLMs
 see \cite{countreg:McCullagh+Nelder:1989}.
 
-GLMs describe the dependence of a variable $y_i$ ($i = 1, \dots, n$)
-on a set of regressors $x_i$. The conditional distribution of
+GLMs describe the dependence of a scalar variable $y_i$ ($i = 1, \dots, n$)
+on a vector of regressors $x_i$. The conditional distribution of
 $y_i | x_i$ is a linear exponential family with probability density function
 \begin{equation} \label{eq:family}
 f(y; \lambda, \phi) \quad = \quad
@@ -244,14 +257,14 @@ The arguments in the second line control aspects specific to GLMs while
 the arguments in the last line specify which components are returned
 in the fitted model object (of class \class{glm} which inherits from
 \class{lm}). By default the model frame (\code{model}) and the vector
-$(y_1, \dots, y_n)^\top$ (\code{y}) but not the model matrix (\code{x}
+$(y_1, \dots, y_n)^\top$ (\code{y}) but not the model matrix (\code{x},
 containing $x_1, \dots, x_n$ combined row-wise) are included. The
 \code{family} argument specifies the link $g(\mu)$ and variance
 function $V(\mu)$ of the model, \code{start} can be used to set 
-starting values for $\beta$ (alternatively, the algorithm can be
-initialized in terms of the linear predictor $x_i^\top \beta$ or the mean
-$\mu_i$), and \code{control} contains control parameters for the IWLS
-algorithm. The high-level \fct{glm} interface relies on the function	
+starting values for $\beta$, and \code{control} contains control parameters for the IWLS
+algorithm. For further arguments to \fct{glm} (including alternative specifications
+of starting values) see \code{?glm}.
+The high-level \fct{glm} interface relies on the function	
 \fct{glm.fit} which carries out the actual model fitting (without
 taking a formula-based input or returning classed output).
 
@@ -259,7 +272,7 @@ For \class{glm} objects, a set of standard methods (including \fct{print},
 \fct{predict}, \fct{logLik} and many others) are provided. Inference can 
 easily be performed using the \fct{summary} method for assessing the
 regression coefficients via partial Wald tests or the \fct{anova} method
-for comparing nested models via analysis of deviance. These inference
+for comparing nested models via an analysis of deviance. These inference
 functions are complemented by further generic inference functions in
 contributed packages: e.g., \pkg{lmtest} \citep{countreg:Zeileis+Hothorn:2002}
 provides a \fct{coeftest} function that also computes partial Wald tests
@@ -319,7 +332,7 @@ setting \code{family = quasipoisson}.
 
 A third way of modeling over-dispersed count data is to assume
 a negative binomial (NB) distribution for $y_i | x_i$ which can arise
-as a gamma mixture of Poisson distributions. One parametrization of
+as a gamma mixture of Poisson distributions. One parameterization of
 its probability density function is
 \begin{equation} \label{eq:negbin}
 f(y; \mu, \theta) \quad = \quad \frac{\Gamma(y + \theta)}{\Gamma(\theta) \cdot y!} \cdot
@@ -351,115 +364,19 @@ inheriting from \class{glm} for which appropriate methods
 to the generic functions described above are again available.
 
 
-\subsection{Zero-inflated models}
+\subsection{Hurdle models}
 
 In addition to over-dispersion, many empirical count data sets
 exhibit more zero observations than would be allowed for
-by the Poisson model. Therefore, starting from
-\cite{countreg:Lambert:1992} various zero-inflated regression
-models have been suggested that extend the basic count data models
-by augmenting them with a point mass at zero---see
-\cite{countreg:Cameron+Trivedi:1998,countreg:Cameron+Trivedi:2005}
-for an overview.
-
-Zero-inflated count models are two-component mixture models
-combining a point mass at zero with a count distribution such as
-Poisson, geometric or negative binomial. Thus, there are two
-sources of zeros: zeros may come from both the point mass and
-from the count component. For modeling the unobserved state
-(zero vs.\ count), a binary model is used: in the simplest case
-only with an intercept but potentially containing regressors.
-
-Formally, the zero-inflated density is a mixture of a point mass
-at zero $I_{\{0\}}(y)$ and a count distribution $f_\mathrm{count}(y; x, \beta)$.
-regressors $z_i$:
-\begin{equation} \label{eq:zeroinfl}
-f_\mathrm{zeroinfl}(y; x, z, \beta, \gamma) \quad = \quad
-  \pi \cdot I_{\{0\}}(y) \; + \; (1 - \pi) \cdot f_\mathrm{count}(y; x, \beta),
-\end{equation}
-where $I(\cdot)$ is the indicator function and the unobserved probability $\pi$
-of belonging to the point mass component is modelled by a binomial GLM
-$\pi =  g^{-1}(z^\top \gamma)$.
-The corresponding regression equation for the mean is
-\begin{equation} \label{eq:zeroinfl-mean}
-\mu_i \quad = \quad \pi_i \cdot 0 \; + \; (1 - \pi_i) \cdot \exp(x_i^\top \beta),
-\end{equation}
-using the canonical log link.
-The vector of regressors in the zero-inflation model $z_i$
-and the regressors in the count component $x_i$ need not to be distinct---in
-the simplest case, $z_i = 1$ is just
-an intercept. The default link function $g(\pi)$ in binomial GLMs is the
-logit link, but other links such as the probit are also available. The full
-set of parameters of $\beta$, $\gamma$, and potentially $\theta$ (if 
-a negative binomial count model is used) can be estimated by ML. Inference
-is typically performed for $\beta$ and $\gamma$ while $\theta$ is treated
-as a nuisance parameter even if a negative binomial model is used.
-
-In \proglang{R}, zero-inflated count data models can be fitted with the
-\fct{zeroinfl} function from the \pkg{pscl} package \citep{countreg:Jackman:2007}.
-Both its fitting function and the returned model objects of class \class{zeroinfl}
-are modelled after the corresponding GLM functionality in \proglang{R}. The
-arguments of \fct{zeroinfl} are given by
-
-\begin{Soutput}
-zeroinfl(formula, data, subset, na.action, weights, offset,
-  dist = "poisson", link = "logit", control = zeroinfl.control(...),
-  model = TRUE, y = TRUE, x = FALSE, ...)
-\end{Soutput}
-
-where the first line contains the standard model-frame specifications,
-the second line has the arguments specific to zero-inflated models and
-the arguments in the last line control some components of the return value.
-
-The \code{formula} mainly describes the count regression relationship of $y_i$ and $x_i$,
-i.e., \code{y ~ x1 + x2} specifies a regression where all zero counts have the same
-probability $\pi_i$ of belonging to the zero component. This is equivalent to the
-model \code{y ~ x1 + x2 | 1}, making it more explicit that the zero-inflation
-model only has an intercept. Additionally, further regressors $z_i$ can be added
-to the zero-inflation model: A typical formula is \code{y ~ x1 + x2 | z1 + z2 + z3}
-and, as noted above, the regressors in the zero and the count component need not be
-distinct.
-
-The model likelihood can be specified by the \code{dist} and \code{link} arguments.
-The former determines the count data distribution (\code{"poisson"} by default, but it
-can also be set to \code{"negbin"} or \code{"geometric"}) for which the canonical log link
-is always used. The zero-inflation component is always a binomial GLM whose link function is
-specified by \code{link} (defaulting to \code{"logit"}, but all link functions of
-the \fct{binomial} family are also supported).
-
-ML estimation of all parameters is carried out using \proglang{R}'s \fct{optim},
-with control options set in \fct{zeroinfl.control} and employing analytical gradients.
-Starting values can be user-supplied, estimated by the expectation maximization (EM)
-algorithm, or by \fct{glm.fit} (the default).
-The covariance matrix estimate is derived numerically using
-the Hessian matrix returned by \fct{optim}. Using EM estimation for
-deriving starting values is typically slower but can be numerically more stable.
-It already maximizes the likelihood, but a single \fct{optim} iteration is used
-for determining the covariance matrix estimate.
-See Appendix~\ref{app:zeroinfl} for further technical details.
-
-The returned fitted model object of class \class{zeroinfl} is a list similar
-to \class{glm} objects. Some of its elements---such as \code{$coefficients} or
-\code{$terms}---are again lists with a zero and count component,
-respectively. For details see Appendix~\ref{app:zeroinfl}.
-
-A set of standard extractor functions for fitted model objects is available for
-objects of class \class{zeroinfl}, including the usual \fct{summary} method that
-provides partial Wald tests for all coefficients. No \fct{anova} method is provided,
-but the general \fct{coeftest}, \fct{waldtest} from \pkg{lmtest}, and \fct{linear.hypothesis}
-from \pkg{car} can be used for Wald tests and \fct{lrtest} from \pkg{lmtest}
-for LR tests of nested models.
-
-
-\subsection{Hurdle models}
-
-Originally proposed by \cite{countreg:Mullahy:1986} in the econometrics literature,
-hurdle models are another model class capable of dealing with excess zero counts 
+by the Poisson model. One model class capable of capturing
+both properties is the hurdle model, 
+originally proposed by \cite{countreg:Mullahy:1986} in the econometrics literature
 \citep[see][for an overview]{countreg:Cameron+Trivedi:1998,countreg:Cameron+Trivedi:2005}.
-They are also two-component models but avoid modeling zeros from mixed sources:
-A truncated count component is employed for positive counts and
+They are two-component models:
+A truncated count component, such as Poisson, geometric or negative binomial,
+is employed for positive counts, and
 a hurdle component models zero vs.\ larger counts.
-For the latter either a binomial model or a censored count distribution can be employed.
+For the latter, either a binomial model or a censored count distribution can be employed.
 
 More formally, the hurdle model combines a count data model 
 $f_\mathrm{count}(y; x, \beta)$ (that is left-truncated at $y = 1$) and a 
@@ -475,9 +392,9 @@ f_\mathrm{hurdle}(y; x, z, \beta, \gamma) =
   \right.
 \end{equation}
 The model parameters $\beta$, $\gamma$, and potentially one or two additional
-$\theta$ dispersion parameters
+dispersion parameters $\theta$
 (if $f_\mathrm{count}$ or $f_\mathrm{zero}$ or both are negative binomial densities)
-are estimated by ML where the specification of the likelihood has the advantage that
+are estimated by ML, where the specification of the likelihood has the advantage that
 the count and the hurdle component can be maximized separately. The corresponding
 mean regression relationship is given by
 \begin{equation} \label{eq:hurdle-mean}
@@ -495,11 +412,10 @@ used in the same count model in both components $f_\mathrm{count} = f_\mathrm{ze
 A test of the hypothesis $\beta = \gamma$ then tests whether the hurdle is
 needed or not.
 
-In \proglang{R}, hurdle models can be fitted with the
-\fct{hurdle} function from the \pkg{pscl} package. Both 
-the fitting function interface and the returned model objects of class \class{hurdle}
-are almost identical to the corresponding \fct{zeroinfl} functionality and again
-modelled after the corresponding GLM functionality in \proglang{R}. The
+In \proglang{R}, hurdle count data models can be fitted with the
+\fct{hurdle} function from the \pkg{pscl} package \citep{countreg:Jackman:2008}.
+Both its fitting function and the returned model objects of class \class{hurdle}
+are modelled after the corresponding GLM functionality in \proglang{R}. The
 arguments of \fct{hurdle} are given by
 
 \begin{Soutput}
@@ -509,30 +425,43 @@ hurdle(formula, data, subset, na.action, weights, offset,
   model = TRUE, y = TRUE, x = FALSE, ...)
 \end{Soutput}
 
-where all arguments have almost the same meaning as for \fct{zeroinfl},
-only the default processing for the \code{formula} is slightly different:
-If a \code{formula} of type \code{y ~ x1 + x2} is supplied, then the same
-regressors are employed in both components. This is equivalent to
+where the first line contains the standard model-frame specifications,
+the second and third lines have the arguments specific to hurdle models and
+the arguments in the last line control some components of the return value.
+
+If a \code{formula} of type \code{y ~ x1 + x2} is supplied, it not only
+describes the count regression relationship of $y_i$ and $x_i$ but also implies that
+the same set of regressors is used for the zero hurdle component $z_i = x_i$.
+This is could be made more explicit by equivalently writing the formula as
 \code{y ~ x1 + x2 | x1 + x2}. Of course, a different set of regressors
 could be specified for the zero hurdle component, e.g.,
-\code{y ~ x1 + x2 | z1 + z2 + z3} giving the count data model \code{y ~ x1 + x2}
+\code{y ~ x1 + x2 | z1 + z2 + z3}, giving the count data model \code{y ~ x1 + x2}
 conditional on (\code{|}) the zero hurdle model \code{y ~ z1 + z2 + z3}.
-Furthermore, the distribution for the zero hurdle model can be specified via
+
+The model likelihood can be specified by the \code{dist}, \code{zero.dist} and \code{link} arguments.
+The count data distribution \code{dist} is \code{"poisson"} by default (it
+can also be set to \code{"negbin"} or \code{"geometric"}), for which the canonical log link
+is always used. The distribution for the zero hurdle model can be specified via
 \code{zero.dist}. The default is a binomial model with \code{link} (defaulting
-to logit), alternatively a right-censored count distribution (Poisson,
+to \code{"logit"}, but all link functions of the \fct{binomial} family are also supported),
+alternatively a right-censored count distribution (Poisson,
 negative binomial or geometric, all with log link) could be specified.
 
-Again, ML estimates of all parameters are obtained from \fct{optim},
-with control options set in \fct{hurdle.control} and employing analytical gradients.
-Starting values can be supplied, otherwise they are estimated by \fct{glm.fit}
-(the default). Covariance matrix estimates are derived numerically using
-the Hessian matrix returned by \fct{optim}. See Appendix~\ref{app:hurdle} for details.
+ML estimation of all parameters employing analytical gradients is carried out
+using \proglang{R}'s \fct{optim} with control options set in \fct{hurdle.control}.
+Starting values can be user-supplied, otherwise they are estimated by \fct{glm.fit}
+(the default). The covariance matrix estimate is derived numerically using
+the Hessian matrix returned by \fct{optim}.
+See Appendix~\ref{app:hurdle} for further technical details.
 
-The returned fitted model object is of class \class{hurdle} whose structure
-is virtually identical to that of \class{zeroinfl} models. As above,
-a set of standard extractor functions for fitted model objects is available for
+The returned fitted-model object of class \class{hurdle} is a list similar
+to \class{glm} objects. Some of its elements---such as \code{coefficients} or
+\code{terms}---are lists with a zero and count component,
+respectively. For details see Appendix~\ref{app:hurdle}.
+
+A set of standard extractor functions for fitted model objects is available for
 objects of class \class{hurdle}, including the usual \fct{summary} method that
-provides partial Wald tests for all coefficients. Again, no \fct{anova} method is provided,
+provides partial Wald tests for all coefficients. No \fct{anova} method is provided,
 but the general \fct{coeftest}, \fct{waldtest} from \pkg{lmtest}, and \fct{linear.hypothesis}
 from \pkg{car} can be used for Wald tests and \fct{lrtest} from \pkg{lmtest}
 for LR tests of nested models. The function \fct{hurdletest} is a convenience
@@ -540,6 +469,83 @@ interface to \fct{linear.hypothesis} for testing for the presence of a hurdle
 (which is only applicable if the same regressors and the same count distribution
 are used in both components).
 
+
+\subsection{Zero-inflated models}
+
+Zero-inflated models \citep{countreg:Mullahy:1986,countreg:Lambert:1992}
+are another model class capable of dealing with excess zero counts 
+\citep[see][for an overview]{countreg:Cameron+Trivedi:1998,countreg:Cameron+Trivedi:2005}.
+They are two-component mixture models
+combining a point mass at zero with a count distribution such as
+Poisson, geometric or negative binomial. Thus, there are two
+sources of zeros: zeros may come from both the point mass and
+from the count component. For modeling the unobserved state
+(zero vs.\ count), a binary model is used: in the simplest case
+only with an intercept but potentially containing regressors.
+
+Formally, the zero-inflated density is a mixture of a point mass
+at zero $I_{\{0\}}(y)$ and a count distribution $f_\mathrm{count}(y; x, \beta)$.
+The probability of observing a zero count is inflated with probability
+$\pi = f_\mathrm{zero}(0; z, \gamma)$:
+\begin{equation} \label{eq:zeroinfl}
+f_\mathrm{zeroinfl}(y; x, z, \beta, \gamma) \quad = \quad
+  f_\mathrm{zero}(0; z, \gamma) \cdot I_{\{0\}}(y) \; + \;
+  (1 - f_\mathrm{zero}(0; z, \gamma)) \cdot f_\mathrm{count}(y; x, \beta),
+\end{equation}
+where $I(\cdot)$ is the indicator function and the unobserved probability $\pi$
+of belonging to the point mass component is modelled by a binomial GLM
+$\pi =  g^{-1}(z^\top \gamma)$.
+The corresponding regression equation for the mean is
+\begin{equation} \label{eq:zeroinfl-mean}
+\mu_i \quad = \quad \pi_i \cdot 0 \; + \; (1 - \pi_i) \cdot \exp(x_i^\top \beta),
+\end{equation}
+using the canonical log link.
+The vector of regressors in the zero-inflation model $z_i$
+and the regressors in the count component $x_i$ need not to be distinct---in
+the simplest case, $z_i = 1$ is just
+an intercept. The default link function $g(\pi)$ in binomial GLMs is the
+logit link, but other links such as the probit are also available. The full
+set of parameters of $\beta$, $\gamma$, and potentially the dispersion parameter $\theta$ (if 
+a negative binomial count model is used) can be estimated by ML. Inference
+is typically performed for $\beta$ and $\gamma$, while $\theta$ is treated
+as a nuisance parameter even if a negative binomial model is used.
+
+In \proglang{R}, zero-inflated count data models can be fitted with the
+\fct{zeroinfl} function from the \pkg{pscl} package. Both 
+the fitting function interface and the returned model objects of class \class{zeroinfl}
+are almost identical to the corresponding \fct{hurdle} functionality and again
+modelled after the corresponding GLM functionality in \proglang{R}. The
+arguments of \fct{zeroinfl} are given by
+
+\begin{Soutput}
+zeroinfl(formula, data, subset, na.action, weights, offset,
+  dist = "poisson", link = "logit", control = zeroinfl.control(...),
+  model = TRUE, y = TRUE, x = FALSE, ...)
+\end{Soutput}
+
+where all arguments have almost the same meaning as for \fct{hurdle}. The main
+difference is that there is no \code{zero.dist} argument: a binomial model is
+always used for distribution in the zero-inflation component.
+
+Again, ML estimates of all parameters are obtained from \fct{optim},
+with control options set in \fct{zeroinfl.control} and employing analytical gradients.
+Starting values can be user-supplied, estimated by the expectation maximization (EM)
+algorithm, or by \fct{glm.fit} (the default).
+The covariance matrix estimate is derived numerically using
+the Hessian matrix returned by \fct{optim}. Using EM estimation for
+deriving starting values is typically slower but can be numerically more stable.
+It already maximizes the likelihood, but a single \fct{optim} iteration is used
+for determining the covariance matrix estimate.
+See Appendix~\ref{app:zeroinfl} for further technical details.
+
+The returned fitted model object is of class \class{zeroinfl} whose structure
+is virtually identical to that of \class{zeroinfl} models. As above,
+a set of standard extractor functions for fitted model objects is available for
+objects of class \class{zeroinfl}, including the usual \fct{summary} method that
+provides partial Wald tests for all coefficients. Again, no \fct{anova} method is provided,
+but the general functions \fct{coeftest} and \fct{waldtest} from \pkg{lmtest},
+as well as \fct{linear.hypothesis} from \pkg{car} can be used for Wald tests,
+and \fct{lrtest} from \pkg{lmtest} for LR tests of nested models. 
 
 
 \section{Application and illustrations} \label{sec:illustrations}
@@ -559,14 +565,14 @@ over-dispersion and/or the number of zero counts.
 \cite{countreg:Deb+Trivedi:1997} analyze data on 4406
 individuals, aged 66 and over, who are covered by Medicare, a public
 insurance program. Originally obtained from the US National Medical
-Expenditure Survey (NMES) in 1987/88, the data is available from the data archive of the
+Expenditure Survey (NMES) for 1987/88, the data are available from the data archive of the
 \textit{Journal of Applied Econometrics} at
 \url{http://www.econ.queensu.ca/jae/1997-v12.3/deb-trivedi/}. It was
 prepared for an \proglang{R} package accompanying
 \cite{countreg:Kleiber+Zeileis:2008} and is also available as
 \code{DebTrivedi.rda} in the \textit{Journal of Statistical Software}
 together with \cite{countreg:Zeileis:2006}. The objective is to model
-the demand for medical care---as captured in the number of physician/non-physician
+the demand for medical care---as captured by the number of physician/non-physician
 office and hospital outpatient visits---by the covariates available
 for the patients. Here, we adopt the number of physician office visits \code{ofp}
 as the dependent variable and use the health status variables
@@ -595,13 +601,13 @@ observed count frequencies. In \proglang{R} various tools could be used, e.g.,
 plot(table(dt$ofp))
 @
 (see Figure~\ref{fig:ofp}) for a histogram with lines which brings out the extremely
-large counts a bit better. The histogram illustrates that the marginal distribution
+large counts somewhat better. The histogram illustrates that the marginal distribution
 exhibits both substantial variation and a rather large number of zeros.
 
-\setkeys{Gin}{width=.75\textwidth} 
+\setkeys{Gin}{width=.5\textwidth} 
 \begin{figure}[p]
 \begin{center}
-<<ofp-plot2, echo=FALSE, fig=TRUE, height=5, width=6>>=
+<<ofp-plot2, echo=FALSE, fig=TRUE, height=5, width=5>>=
 plot(table(dt$ofp), xlab = "Number of physician office visits", ylab = "Frequency", axes = FALSE)
 axis(2)
 axis(1, at = 0:18 * 5, labels = FALSE)
@@ -614,7 +620,7 @@ axis(1, at = 0:9 * 10)
 \setkeys{Gin}{width=\textwidth} 
 \begin{figure}[p]
 \begin{center}
-<<bad-good, fig=TRUE, height=4.5, width=8, echo=FALSE>>=
+<<bad-good, fig=TRUE, height=5, width=10, echo=FALSE>>=
 par(mfrow = c(1, 2))
 plot(ofp ~ numchron, data = dt)
 plot(clog(ofp) ~ cfac(numchron), data = dt)
@@ -677,20 +683,20 @@ how the number of doctor visits increases with the number of chronic conditions.
 \setkeys{Gin}{width=\textwidth} 
 \begin{figure}[p]
 \begin{center}
-<<ofp2-plot1, fig=TRUE, height=11, width=8, echo=FALSE>>=
+<<ofp2-plot1, fig=TRUE, height=9, width=6.5, echo=FALSE>>=
 par(mfrow = c(3, 2))
 plot(clog(ofp) ~ health, data = dt, varwidth = TRUE,
-  ylab = "Log-number of physician office visits", xlab = "Self-perceived health status", main = "health")
+  ylab = "Physician office visits (in clogs)", xlab = "Self-perceived health status", main = "health")
 plot(clog(ofp) ~ cfac(numchron), data = dt,
-  ylab = "Log-number of physician office visits", xlab = "Number of chronic conditions", main = "numchron")
+  ylab = "Physician office visits (in clogs)", xlab = "Number of chronic conditions", main = "numchron")
 plot(clog(ofp) ~ privins, data = dt, varwidth = TRUE,
-  ylab = "Log-number of physician office visits", xlab = "Covered by private insurance", main = "privins")
+  ylab = "Physician office visits (in clogs)", xlab = "Covered by private insurance", main = "privins")
 plot(clog(ofp) ~ cfac(hosp, c(0:2, 8)), data = dt,
-  ylab = "Log-number of physician office visits", xlab = "Number of hospital stays", main = "hosp")
+  ylab = "Physician office visits (in clogs)", xlab = "Number of hospital stays", main = "hosp")
 plot(clog(ofp) ~ gender, data = dt, varwidth = TRUE,
-  ylab = "Log-number of physician office visits", xlab = "Gender", main = "gender")
+  ylab = "Physician office visits (in clogs)", xlab = "Gender", main = "gender")
 plot(cfac(ofp, c(0:2, 4, 6, 10, 100)) ~ school, data = dt, breaks = 9,
-  ylab = "Number of physician office visits", xlab = "Number of years of education", main = "school")
+  ylab = "Physician office visits (number of visits)", xlab = "Number of years of education", main = "school")
 @
 \caption{\label{fig:ofp2} Number of physician office visits plotted against regressors used.}
 \end{center}
@@ -713,7 +719,7 @@ is produced. This also groups the regressor (as in a histogram) and then
 produces a highlighted mosaic plot. All displays show that the number of
 doctor visits increases or decreases with the regressors as expected: \code{ofp}
 decreases with the general health status but increases with the number of
-chronic conditions or hospital stays. The average number of visits is also
+chronic conditions or hospital stays. The median number of visits is also
 slightly higher for patients with a private insurance and higher level of 
 education. It is slightly lower for male compared to female patients.
 The overall impression from all displays is that the changes in the mean
@@ -755,7 +761,7 @@ health variables leading to somewhat larger Wald statistics compared to the
 socio-economic variables. However, the Wald test
 results might be too optimistic due to a misspecification of the likelihood.
 As the exploratory analysis suggested that over-dispersion is present in this data
-set, we re-compute the Wald tests using sandwich standard errors
+set, we re-compute the Wald tests using sandwich standard errors via
 <<coeftest-poisson>>=
 coeftest(fm_pois, vcov = sandwich)
 @
@@ -787,7 +793,7 @@ The output is suppressed here and is presented in tabular form in Table~\ref{tab
 \subsection{Negative binomial regression}
 
 A more formal way to accommodate over-dispersion in a count data regression
-model is to use a negative binomial model.
+model is to use a negative binomial model, as in
 <<nbin, eval=FALSE>>=
 fm_nbin <- glm.nb(ofp ~ ., data = dt)
 summary(fm_nbin)
@@ -835,13 +841,13 @@ and can then be compared to the full model in a Wald test
 <<waldtest-hurdle>>=
 waldtest(fm_hurdle0, fm_hurdle)
 @
-or LR test
+or an LR test
 <<lrtest-hurdle, eval=FALSE>>=
 lrtest(fm_hurdle0, fm_hurdle)
 @
 which leads to virtually identical results.
 
-\begin{table}[t!]
+\begin{table}[p]
 \begin{center}
 \begin{tabular}{|l|rrrr|rr|} \hline
 Type & \multicolumn{4}{|c|}{GLM} & \multicolumn{2}{|c|}{zero-augmented} \\
@@ -871,7 +877,7 @@ fm_summary[1:6 * 2 + 15,] <- cbind(NA, NA, NA, NA, sapply(fm[5:6], function(x)
 fm_summary[1:6 * 2 + 16,] <- cbind(NA, NA, NA, NA, sapply(fm[5:6],
   function(x) paste("(", format(round(sqrt(diag(vcov(x)))[-(1:8)], digits = 3)),  ")", sep = "")))
 fm_summary[29,] <- sapply(fm, function(x) attr(logLik(x), "df"))
-fm_summary[30,] <- format(sapply(fm, function(x) round(logLik(x), digits = 1)))
+fm_summary[30,] <- paste("$", format(sapply(fm, function(x) round(logLik(x), digits = 1))), "$", sep = "")
 fm_summary[31,] <- format(round(sapply(fm, AIC), digits = 1))
 fm_summary[32,] <- format(round(sapply(fm, AIC, k = log(nrow(dt))), digits = 1))
 fm_summary[33,] <- round(c("ML-Pois" = sum(dpois(0, fitted(fm_pois))),
@@ -907,18 +913,18 @@ fm_zinb0 <- zeroinfl(ofp ~ ., data = dt, dist = "negbin")
 This has just an intercept in the zero-inflation model, but---as the hurdle
 model \code{fm_hurdle} fitted above has shown---the available regressors can be
 used for distinguishing between zero and larger counts. Therefore, a second
-model is fitted
+model 
 <<zinb, eval=FALSE>>=
 fm_zinb <- zeroinfl(ofp ~ . | hosp + numchron + privins + school + gender,
   data = dt, dist = "negbin")
 @
-that has the same variables in the zero-inflation part as the hurdle
+is fitted that has the same variables in the zero-inflation part as the hurdle
 component in \code{fm_hurdle}. This improves the ZINB fit significantly
 which can again be brought out by a Wald test
 <<waldtest-zinb>>=
 waldtest(fm_zinb0, fm_zinb)
 @
-or a LR test \code{lrtest(fm_zinb0, fm_zinb)} that produces virtually identical
+or an LR test \code{lrtest(fm_zinb0, fm_zinb)} that produces virtually identical
 results. The chosen fitted model can again be inspected via
 <<summary-zinb, eval=FALSE>>=
 summary(fm_zinb)
@@ -936,25 +942,25 @@ interpretations.
 As a first comparison, it is of natural
 interest to inspect the estimated regression coefficients in the count data model
 
-<<coef-count>>=
+<<coef-count, results=hide>>=
 fm <- list("ML-Pois" = fm_pois, "Quasi-Pois" = fm_qpois, "NB" = fm_nbin,
   "Hurdle-NB" = fm_hurdle, "ZINB" = fm_zinb)
-round(sapply(fm, function(x) coef(x)[1:8]), digits = 3)
+sapply(fm, function(x) coef(x)[1:8])
 @
 
-This shows that there are some small differences, especially between the GLMs and the
+The result (see Table~\ref{tab:summary}) shows that there are some small differences,
+especially between the GLMs and the
 zero-augmented models. However, the zero-augmented models have to be interpreted 
 slightly differently: While the GLMs all have the same mean function (\ref{eq:mean}),
 the zero-augmentation also enters the mean function, see (\ref{eq:zeroinfl-mean}) and
 (\ref{eq:hurdle-mean}). Nevertheless,
 the overall impression is that the estimated mean functions are rather similar.
 Moreover, the associated estimated standard errors
-are very similar as well:
-<<se-count>>=
-round(cbind("ML-Pois" = sqrt(diag(vcov(fm_pois))),
+are very similar as well (see Table~\ref{tab:summary}):
+<<se-count, results=hide>>=
+cbind("ML-Pois" = sqrt(diag(vcov(fm_pois))),
   "Adj-Pois" = sqrt(diag(sandwich(fm_pois))),
-  sapply(fm[-1], function(x) sqrt(diag(vcov(x)))[1:8])),
-  digits = 3)
+  sapply(fm[-1], function(x) sqrt(diag(vcov(x)))[1:8]))
 @
 The only exception are the model-based standard errors for the Poisson model,
 when treated as a fully specified model, which is obviously not appropriate for this data set.
@@ -974,12 +980,10 @@ almost identical fits. This also reflects that the over-dispersion in the data
 is captured better by the negative-binomial-based models than the plain
 Poisson model. Additionally, it is of interest how the zero counts
 are captured by the various models. Therefore, the observed zero counts are
-compared to expected number of zero counts for the likelihood based models:
+compared to the expected number of zero counts for the likelihood-based models:
 <<zero-counts>>=
 round(c("Obs" = sum(dt$ofp < 1),
   "ML-Pois" = sum(dpois(0, fitted(fm_pois))),
-  "Adj-Pois" = NA,
-  "Quasi-Pois" = NA,
   "NB" = sum(dnbinom(0, mu = fitted(fm_nbin), size = fm_nbin$theta)),
   "NB-Hurdle" = sum(predict(fm_hurdle, type = "prob")[,1]),
   "ZINB" = sum(predict(fm_zinb, type = "prob")[,1])))
@@ -1003,7 +1007,7 @@ For the hurdle model, the zero hurdle component describes the probability
 of observing a positive count whereas, for the ZINB model, the zero-inflation
 component predicts the probability of observing a zero count from the
 point mass component. Overall, both models lead to the same qualitative
-results and very similar model fits. Perhaps, the hurdle model is slightly
+results and very similar model fits. Perhaps the hurdle model is slightly
 preferable because it has the nicer interpretation: there is one process
 that controls whether a patient sees a physician or not, and a second 
 process that determines how many office visits are made.
@@ -1013,10 +1017,10 @@ process that determines how many office visits are made.
 The model frame for basic count data models from the GLM framework as well
 as their implementation in the \proglang{R} system for statistical computing
 is reviewed. Starting from these basic tools, it is presented how
-zero-inflated and hurdle models extend the classical models and how
+hurdle and zero-inflated models extend the classical models and how
 likewise their \proglang{R} implementation in package \pkg{pscl} re-uses
 design and functionality of the corresponding \proglang{R} software.
-Hence, the new functions \fct{zeroinfl} and \fct{hurdle} are straightforward
+Hence, the new functions \fct{hurdle} and \fct{zeroinfl} are straightforward
 to apply for model fitting. Additionally, standard methods for diagnostics 
 are provided and generic inference tools from other packages can easily be
 re-used.
@@ -1040,35 +1044,34 @@ CRAN at \url{http://CRAN.R-project.org/}.
 
 \begin{appendix}
 
-\section{Technical details for zero-inflated models} \label{app:zeroinfl}
+\section{Technical details for hurdle models} \label{app:hurdle}
 
-The fitting of zero-inflated models via ML in \fct{zeroinfl} is controlled by
-the arguments in the \fct{zeroinfl.control} wrapper function:
+The fitting of hurdle models via ML in \fct{hurdle} is controlled by
+the arguments in the \fct{hurdle.control} wrapper function:
 
 \begin{Soutput}
-zeroinfl.control(method = "BFGS", maxit = 10000, trace = FALSE,
-  EM = FALSE, start = NULL, ...)
+hurdle.control(method = "BFGS", maxit = 10000, trace = FALSE,
+  separate = TRUE, start = NULL, ...)
 \end{Soutput}
 
 This modifies some default arguments passed on to the optimizer \fct{optim},
 such as \code{method}, \code{maxit} and \code{trace}. The latter is also
-used within \fct{zeroinfl} and can be set to produce more verbose output
-concerning the fitting process. The arguments \code{EM} and \code{start}
-control the choice of starting values for calling \fct{optim}, all remaining
+used within \fct{hurdle} and can be set to produce more verbose output
+concerning the fitting process. The argument \code{separate} controls
+whether the two components of the model are optimized separately (the default)
+or not. This is possible because there are no mixed sources for the zeros
+in the data (unlike in zero-inflation models). The argument \code{start}
+controls the choice of starting values for calling \fct{optim}, all remaining
 arguments passed through \code{...} are directly passed on to \fct{optim}.
 
 By default, starting values are estimated by calling \fct{glm.fit} for
 both components of the model separately, once for the counts and once
-for zero vs.\ non-zero counts.
-If \code{EM = TRUE}, this process is iterated until convergence of the
-parameters to the ML estimates. The optimizer is still called subsequently
-for a single iteration to obtain the Hessian matrix from which the estimated
-covariance matrix can be computed. If starting values are supplied,
+for zero vs.\ non-zero counts. If starting values are supplied,
 \code{start} needs to be set to a named list with the parameters for the
 \code{$count} and \code{$zero} part of the model (and potentially a
 \code{$theta} dispersion parameter if a negative binomial distribution is used).
 
-The fitted model object of class \class{zeroinfl} is similar to \class{glm}
+The fitted model object of class \class{hurdle} is similar to \class{glm}
 objects and contains sufficient information on all aspects of the fitting
 process. In particular, the estimated parameters and associated covariances
 are included as well as the result from the \fct{optim} call. Furthermore,
@@ -1082,40 +1085,43 @@ $\beta$ and $\gamma$ while the estimate of $\theta$ and its standard deviation
 (on a log scale) are kept in extra list elements \code{$theta} and \code{$SE.logtheta}.
 
 
-\section{Technical details for hurdle models} \label{app:hurdle}
+\section{Technical details for zero-inflated models} \label{app:zeroinfl}
 
-Both the interface of the \fct{hurdle} function as well as its fitted
-model objects are virtually identical to the corresponding \class{zeroinfl}
+Both the interface of the \fct{zeroinfl} function as well as its fitted
+model objects are virtually identical to the corresponding \class{hurdle}
 functionality. Hence, we only provide some additional information for
 those aspects that differ from those discussed above. The details of the
-ML optimization are again provided by a \fct{hurdle.control} wrapper:
+ML optimization are again provided by a \fct{zeroinfl.control} wrapper:
 
 \begin{Soutput}
-hurdle.control(method = "BFGS", maxit = 10000, trace = FALSE,
-  separate = TRUE, start = NULL, ...)
+zeroinfl.control(method = "BFGS", maxit = 10000, trace = FALSE,
+  EM = FALSE, start = NULL, ...)
 \end{Soutput}
 
-The only new argument here is the argument \code{separate} which controls
-whether the two components of the model are optimized separately (the default)
-or not. This is possible because there are no mixed sources for the zeros
-in the data (unlike in zero-inflation models).
+The only new argument here is the argument \code{EM} which allows for EM
+estimation of the starting values. Instead of calling \fct{glm.fit} only once for
+both components of the model, this process can be iterated until convergence of the
+parameters to the ML estimates. The optimizer is still called subsequently
+(for a single iteration) to obtain the Hessian matrix from which the estimated
+covariance matrix can be computed.
+
 
 \section{Methods for fitted zero-inflated and hurdle models} \label{app:methods}
 
 Users typically should not need to compute on the internal structure of
-\class{zeroinfl} or \class{hurdle} objects because a set of standard extractor functions is provided,
+\class{hurdle} or \class{zeroinfl} objects because a set of standard extractor functions is provided,
 an overview is given in Table~\ref{tab:methods}.
 This includes methods to the generic functions \fct{print} and \fct{summary} which
 print the estimated coefficients along with further information. The \fct{summary} in particular
 supplies partial Wald tests based on the coefficients and the covariance matrix.
-As usual, the \fct{summary} method returns an object of class \class{summary.zeroinfl}
-or \class{summary.hurdle}, respectively, containing the relevant summary statistics
+As usual, the \fct{summary} method returns an object of class \class{summary.hurdle}
+or \class{summary.zeroinfl}, respectively, containing the relevant summary statistics
 which can subsequently be printed using the associated \fct{print} method.
 
 The methods for \fct{coef} and \fct{vcov} by default
 return a single vector of coefficients and their associated covariance matrix,
 respectively, i.e., all coefficients are concatenated. By setting their \code{model}
-argument, the estimates for a single component only can be extracted. Concatenating
+argument, the estimates for a single component can be extracted. Concatenating
 the parameters by default and providing a matching covariance matrix estimate
 (that does not contain the covariances of further nuisance parameters) facilitates
 the application of generic inference functions such as \fct{coeftest}, \fct{waldtest},
@@ -1131,16 +1137,19 @@ can be called to compute information criteria and \fct{lrtest} for conducting
 LR tests of nested models.
 
 The \fct{predict} method computes predicted means (default) or probabilities (i.e.,
-likelihood contributions) for observed or new data.\footnote{Additionally, the means
+likelihood contributions) for observed or new data. Additionally, the means
 from the count and zero component, respectively, can be predicted. For the
-count component, this is the predicted count mean (without inflation/hurdle).
-For the zero component, this is the probability
-of observing a zero from the point mass component in zero-inflated models
-and the ratio of probabilities of observing non-zero counts in hurdle models.}
+count component, this is the predicted count mean (without hurdle/inflation):
+$\exp(x_i^\top \beta)$. For the zero component, this is the  the ratio of
+probabilities $(1 - f_\mathrm{zero}(0; z_i, \gamma))/(1 - f_\mathrm{count}(0; x_i, \beta))$
+of observing non-zero counts in hurdle models. In zero-inflation models, it is
+the probability $f_\mathrm{zero}(0; z_i, \gamma)$ of observing a zero
+from the point mass component in zero-inflated models
+
 Predicted means for the observed data can also be obtained by the \fct{fitted} method. Deviations
 between observed counts $y_i$ and predicted means $\hat \mu_i$ can be obtained
 by the \fct{residuals} method returning either raw residuals $y_i - \hat \mu_i$
-or the scaled Pearson residuals (raw residuals divided by square root of variance function)
+or the Pearson residuals (raw residuals standardized by square root of the variance function)
 with the latter being the default.
 
 \begin{table}[t!]
@@ -1156,7 +1165,7 @@ Function & Description \\ \hline
 \fct{vcov} & associated covariance matrix (with matching names) \\
 \fct{predict} & predictions (means or probabilities) for new data \\
 \fct{fitted} & fitted means for observed data \\
-\fct{residuals} & extract residuals (raw response or Pearson) \\ \hline
+\fct{residuals} & extract residuals (response or Pearson) \\ \hline
 \fct{terms} & extract terms of model components \\
 \fct{model.matrix} & extract model matrix of model components \\
 \fct{logLik} & extract fitted log-likelihood \\ \hline
@@ -1181,7 +1190,7 @@ paper. Here, however, we use the full model to show that the tools in \pkg{pscl}
 reproduce the results of \cite{countreg:Cameron+Trivedi:1998}.
 
 After omitting the responses other than \code{ofp} and setting \code{"other"}
-as the reference category for \code{region}
+as the reference category for \code{region} using
 <<dt2a, eval=FALSE>>=
 dt2 <- DebTrivedi[, -(2:6)]
 dt2$region <- relevel(dt2$region, "other")
@@ -1195,7 +1204,7 @@ fm_hurdle2 <- hurdle(ofp ~ ., data = dt2, dist = "negbin")
 The resulting coefficient estimates are virtually identical to those published
 in \citet[p.~204]{countreg:Cameron+Trivedi:1998}. The associated Wald statistics
 are also very similar provided that sandwich standard errors are used
-\citet[which is not stated explicitely in][]{countreg:Cameron+Trivedi:1998}.
+\citep[which is not stated explicitely in][]{countreg:Cameron+Trivedi:1998}.
 <<hurdle2-summary>>=
 cfz <- coef(fm_hurdle2, model = "zero")
 cfc <- coef(fm_hurdle2, model = "count")
@@ -1211,65 +1220,10 @@ which are probably explicable by different approximations to the gradient
 of $\theta$ (or $1/\theta$ or $\log(\theta)$) and the usage of different
 non-linear optimizers (and at least ten years of software development).
 
+More replication exercises are performed in the example sections of
+\pkg{AER} \citep{countreg:Zeileis+Kleiber:2008}, the software package
+accompanying \cite{countreg:Kleiber+Zeileis:2008}.
+
 \end{appendix}
 
 \end{document}
-
-%% Overdispersion tests
-%% -> currently left out of the vignette until fixed and unified
-
-\section{Technical documentation for dispersion tests}
-
-The function \fct{dispersiontest} tests the null hypothesis of
-equidispersion in Poisson GLMs against the alternative of overdispersion
-and/or underdispersion.
-
-\begin{Soutput}
-dispersiontest(object, trafo = NULL, alternative = "greater")
-\end{Soutput}
-
-\begin{description}
-  \item[\code{object}] a fitted Poisson GLM of class \class{glm} as fitted
-    by \fct{glm} with family \fct{poisson}.
-  \item[\code{trafo}] a specification of the alternative (see also below),
-    can be numeric or a (positive) function or \code{NULL} (the default).
-  \item[\code{alternative}] a character string specifying the alternative hypothesis:
-    \code{"greater"} corresponds to overdispersion, \code{"less"} to
-    underdispersion and \code{"two.sided"} to either one.
-\end{description}
-
-The standard Poisson GLM models the (conditional) mean
-\eqn{\mathsf{E}[y] = \mu}{E[y] = mu} which is assumed to be equal to the
-variance \eqn{\mathsf{VAR}[y] = \mu}{VAR[y] = mu}.
-
-\fct{dispersiontest} assesses the hypothesis that this assumption holds (equidispersion) against
-the alternative that the variance is of the form:
-
-\begin{equation}
-  \VAR[y_i \, | \, x_i] \quad = \quad \mu \; + \; \alpha \cdot \mathrm{trafo}(\mu).
-\end{equation}
-
-Overdispersion corresponds to $\alpha > 0$ and underdispersion to
-$\alpha < 0$. The coefficient $\alpha$ can be estimated by an auxiliary OLS
-regression and tested with the corresponding $t$ (or $z$) statistic
-which is asymptotically standard normal under the null hypothesis.
-
-Common specifications of the transformation function $\mathrm{trafo(\cdot)$ are
-$\mathrm{trafo}(\mu) = \mu^2$ or $\mathrm{trafo}(\mu) = \mu$.
-The former corresponds to a negative binomial model with quadratic variance function
-(called NB2 by Cameron and Trivedi, 2005), the latter to a negative binomial
-model with linear variance function (called NB1 by Cameron and Trivedi, 2005)
-or quasi-Poisson model with dispersion parameter, i.e.,
-
-\begin{equation}
-  \VAR[y_i \, | \, x_i] \quad = \quad \phi \cdot \mu \; = \; (1 + \alpha) \cdot \mu.
-\end{equation}
-
-By default, for \code{trafo = NULL}, the latter dispersion formulation is used in
-\fct{dispersiontest}. Otherwise, if \code{trafo} is specified, the test is formulated
-in terms of the parameter $\alpha$. The transformation \code{trafo} can either
-be specified as a function or an integer corresponding to the function
-\verb/function(x) x^trafo/,
-such that \code{trafo = 1} and \code{trafo = 2} yield the linear and quadratic formulations
-respectively.
-

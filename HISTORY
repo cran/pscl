@@ -1,3 +1,11 @@
+0.96 * Final changes for JSS paper (before release 1.0 accompanying
+       JSS paper).
+     * Changed the default formula specification for zero-inflated
+       models. y ~ x now means y ~ x | x and *not* y ~ x | 1 anymore.
+       Thus, the same default formula processing is applied to
+       zero-inflated and hurdle models.
+     * Error in normalizeIdeal, found by Jeff Lewis
+
 0.95 * fixed fitted() and predict() methods for "hurdle" and
        "zeroinfl" for the case when an offset is specified
        (this had been erroneously ignored previously)

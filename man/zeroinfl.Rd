@@ -49,15 +49,16 @@ zeroinfl(formula, data, subset, na.action, weights, offset,
   For this zero-inflation model, a binomial model with different links can be
   used, typically logit or probit.
   
-  The \code{formula} mainly describes the count data model, i.e., \code{y ~ x1 + x2}
-  specifies a count data regression where all zero counts have the same
-  probability of belonging to the zero component. This is equivalent to the
-  model \code{y ~ x1 + x2 | 1}, making it more explicit that the zero-inflation
-  model only has an intercept. Additionally, further regressors can be added
-  to the zero-inflation model so that not all zeros have the same probability
-  for belonging to the point mass component or to the count component. A typical
-  formula is \code{y ~ x1 + x2 | z1 + z2}. The regressors in the zero and
-  the count component can be overlapping (or identical).
+  The \code{formula} can be used to specify both components of the model:
+  If a \code{formula} of type \code{y ~ x1 + x2} is supplied, then the same
+  regressors are employed in both components. This is equivalent to
+  \code{y ~ x1 + x2 | x1 + x2}. Of course, a different set of regressors
+  could be specified for the count and zero-inflation component, e.g.,
+  \code{y ~ x1 + x2 | z1 + z2 + z3} giving the count data model \code{y ~ x1 + x2}
+  conditional on (\code{|}) the zero-inflation model \code{y ~ z1 + z2 + z3}.
+  A simple inflation model where all zero counts have the same
+  probability of belonging to the zero component can by specified by the formula
+  \code{y ~ x1 + x2 | 1}.
   
   All parameters are estimated by maximum likelihood using \code{\link[stats]{optim}},
   with control options set in \code{\link{zeroinfl.control}}.
@@ -153,10 +154,9 @@ fm_pois <- glm(art ~ ., data = bioChemists, family = poisson)
 fm_qpois <- glm(art ~ ., data = bioChemists, family = quasipoisson)
 fm_nb <- glm.nb(art ~ ., data = bioChemists)
 
-## with simple inflation
-## (no regressors for 0 component: art ~ . | 1)
-fm_zip <- zeroinfl(art ~ ., data = bioChemists)
-fm_zinb <- zeroinfl(art ~ ., data = bioChemists, dist = "negbin")
+## with simple inflation (no regressors for zero component)
+fm_zip <- zeroinfl(art ~ . | 1, data = bioChemists)
+fm_zinb <- zeroinfl(art ~ . | 1, data = bioChemists, dist = "negbin")
 
 ## inflation with regressors
 ## ("art ~ . | ." is "art ~ fem + mar + kid5 + phd + ment | fem + mar + kid5 + phd + ment")

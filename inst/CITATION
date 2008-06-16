@@ -1,7 +1,7 @@
 citHeader("To cite pscl/ideal in publications use")
 
 citEntry(entry="Manual",
-         title = "pscl: Classes and Methods for {R} Developed in the Political Science Computational Laboratory, Stanford University",
+         title = "{pscl}: Classes and Methods for {R} Developed in the Political Science Computational Laboratory, Stanford University",
          author = person(last = "Jackman", first = "Simon", email = "jackman@stanford.edu"),
          organization = "Department of Political Science, Stanford University",
          address = "Stanford, California",
@@ -17,21 +17,18 @@ citEntry(entry="Manual",
                sep="")
          )
 
-citEntry(entry="TechReport",
+citEntry(entry="Article",
          title = "Regression Models for Count Data in {R}",
          author = personList(as.person("Achim Zeileis"), 
 	                     as.person("Christian Kleiber"),
                              as.person("Simon Jackman")),
-         institution  = "Department of Statistics and Mathematics, Wirtschaftsuniversitaet Wien, Research Report Series",
-         year         = "2007",
-	 type         = "Report",
-	 number       = "53",
-	 month        = "April",
-	 url          = "http://epub.wu-wien.ac.at/",
+         journal      = "Journal of Statistical Software",
+         year         = "2008",
+	 note         = "Forthcoming",
          
          textVersion = 
-         paste("Achim Zeileis, Christian Kleiber, Simon Jackman (2007).", 
+         paste("Achim Zeileis, Christian Kleiber, Simon Jackman (2008).", 
                "Regression Models for Count Data in R.",
-	       "Report 53, Department of Statistics and Mathematics, Wirtschaftsuniversitaet Wien, Research Report Series."),
+	       "Journal of Statistical Software, Forthcoming."),
 	 header = "If count data regression models zeroinfl()/hurdle() are used, please cite:"
 )

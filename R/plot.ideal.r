@@ -373,7 +373,8 @@ tracex <- function(object,
       ## do legend
       if(!is.null(legendLoc[i]))
         legend(x=legendLoc[i],
-               bty="n",
+               bg="white",
+               ncol=1,
                legend=c("Trace",
                  "Cumulative Mean",
                  paste("Moving Average (loess, span=",
@@ -385,7 +386,7 @@ tracex <- function(object,
                lty=c(1,1,1,1,2),
                lwd=c(2,3,3,3,2),
                col=c("black","red","blue","grey","grey"),
-               yjust=0,cex=.75)
+               yjust=0,cex=.65)
       
       ## prompt user for more plots if we are in interactive mode
       ##cat("dev.interactive returns ",
