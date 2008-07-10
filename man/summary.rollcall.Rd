@@ -10,8 +10,8 @@
 
 \usage{
 \method{summary}{rollcall}(object,
-                 dropList=list(codes = "notInLegis", lop = 0),
-                 verbose=FALSE,...)
+                 dropList=NULL,  
+                 verbose=FALSE,debug=FALSE,...)
 
 \method{print}{summary.rollcall}(x, digits=1, ...)
 }
@@ -23,6 +23,8 @@
     from the summary; see \code{\link{dropRollCall}} for details.}
   \item{verbose}{logical, if \code{TRUE}, compute legislator-specific
     and vote-specific Yea/Nay/\code{NA} summaries}
+  \item{debug}{logical, if \code{TRUE}, print messages to console during
+  processing of the \code{rollcall} object}
   \item{x}{an object of class \code{summary.rollcall}}
   \item{digits}{number of decimal places in printed display}
   \item{...}{further arguments passed to or from other methods.}

@@ -11,7 +11,6 @@ idealToMCMC(object, burnin=NULL)
 }
 
 \arguments{
-
   \item{object}{an object of class \code{\link{ideal}}.}
 
  \item{burnin}{of the recorded MCMC samples, how many to discard as
@@ -42,8 +41,8 @@ idealToMCMC(object, burnin=NULL)
 data(s109)
 id1 <- ideal(s109,
              d=1,
-             meanzero=TRUE,
-             maxiter=500,   ## short run for demo purposes
+             normalize=TRUE,
+             maxiter=1100,     ## short run for demo purposes
              burnin=100,
              thin=10)
 id1coda <- idealToMCMC(id1)

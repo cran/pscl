@@ -1,11 +1,10 @@
 \name{s109}
 \alias{s109}
 \docType{data}
-\title{rollcall object, 109th U.S. Senate}
-\description{
-  A sample rollcall object, generated using Jeff Lewis' quasi-real-time
-  collection of the rollcalls of the 109th U.S. Senate (2005-2006).
-}
+\title{rollcall object, 109th U.S. Senate (2005-06).}
+
+\description{A sample rollcall object, generated using a
+  collection of the rollcalls of the 109th U.S. Senate (2005-2006).}
 
 \usage{data(s109)}
 
@@ -15,35 +14,38 @@
   rollcalls.
 }
 
-\details{
-  The most recent rollcall in this version of the data set is dated June
-  29, 2006.
-}
+\details{Note the coding scheme used by Poole and Rosenthal; Yea (1),
+  Nay (6) etc.}
 
 \source{
-  Jeff Lewis' web site:
+  Keith Poole's web site:
+  \url{http://voteview.com/senate109.htm}
+
+  Originally scraped from the Senate's web site by Jeff Lewis: see
   \url{http://adric.sscnet.ucla.edu/rollcall/static/S109.ord}
   
   Information identifying the votes is available at
-  \url{http://adric.sscnet.ucla.edu/rollcall/static/S109desc.csv}
+  \url{ftp://voteview.com/dtaord/s109desc_final.csv}
 }
 
 \examples{
-data(s109)
 require(pscl)
-is(s109,"rollcall")
-s109
-summary(s109)
+data(s109)
+is(s109,"rollcall")    ## TRUE
+s109                   ## print method for class rollcall
+summary(s109)          ## summary method
 summary(s109,verbose=TRUE)
 \dontrun{
 ## how s109 was created
-s109 <- readKH("http://adric.sscnet.ucla.edu/rollcall/static/S109.ord",
+require(pscl)
+s109 <- readKH("ftp://voteview.com/dtaord/sen109kh.ord",
                desc="109th U.S. Senate",
                debug=TRUE)
-url <- "http://adric.sscnet.ucla.edu/rollcall/static/S109desc.csv"
+url <- "ftp://voteview.com/dtaord/s109desc_final.csv"
+
 s109$vote.data <- data.frame(read.csv(file=url,header=TRUE))
 s109$vote.data$date <- as.Date(s109$vote.data$date,
-                               format="\%Y-\%m-\%d")
+                               format="%Y-%m-%d")
 dimnames(s109$votes)[[2]] <- paste(s109$vote.data$session,
                                    s109$vote.data$number,sep="-")
 }

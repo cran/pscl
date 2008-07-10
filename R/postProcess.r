@@ -6,20 +6,22 @@ postProcess <- function(object,
     stop("postProcess only defined for objects of class ideal")
   
   ## process constraints
-  if(!is.list(constraints) & constraints!="normalize" & object$d!=1)
-    stop("invalid constraints supplied")
 
-  if(constraints=="normalize" & object$d!=1)
-    stop("normalize option for postProcess only valid for one-dimesional models")
-  
-  if(constraints=="normalize" & object$d==1){
-    ## impose the mean zero, standard deviation one constraint
-    newObject <- normalizeIdeal(object)
+  ## not a list (i.e., usually "normalize" with d=1)
+  if(!is.list(constraints)){
+    if(constraints=="normalize" & object$d>1)
+      stop("normalize option for postProcess only valid for one-dimesional models")  
+
+    if(constraints=="normalize" & object$d==1){
+      ## impose the mean zero, standard deviation one constraint
+      newObject <- normalizeIdeal(object)
+    }
   }
-  else
+
+  if(is.list(constraints))
     newObject <- postProcessAffine(object,constraints,debug)
 
-  newObject
+  return(newObject)
 }
  
 affineTrans <- function(x,target){
@@ -42,7 +44,7 @@ affineTrans <- function(x,target){
   foo
 }
 
-## normalize the ideal points estimates
+## normalize the ideal point estimates (d=1 only)
 normalizeIdeal <- function(object){
   d <- object$d
   n <- object$n
@@ -53,9 +55,10 @@ normalizeIdeal <- function(object){
   niter <- dim(object$x)[1]
   haveBeta <- eval(object$call$store.item)
 
+  xMeans <- apply(object$x[,-1],1,mean)
+  xSd <- apply(object$x[,-1],1,sd)
+  
   xNew <- t(scale(t(object$x[,-1])))
-  xMeans <- attributes(xNew)[["scaled:center"]]
-  xSd <- attributes(xNew)[["scaled:scale"]]
   
   if(haveBeta){
     maxiter <- length(xMeans)
@@ -66,8 +69,8 @@ normalizeIdeal <- function(object){
       beta0 <- matrix(object$beta[iter,-1],
                       nrow=d+1,
                       byrow=FALSE)
-      beta0[2,] <- beta0[2,] - xMeans[iter]*beta0[1,]
-      beta0[1,] <- beta0[1,]*xSd[iter]
+      beta0[2,] <- beta0[2,] - xMeans[iter]*beta0[1,]  ## difficulty 
+      beta0[1,] <- beta0[1,]*xSd[iter]                 ## discrimination 
       newBeta[iter,-1] <- as.vector(beta0)
     }
   }

@@ -31,8 +31,8 @@ simpi(n)
   
 \value{the Monte Carlo estimate of \eqn{\pi}{pi}}
 
-\references{Ripley, Brain D. 1987.  \emph{Stochastic Simulation}.
-  Wiley.}
+\references{Ripley, Brain D. 1987 [2006].  \emph{Stochastic Simulation}.
+  Wiley: Hoboken, New Jersey.}
 
 \author{Simon Jackman \email{jackman@stanford.edu}}
 

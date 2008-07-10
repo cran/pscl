@@ -13,7 +13,8 @@ computeMargins <- function(object,dropList=NULL){
                  marginfunc))
   tab <- cbind(tab,
                apply(tab,1,whichMinMargin))
-               
+
+  dimnames(tab)[[1]] <- dimnames(tmpRollCall$votes)[[2]]
   dimnames(tab)[[2]] <- c("Yea","Nay","NA","Min")
   tmpRollCall$voteMargins <- tab
     

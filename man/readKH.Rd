@@ -16,7 +16,6 @@ readKH(file,
        notInLegis=0,
        desc=NULL,
        debug=FALSE)
-
 }
 
 \arguments{
@@ -157,8 +156,8 @@ s107 <- readKH("ftp://voteview.com/sen107kh.ord",
 
 ## Jeff Lewis has quasi-real-time roll call data on his site
 ## in the Poole/Rosenthal format
-s109 <- readKH("http://adric.sscnet.ucla.edu/rollcall/static/S109.ord",
-               desc="109th U.S. Senate",
+s110 <- readKH("http://adric.sscnet.ucla.edu/rollcall/static/S110.ord",
+               desc="110th U.S. Senate (2007-08)",
                debug=TRUE)
 }
 }

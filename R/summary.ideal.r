@@ -6,9 +6,13 @@ printHeaderIdeal <- function(x){
   cat(paste("Number of Legislators:\t",x$n,"\n"))
   cat(paste("Number of Votes:\t",x$m,"\n"))
   cat(paste("Number of Dimensions:\t",x$d,"\n"))
-  cat(paste("Number of Iterations:\t",x$call$maxiter,"\n"))
-  cat(paste("\tThinned By:\t",x$call$thin,"\n"))
-  cat(paste("\tBurn-in:\t",x$call$burnin,"\n\n"))
+  cat(paste("Number of Iterations:\t",
+            eval(x$call$maxiter,envir=.GlobalEnv),
+            "\n"))
+  cat(paste("\tThinned By:\t",
+            eval(x$call$thin,envir=.GlobalEnv),"\n"))
+  cat(paste("\tBurn-in:\t",
+            eval(x$call$burnin,envir=.GlobalEnv),"\n\n"))
 
   invisible(NULL)
 }
@@ -27,10 +31,12 @@ print.ideal <- function(x, ...) {
 
   printHeader(eval(x$call$object))
   printHeaderIdeal(x)
-  
-  cat("Ideal Points: Posterior Mean\n")
-  print(round(x$xbar,2))
-  cat("\n")
+
+  if(is.null(x$call$file)){
+    cat("Ideal Points: Posterior Mean\n")
+    print(round(x$xbar,2))
+    cat("\n")
+  }
   invisible(NULL)
 }
 
@@ -44,8 +50,20 @@ summary.ideal <- function(object,
   if(class(object)!="ideal")
     stop("summary.ideal only defined for objects of class ideal")
 
+  if(!is.null(object$call$file)){
+    print(object)
+    cat("\n")
+    cat(paste("MCMC output was directed to file:",
+              object$call$file,
+              "\n"))
+    cat(paste("no output to summarize in the ideal object",
+              match.call()$object,
+              "\n"))
+    return(invisible(NULL))
+  }
+
   if(is.null(burnin))
-    keep <- checkBurnIn(object,eval(object$call$burnin))
+    keep <- checkBurnIn(object,eval(object$call$burnin,envir=.GlobalEnv))
   else
     keep <- checkBurnIn(object,burnin)
   

@@ -13,10 +13,17 @@ pigamma <- function(q,alpha,beta){
 }
 
 qigamma <- function(p,alpha,beta){
-  if(alpha > 0 & beta > 0 & all(p>0) & all(p<1))
-    1/qgamma(1-p,alpha,beta)
+  if(alpha > 0 & beta > 0 & all(p>0) & all(p<1)){
+    if((1-p)<=.Machine$double.eps){
+      out <- Inf
+    }
+    else{
+      out <- 1/qgamma(1-p,alpha,beta)
+    }
+  }
   else
     stop("qigamma: invalid parameters\n")
+  return(out)
 }
 
 rigamma <- function(n,alpha,beta){
@@ -34,7 +41,7 @@ igammaHDR <- function(alpha,beta,content=.95,debug=FALSE){
   func <- function(x0,alpha,beta,content){
     y0 <- densigamma(x0,alpha,beta)
     p0 <- pigamma(x0,alpha,beta)
-    p1 <- p0 + content
+    p1 <- p0 + content - .Machine$double.eps
     if(p1<1){
       x1 <- qigamma(p0+content,alpha,beta)
       y1 <- densigamma(x1,alpha,beta)
@@ -52,22 +59,21 @@ igammaHDR <- function(alpha,beta,content=.95,debug=FALSE){
   flag <- FALSE
   while(!flag){
     if(debug)
-      cat(paste("igammaHPD: checking search bounds with content=",
+      cat(paste("igammaHPR: checking search bounds with content=",
                 tryContent,
                 "\n"))
     try <- rep(NA,2)
     eps <- .Machine$double.eps
-    #bounds <- qigamma(c(.01*(1-tryContent),1-tryContent-eps),alpha,beta)
     bounds <- c(eps,qigamma(1-tryContent-eps,alpha,beta))
     try[1] <- func(bounds[1],alpha,beta,content=content)
     try[2] <- func(bounds[2],alpha,beta,content=content)
     if(any(is.nan(try)))
-      stop("igammaHPD failed with NAN in func\n")
+      stop("igammaHPR failed with NaN in func\n")
     if(sign(try[1])!=sign(try[2]))
       flag <- TRUE
     else{
       if(debug){
-        cat("igammaHPD: bad bounds\n")
+        cat("igammaHPR: bad bounds\n")
         print(try)
         cat("\n")
       }

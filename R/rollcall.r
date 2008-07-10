@@ -160,6 +160,7 @@ print.rollcall <- function(x,print.votes=FALSE, ...){
   cat(paste("Number of Legislators:\t",x$n,"\n"))
   cat(paste("Number of Votes:\t",x$m,"\n"))
 
+  cat("\n")
   printCodes(x$codes)
   cat("\n")
 
@@ -175,7 +176,7 @@ print.rollcall <- function(x,print.votes=FALSE, ...){
   if (print.votes)
    print(x$votes) 
 
-  cat(paste("Detailed information available via summary function.\n"))
+  cat(paste("Detailed information is available via the summary function.\n"))
   
   invisible(NULL)
 }
@@ -424,9 +425,11 @@ matchDimnames <- function(labs,codes){
 }
 
 summary.rollcall <- function(object,
-                             dropList=list(codes="notInLegis",
-                               lop=0),
+                             dropList=NULL,
+                             ##list(codes="notInLegis",
+                             ##  lop=0),
                              verbose=FALSE,
+                             debug=FALSE,
                              ...){
   if(class(object)!="rollcall")
     stop("summary.rollcall only operates on objects of class rollcall")
@@ -439,11 +442,25 @@ summary.rollcall <- function(object,
   
   legisTab <- NULL
   voteTab <- NULL
+  dropTab <- NULL
   partyLoyaltyScores <- NULL
   lopSided <- NULL
-    
+
+  if(!is.null(object$dropInfo)){
+    cat(paste("The input rollcall object already has a dropInfo component,\n",
+              "meaning that it is the product of dropRollCall.\n",
+              "This summary and the execution of any current dropList\n",
+              "proceeds conditional on the previous dropList.\n"),
+        sep="")
+  }   
+
   ## process user options re dropping votes/legislators etc
-  tmpRollCall <- dropRollCall(object,dropList)
+  if(!is.null(dropList)){
+    tmpRollCall <- dropRollCall(object,dropList,debug=debug)
+  }
+  else
+    tmpRollCall <- object
+
   v <- tmpRollCall$votes
   
   ## party breakdown, if available
@@ -461,9 +478,19 @@ summary.rollcall <- function(object,
   dimnames(allVotes)[[1]] <- matchDimnames(dimnames(allVotes)[[1]],
                                            tmpRollCall$codes)
   
+  ## what was clobbered by dropRollCall
+  if(!is.null(tmpRollCall$dropInfo))
+    if("new" %in% names(tmpRollCall$dropInfo))
+      dropTab <- lapply(tmpRollCall$dropInfo$new[c("legislators","votes")],
+                        table,exclude=NULL)
+    else
+      dropTab <- lapply(tmpRollCall$dropInfo[c("legislators","votes")],
+                        table,exclude=NULL)
+  
   if(verbose){
     ## breakdowns by legislator
-    cat("computing breakdowns by legislator...")
+    if(debug)
+      cat("computing breakdowns by legislator...")
     legisTab <- t(apply(v,1,
                         marginWithCodes,
                         codes=tmpRollCall$codes))
@@ -495,11 +522,28 @@ summary.rollcall <- function(object,
               partyTab=partyTab,
               lopSided=lopSided,
               legisTab=legisTab,
+              dropTab=dropTab,
               partyLoyalty=partyLoyaltyScores,
               voteTab=voteTab,
               call=mc)
   class(out) <- "summary.rollcall"
   out
+}
+
+printDropTab <- function(x){
+  for(i in 1:length(x))
+    if("FALSE" %in% names(x[[i]])){
+      cat(paste("dropRollCall deleted",
+                x[[i]]["FALSE"],
+                "of",
+                sum(x[[i]]),
+                names(x)[[i]],
+                "\n"))
+    }
+    else{
+      cat(paste("dropRollCall deleted no",names(x)[[i]],"\n"))
+    }
+  invisible(NULL)
 }
 
 print.summary.rollcall <- function(x, digits=1, ...){
@@ -510,39 +554,49 @@ print.summary.rollcall <- function(x, digits=1, ...){
   verbose <- x$call$verbose
   if(is.null(eval(rcObj)))
     stop("can't find rollcall object")
-  
+
+  if(length(rcObj)>1)
+    rcObjName <- format(rcObj)
+  else
+    rcObjName <- rcObj
   if(!is.null(eval(rcObj)$desc))
-    cat(paste("\n\nSummary of rollcall object",
-              rcObj,
-              "\n"))
+    cat(paste("\nSummary of rollcall object",
+              rcObjName,
+              "\n\n"))
   printHeader(eval(rcObj))
 
-  if(!is.null(x$call$dropList))
-    cat(paste("\nThis summary ignores voting decisions that are coded ",
-              paste(x$call$dropList$codes,collapse=" or "),
-              ".\n",sep=""))
-  if(!is.null(x$call$dropList$lop))
-    if(x$call$dropList$lop==0)
-      cat("\nThis summary computed after dropping unanimous roll calls.\n")
-    else
-      cat(paste("\nThis summary computed after dropping roll calls with",
-                x$call$dropList$lop,
-                "or fewer legislators voting\nin the minority.\n"))
-  if(length(x$call$dropList)>2){
-    cat("Other restrictions are being applied. The full dropList is:\n")
-    print(x$call$dropList)
-  }
-    
   cat(paste("\nNumber of Legislators:\t\t",x$n))
   cat(paste("\nNumber of Roll Call Votes:\t",x$m))
-  cat("\n")
+  cat("\n\n")
 
+  ## was summary called from dropRollCall directly? 
+  ## if so then dump the drop info from the object 
+  
+  if(!is.null(x$dropTab))
+    printDropTab(x$dropTab)
+
+  ## if(!is.null(x$call$dropList))
+##     cat(paste("This summary ignores voting decisions that are coded ",
+##               paste(x$call$dropList$codes,collapse=" or "),
+##               ".\n",sep=""))
+##   if(!is.null(x$call$dropList$lop))
+##     if(x$call$dropList$lop==0)
+##       cat("This summary computed after dropping unanimous roll calls.\n")
+##     else
+##       cat(paste("This summary computed after dropping roll calls with",
+##                 x$call$dropList$lop,
+##                 "or fewer legislators voting\nin the minority.\n"))
+##   if(length(x$call$dropList)>2){
+##     cat("Other restrictions are being applied. The full dropList is:\n")
+##     print(x$call$dropList)
+##   }
+     
   cat("\n")
   printCodes(x$codes)
   cat("\n")
   
   if(!is.null(x$partyTab)){
-    cat("Party Composition:\n")
+    cat("Party Composition:")
     print(x$partyTab)
   }
   cat("\nVote Summary:\n")
@@ -554,8 +608,8 @@ print.summary.rollcall <- function(x, digits=1, ...){
   }
 
   if(!verbose)
-    cat(paste("Use summary(",
-              rcObj,
+    cat(paste("\nUse summary(",
+              rcObjName,
               ",verbose=TRUE) for more detailed information.\n",sep=""))
   
   if(verbose){

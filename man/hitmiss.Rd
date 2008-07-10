@@ -56,9 +56,8 @@ hitmiss(obj, digits = max(3, getOption("digits") - 3), ...)
 }
 
 \seealso{\code{\link{pR2}} for pseudo r-squared;  \code{\link{predict}};
-  \code{\link{extractAIC}.  See also the \code{lroc} function in the
+  \code{\link{extractAIC}}.  See also the \code{lroc} function in the
   \code{epicalc} package for ROC computations.}
-}
 
 \examples{
 data(admit)

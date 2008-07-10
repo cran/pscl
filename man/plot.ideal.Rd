@@ -114,8 +114,9 @@ plot(id1)
 id2 <- ideal(s109,
              d=2,
              store.item=TRUE,
-             maxiter=1e4,
-             burnin=0,
+             maxiter=11e2,
+             burnin=1e2,
+             verbose=TRUE,
              thin=25)
 
 plot(id2,overlayCuttingPlanes=TRUE)
@@ -125,7 +126,7 @@ id2pp <- postProcess(id2,
                        INHOFE=c(1,0),
                        CHAFEE=c(0,.25)))
 
-plot(id2,overlayCuttingPlanes=TRUE)
+plot(id2pp,overlayCuttingPlanes=TRUE)
 }
 } 
 \keyword{hplot}

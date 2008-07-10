@@ -178,6 +178,9 @@ ideal <- function(object,
     if(!is.null(priors$xp)){
       if(length(priors$xp)==1)     ## user supplied a scalar
         xp <- matrix(priors$xp,n,d)
+      ## coerce a vector to a matrix
+      if(length(priors$xp)>1 & d==1 & !is.matrix(priors$xp))
+        xp <- matrix(priors$xp,n,d)
       if(is.matrix(priors$xp))
         xp <- priors$xp
     }
@@ -190,6 +193,9 @@ ideal <- function(object,
     
     if(!is.null(priors$xpv)){
       if(length(priors$xpv)==1)    ## user supplied a scalar
+        xpv <- matrix(priors$xpv,n,d)
+      ## coerce a vector to a matrix
+      if(length(priors$xpv)>1 & d==1 & !is.matrix(priors$xpv))
         xpv <- matrix(priors$xpv,n,d)
       if(is.matrix(priors$xpv))
         xpv <- priors$xpv
@@ -438,6 +444,7 @@ ideal <- function(object,
 
   ## compute some summary stats now, since we almost always use them
   xbar <- betabar <- NULL
+
   if(!is.null(x)){
     if(verbose)
       cat("MCMC sampling done, computing posterior means for ideal points...\n")
@@ -454,9 +461,10 @@ ideal <- function(object,
     cat("done\n")
   }
   
-  if(store.item){
+  if(store.item & !is.null(b)){
     if(verbose)
       cat("and for bill parameters...")
+    keep <- b[,1] > burnin
     betabar <- apply(b[keep,-1],2,mean)
     betabar <- matrix(betabar,m,d+1,byrow=TRUE)
     if(verbose)

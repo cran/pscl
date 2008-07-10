@@ -32,7 +32,7 @@
   \code{\link{rollcall}} or \code{\link{matrix}}.
 }
 \value{
-  A \code{\link{rollcall}} object or a \code{link{matrix}} depending on
+  A \code{\link{rollcall}} object or a \code{\link{matrix}} depending on
   the class of \code{object}.
 }
 \author{Simon Jackman \email{jackman@stanford.edu}}

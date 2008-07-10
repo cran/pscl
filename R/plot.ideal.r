@@ -4,7 +4,7 @@ plot.ideal <- function(x, conf.int=0.95, burnin=NULL, ...) {
     stop("plot.ideal only available for objects of class ideal")
   
   if(is.null(burnin))
-    keep <- checkBurnIn(x,eval(x$call$burnin))
+    keep <- checkBurnIn(x,eval(x$call$burnin,envir=.GlobalEnv))
   else
     keep <- checkBurnIn(x,burnin)
 
@@ -35,7 +35,7 @@ plot1d <- function(x,
     stop("plot.ideal only available for objects of class ideal")
   
   if(is.null(burnin))
-    keep <- checkBurnIn(x,eval(x$call$burnin))
+    keep <- checkBurnIn(x,eval(x$call$burnin,envir=.GlobalEnv))
   else
     keep <- checkBurnIn(x,burnin)
   
@@ -139,7 +139,7 @@ plot2d <- function(x,
     stop("plot.ideal only available for objects of class ideal")
   
   if(is.null(burnin))
-    keep <- checkBurnIn(x,eval(x$call$burnin))
+    keep <- checkBurnIn(x,eval(x$call$burnin,envir=.GlobalEnv))
   else
     keep <- checkBurnIn(x,burnin)
 
@@ -312,7 +312,7 @@ tracex <- function(object,
   nLegis <- length(p)
 
   if(is.null(burnin))
-    keep <- checkBurnIn(object,eval(object$call$burnin))
+    keep <- checkBurnIn(object,eval(object$call$burnin,envir=.GlobalEnv))
   else
     keep <- checkBurnIn(object,burnin)
   start <- object$x[keep,1][1]
