@@ -1,20 +1,27 @@
 citHeader("To cite pscl/ideal in publications use")
 
+## R >= 2.8.0 passes package metadata to citation().
+if(!exists("meta") || is.null(meta)) meta <- packageDescription("pscl")
+year <- sub("-.*", "", meta$Date)
+note <- sprintf("R package version %s", meta$Version)
+
 citEntry(entry="Manual",
          title = "{pscl}: Classes and Methods for {R} Developed in the Political Science Computational Laboratory, Stanford University",
          author = person(last = "Jackman", first = "Simon", email = "jackman@stanford.edu"),
          organization = "Department of Political Science, Stanford University",
          address = "Stanford, California",
-         year = 2007,
+         year = year,
+         note = note,
          url = "http://pscl.stanford.edu/",
 
          textVersion =
-         paste("Simon Jackman (2007). ",
-               "pscl: Classes and Methods for R Developed in the Political Science Computational Laboratory, Stanford University. ",
-               "Department of Political Science, Stanford University. ",
-               "Stanford, California. ",
-               "URL http://pscl.stanford.edu/. ",
-               sep="")
+         paste("Simon Jackman",
+   	       sprintf("(%s).", year),	 
+               "pscl: Classes and Methods for R Developed in the Political Science Computational Laboratory, Stanford University.",
+               "Department of Political Science, Stanford University.",
+               "Stanford, California.",
+	       paste(note, ".", sep = ""),
+               "URL http://pscl.stanford.edu/")
          )
 
 citEntry(entry="Article",
@@ -24,11 +31,14 @@ citEntry(entry="Article",
                              as.person("Simon Jackman")),
          journal      = "Journal of Statistical Software",
          year         = "2008",
-	 note         = "Forthcoming",
+         volume       = "27",
+         number       = "8",
+         url          = "http://www.jstatsoft.org/v27/i08/",
          
          textVersion = 
          paste("Achim Zeileis, Christian Kleiber, Simon Jackman (2008).", 
                "Regression Models for Count Data in R.",
-	       "Journal of Statistical Software, Forthcoming."),
+               "Journal of Statistical Software 27(8).",
+               "URL http://www.jstatsoft.org/v27/i08/."),
 	 header = "If count data regression models zeroinfl()/hurdle() are used, please cite:"
 )

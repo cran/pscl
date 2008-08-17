@@ -1,11 +1,15 @@
-0.97	* minor changes to print and summary methods for rollcall and ideal objects
-	* bugs in ideal (discovered via odd combination of store.item and file) 
-	* dropRollCallObject makes prettier output, works a little more sanely
-	* s109 is now updated to its final status, example points to voteview.com
-	* s110 in examples for readKH
-	* adding component named "dropInfo" to rollcall objects produced by dropRollCall, per request of Keith Poole
-		(this stores information about which legislators/votes are retained by dropRollCall)
-	* added presidentialElections data from Jackman book manuscript 
+1.00 * updated CITATION and docs to version 1.00 accompanying JSS paper
+
+0.97 * minor changes to print and summary methods for rollcall and ideal objects
+     * bugs in ideal (discovered via odd combination of store.item and file) 
+     * dropRollCallObject makes prettier output, works a little more sanely
+     * s109 is now updated to its final status, example points to voteview.com
+     * s110 in examples for readKH
+     * adding component named "dropInfo" to rollcall objects produced by
+       dropRollCall, per request of Keith Poole (this stores information about
+       which legislators/votes are retained by dropRollCall)
+     * added presidentialElections data from Jackman book manuscript
+     * bugs in igammaHDR fixed, some typos too 
 
 0.96 * Final changes for JSS paper (before release 1.0 accompanying
        JSS paper).

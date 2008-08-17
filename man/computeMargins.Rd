@@ -10,7 +10,7 @@
 \usage{
 computeMargins(object, dropList = NULL)
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
   \item{object}{an object of class \code{\link{rollcall}}}
   \item{dropList}{a \code{\link{list}} (or \code{\link{alist}})
@@ -48,11 +48,11 @@ computeMargins(object, dropList = NULL)
 \examples{
 data(s109)
 tmp <- computeMargins(s109)
-dim(tmp$voteMargins)   ## 556 by 4
+dim(tmp$voteMargins)   ## 645 by 4
 
 tmp <- computeMargins(s109,
                      dropList=list(codes="notInLegis",lop=0))
-dim(tmp$voteMargins)   ## 477 by 4
+dim(tmp$voteMargins)   ## 544 by 4
 }
 
 \keyword{manip} 

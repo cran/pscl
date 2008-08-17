@@ -2,8 +2,6 @@
 \alias{zeroinfl}
 \alias{print.zeroinfl}
 
-\encoding{latin1}
-
 \title{Zero-inflated Count Data Regression}
 \description{
   Fit zero-inflated regression models for count data via maximum likelihood.
@@ -129,12 +127,12 @@ Cameron, A. Colin and Pravin K. Trivedi. 2005. \emph{Microeconometrics: Methods 
 Cambridge: Cambridge University Press.
 
 Lambert, Diane. 1992. \dQuote{Zero-Inflated Poisson Regression,
-with an Application to Defects in Manufacturing.} \emph{Technometrics}.V34(1):1-14
+with an Application to Defects in Manufacturing.} \emph{Technometrics}. \bold{34}(1):1-14
 
-Zeileis, Achim, Christian Kleiber and Simon Jackman 2007.
-\dQuote{Regression Models for Count Data in R.} Report 53,
-Department of Statistics and Mathematics, Wirtschaftsuniversität Wien, Research Report Series.
-\url{http://epub.wu-wien.ac.at/}.
+Zeileis, Achim, Christian Kleiber and Simon Jackman 2008.
+\dQuote{Regression Models for Count Data in R.} 
+\emph{Journal of Statistical Software}, \bold{27}(8).
+URL \url{http://www.jstatsoft.org/v27/i08/}.
 }
 
 \author{Achim Zeileis <Achim.Zeileis@R-project.org>}

@@ -1,8 +1,6 @@
 \name{hurdle}
 \alias{hurdle}
 
-\encoding{latin1}
-
 \title{Hurdle Models for Count Data Regression}
 
 \description{
@@ -130,12 +128,12 @@ Cameron, A. Colin and Pravin K. Trivedi 2005. \emph{Microeconometrics: Methods a
 Cambridge: Cambridge University Press.
 
 Mullahy, J. 1986. Specification and Testing of Some Modified Count Data Models.
-  \emph{Journal of Econometrics}. V33: 341--365.
+  \emph{Journal of Econometrics}. \bold{33}:341--365.
 
-Zeileis, Achim, Christian Kleiber and Simon Jackman 2007.
-\dQuote{Regression Models for Count Data in R.} Report 53,
-Department of Statistics and Mathematics, Wirtschaftsuniversität Wien, Research Report Series.
-\url{http://epub.wu-wien.ac.at/}.
+Zeileis, Achim, Christian Kleiber and Simon Jackman 2008.
+\dQuote{Regression Models for Count Data in R.} 
+\emph{Journal of Statistical Software}, \bold{27}(8).
+URL \url{http://www.jstatsoft.org/v27/i08/}.
 }
 
 \author{Achim Zeileis <Achim.Zeileis@R-project.org>}
