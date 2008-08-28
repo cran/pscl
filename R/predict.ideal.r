@@ -130,7 +130,7 @@ plot.predict.ideal <- function(x,
   localType <- match.arg(type)
 
   d <- eval(x$ideal)$d
-  desc <- eval(x$ideal$call$object)$desc
+  desc <- eval(eval(x$ideal)$call$object)$desc
   rcObj <- extractRollCallObject(eval(x$ideal))
   
   if(localType=="legis"){

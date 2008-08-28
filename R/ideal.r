@@ -522,9 +522,13 @@ x.startvalues <- function(x,d,scale=TRUE,constraint=NULL,verbose=FALSE){
   if(verbose)
     cat("will use eigen-decomposition method to get start values for ideal points...")
 
-  dc <- apply(x,2,function(x)x-mean(x,na.rm=TRUE))
-  dc <- apply(dc,2,function(x)x-mean(x,na.rm=TRUE))
-  dc <- dc + mean(x,na.rm=T)
+  ## from Jong Hee Park
+  row.mean <- apply(x, 1, mean, na.rm=TRUE)
+  col.mean <- apply(x, 2, mean, na.rm=TRUE)
+  dc1 <- sweep(x, 1, row.mean)
+  dc2 <- sweep(dc1, 2, col.mean)
+  dc <- dc2 + mean(x, na.rm = T)
+  
   r <- cor(t(dc),use="pairwise")
   r[is.na(r)] <- 0
   e <- eigen(r)

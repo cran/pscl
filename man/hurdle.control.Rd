@@ -57,11 +57,19 @@ hurdle.control(method = "BFGS", maxit = 10000, trace = FALSE,
 data("bioChemists", package = "pscl")
 
 ## default start values
-fm1 <- hurdle(art ~ fem + ment, data = bioChemists, dist = "negbin", zero = "negbin")
+fm1 <- hurdle(art ~ fem + ment, data = bioChemists,
+              dist = "negbin", zero = "negbin")
 
-## user-supplied start values
-fm2 <- hurdle(art ~ fem + ment, data = bioChemists, dist = "negbin", zero = "negbin",
-  start = list(count = c(0.3, -0.2, 0), zero = c(7, -2, 0.8), theta = c(count = 2, zero = 0.1)))
+## user-supplied start values and other options
+fm2 <- hurdle(art ~ fem + ment, data = bioChemists,
+              dist = "negbin",
+              zero = "negbin",
+              trace=TRUE,
+              separate=FALSE,
+              start = list(count = c(0.3, -0.2, 0),
+                           zero = c(4, -2, 0.8),
+                           theta = c(count = 2, zero = 0.1)))
+
 }
 
 \keyword{regression}

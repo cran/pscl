@@ -1,3 +1,6 @@
+1.01 * added EfronMorris data
+	* added RockTheVote data
+ 
 1.00 * updated CITATION and docs to version 1.00 accompanying JSS paper
 
 0.97 * minor changes to print and summary methods for rollcall and ideal objects

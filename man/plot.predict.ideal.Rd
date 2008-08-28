@@ -45,11 +45,11 @@ plot.predict.ideal(x, type = c("legis", "votes"),...)
 data(s109)
 id1 <- ideal(s109,
              d=1,
-             meanzero=TRUE,     ## local identification in 1d
+             normalize=TRUE,    ## local identification in 1d
              store.item=TRUE,   ## need this for predictions
              maxiter=500,       ## short run for demo purposes
              burnin=100,
-             thin=10)  
+             thin=10) 
 phat <- predict(id1)
 plot(phat,type="legis")
 plot(phat,type="votes")
