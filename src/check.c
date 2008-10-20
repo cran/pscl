@@ -11,10 +11,10 @@
 #include <Rinternals.h>
 #include "util.h"
 
-int check(double **data, int **ok, int n, int m)
+double check(double **data, int **ok, int n, int m)
 {
-  int i, j, nok;
-  double *yeas, *nummiss, *inummiss, *x;
+  int i, j;
+  double *yeas, *nummiss, *inummiss, *x, nok;
   
   yeas = dvector(m);
   x = dvector(n);
@@ -30,7 +30,7 @@ int check(double **data, int **ok, int n, int m)
     nummiss[j]=0.0;
   }
   
-  nok = 0;
+  nok = 0.0;
 
   /* end preliminaries */
 

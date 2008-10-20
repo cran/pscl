@@ -351,6 +351,7 @@ tracex <- function(object,
                           ", Dimension ",d,sep="")
       plot(y=meat,
            x=iter,
+           las=1,
            type="l",
            xlab="Iteration",ylab="",
            main=mainText)
@@ -430,8 +431,8 @@ tracex <- function(object,
            axes=FALSE,
            xlab=paste("Dimension",d[1]),
            ylab=paste("Dimensions",d[2]))
-      axis(1)
-      axis(2)
+      axis(1,las=1)
+      axis(2,las=1)
       lineFunc <- function(obj){
         points(obj$x[1],obj$y[1],pch=16,col=obj$col)
         lines(obj$x,obj$y,col=obj$col)
@@ -451,8 +452,9 @@ tracex <- function(object,
       par(mar=c(3,0,1,0))
       plot(x=c(0,1),
            y=c(.5,nLegis+.5),
+           las=1,
            xlab="",ylab="",xaxs="i",yaxs="i",
-           axes=F,type="n")
+           axes=FALSE,type="n")
       ## loop to show lines and legislator name
       for(i in 1:nLegis){
         lines(x=c(0,.15),
@@ -474,6 +476,7 @@ tracex <- function(object,
         plot(x=meat[[i]]$x,
              y=meat[[i]]$y,
              type="l",
+             las=1,
              xlab=paste("Ideal Point, Dimension ",d[1],sep=""),
              ylab=paste("Ideal Point, Dimension ",d[2],sep=""))
         title(plotName[i])

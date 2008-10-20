@@ -76,10 +76,10 @@ deltaFunction <- function(data){
     confint(model)[2,])
 }
 
+
 tmp <- by(RockTheVote,
           as.factor(RockTheVote$strata),
-          deltaFunction,
-          simplify=TRUE)
+          deltaFunction)
 
 tmp <- matrix(unlist(tmp),ncol=3,byrow=TRUE)
 
@@ -94,6 +94,7 @@ plot(y=1:40,
      xlab="Estimated Treatment Effect (MLEs, Logit Scale)")
 text(y=1:40,
      x=par()$usr[1],
+     pos=4,
      as.character((1:40)[indx]),
      cex=.5)
 segments(x0=tmp[indx,2],

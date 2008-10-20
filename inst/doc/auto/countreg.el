@@ -4,28 +4,33 @@
     (LaTeX-add-labels
      "sec:intro"
      "sec:software"
+     "tab:overview"
      "eq:family"
      "eq:mean"
      "eq:Poisson"
      "eq:negbin"
-     "eq:zeroinfl"
-     "eq:zeroinfl-mean"
      "eq:hurdle"
      "eq:hurdle-mean"
+     "eq:zeroinfl"
+     "eq:zeroinfl-mean"
      "sec:illustrations"
      "fig:ofp"
      "fig:bad-good"
      "fig:ofp2"
+     "tab:summary"
      "sec:summary"
-     "app:zeroinfl"
      "app:hurdle"
-     "app:methods")
+     "app:zeroinfl"
+     "app:methods"
+     "tab:methods"
+     "app:replication")
     (TeX-add-symbols
      '("fct" 1)
      '("class" 1))
     (TeX-run-style-hooks
      "thumbpdf"
      "latex2e"
-     "Z10"
-     "Z")))
+     "jss10"
+     "jss"
+     "nojss")))
 

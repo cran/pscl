@@ -14,6 +14,7 @@ ideal(object, codes = object$codes,
       dropList = list(codes = "notInLegis", lop = 0),
       d = 1, maxiter = 10000, thin = 100, burnin = 5000,
       impute = FALSE,
+      mda = TRUE,
       normalize = FALSE,
       meanzero = normalize,
       priors = NULL, startvals = "eigen",
@@ -47,7 +48,10 @@ ideal(object, codes = object$codes,
   \item{impute}{\code{\link{logical}}, whether to treat missing entries
     of the rollcall matrix as missing at random, sampling from the
     predictive density of the missing entries at each MCMC iteration.}
-
+  
+  \item{mda}{\code{\link{logical}}, do marginal data augmentation (see
+  Deatils); default is \code{TRUE}}
+  	    
   \item{normalize}{\code{\link{logical}}, impose identification with
     the constraint that the ideal points have mean zero and
     standard deviation one.  This option is only functional for
@@ -113,11 +117,11 @@ ideal(object, codes = object$codes,
   
   \strong{Identification}: The model parameters are \strong{not
     identified} without the user supplying some restrictions on the
-  model parameters (e.g., translations, rotations and re-scalings of the
-  ideal points are observationally equivalent, via offsetting
-  transformations of the item parameters).  It is the user's
-  responsibility to impose these identifying restrictions if desired; the following brief
-    discussion provides some guidance.
+    model parameters (e.g., translations, rotations and re-scalings of
+    the ideal points are observationally equivalent, via offsetting
+    transformations of the item parameters).  It is the user's
+    responsibility to impose these identifying restrictions if
+    desired; the following brief discussion provides some guidance.
 
   For one-dimensional models (i.e., \code{d=1}), a simple route to
   identification is the \code{normalize} option, which guarantees
@@ -198,19 +202,60 @@ ideal(object, codes = object$codes,
   described above to get start values for the rollcall/item
   parameters.
   
-  If \code{startvals} is a \code{list}, it must contain the elements
-  \code{xstart} and/or \code{bstart}, which should be matrices.
-  \code{xstart} must be of dimensions equal to the number of individuals
-  (legislators) by \code{d}.  If supplied, \code{startvals$bstart} must
+  If \code{startvals} is a \code{list}, it must contain the components
+  \code{x} and/or \code{b}, each of which should be matrices.
+  The component \code{x} must be of dimensions equal to the number of individuals
+  (legislators) by \code{d}.  If supplied, \code{startvals$b} must
   be of dimensions number of items (votes) by \code{d}+1.  The
-  \code{xstart} and \code{bstart} components cannot contain \code{NA}.
-  If \code{xstart} is not supplied when \code{startvals} is a list, then
+  \code{x} and \code{b} components cannot contain \code{NA}.
+  If \code{x} is not supplied when \code{startvals} is a list, then
   start values are generated using the default \code{eiegn} method
   described above, and start values for the rollcall/item parameters are
   regenerated using the probit method, ignoring any user-supplied values
-  in \code{startvals$bstart}.  That is, user-supplied values in
-  \code{startvals$bstart} are only used when accompanied by a valid set
-  of start values for the ideal points in \code{startvals$xstart}.
+  in \code{startvals$b}.  That is, user-supplied values in
+  \code{startvals$b} are only used when accompanied by a valid set
+  of start values for the ideal points in \code{startvals$x}.
+
+  \strong{Implementation via Data Augmentation}.  The MCMC algorithm
+  for this problem consists of a Gibbs sampler for the ideal points
+  (latent traits)
+  and item parameters, conditional on latent data \eqn{y^*}, generated
+  via a data augmentation (DA) step.  That is, following Albert (1992) and
+  Albert and Chib (1993), if \eqn{y_{ij} = 1} we sample from the
+  truncated normal density
+  \deqn{y_{ij}^* \sim N(x_i' \beta_j - \alpha_j, 1)\mathcal{I}(y_{ij}^* \geq 0)}
+  and for \eqn{y_{ij}=0} we sample 
+  \deqn{y_{ij}^* \sim N(x_i' \beta_j - \alpha_j, 1)\mathcal{I}(y_{ij}^* < 0)}
+  where \eqn{\mathcal{I}} is an indicator function evaluating to one
+  if its argument is true and zero otherwise.  Given the
+  latent \eqn{y^*}, the conditional distributions for \eqn{x} and
+  \eqn{(\beta,\alpha)} are extremely simple to sample from; see the
+  references for details.  
+
+  This Gibbs-plus-DA strategy is easily implemented, but can sometimes
+  require many thousands of samples in order to generate tolerable
+  explorations of the marginal posterior densities of the latent
+  traits, particularly for legislators with
+  short and/or extreme voting histories (the equivalent in the
+  educational testing setting is a test-taker who gets many items
+  right or wrong).  The MCMC algorithm can generate better performance
+  via a parameter expansion strategy usually referred to as marginal
+  data augmentation (e.g., van Dyk and Meng 2001).  The idea is to
+  introduce a additional working parameter into the MCMC sampler that
+  has the effect of improving the performance of the sampler in the
+  sub-space of parameters of direct interest.  In this case we
+  introduce a variance parameter \eqn{\sigma^2} for the latent data;
+  in the DA algorithm of Albert and Chib (1993) this parameter is set
+  to 1.0 for identification.  In the MDA approach we carry this
+  (unidentified) parameter into the DA stage of the algorithm with an
+  improper prior, \eqn{p(\sigma^2) \propto \sigma^{-2}},
+  generating \eqn{y^*} that exhibit bigger moves from iteration to
+  iteration, such that in turn the MCMC algorithm displays better
+  mixing with respect to the identified parameters of direct interest,
+  \eqn{x} and \eqn{(\beta,\alpha)}, than the performance obtained from
+  the Gibbs-with-DA MCMC algorithm.   The MDA algorithm is the default
+  in \code{ideal}, but Gibbs-with-DA can be implemented by setting
+  \code{mda=FALSE} in the call to \code{ideal}.         
 }
   
 \value{a \code{\link{list}} of class \code{ideal} with named components
@@ -255,9 +300,16 @@ ideal(object, codes = object$codes,
   response curves using Gibbs sampling. \emph{Journal of Educational
   Statistics}. 17:251-269.
 
+  Albert, James H. and Siddhartha Chib.  1993.  Bayesian Analysis of
+  Binary and Polychotomous Response Data.  \emph{Journal of the
+  American Statistical Association}. 88:669-679.
+
   Clinton, Joshua, Simon Jackman and Douglas Rivers. 2004. The
   Statistical Analysis of Roll Call Data.  \emph{American Political
   Science Review}.  98:335-370.
+
+  Jackman, Simon. 2009.  \emph{Bayesian Analysis for the Social
+  Sciences}.  Wiley: Hoboken, New Jersey.
 
   Patz, Richard J. and Brian W. Junker. 1999.  A Straightforward
   Approach to Markov Chain Monte Carlo Methods for Item Response
@@ -267,6 +319,10 @@ ideal(object, codes = object$codes,
   Rivers, Douglas. 2003.  \dQuote{Identification of Multidimensional
   Item-Response Models.} Typescript.  Department of Political Science,
   Stanford University.
+
+  van Dyk, David A and Xiao-Li Meng.  2001.  The art of data
+  augmentation (with discussion).  \emph{Journal of Computational and
+  Graphical Statistics}. 10(1):1-111.
 }
 
 \author{Simon Jackman \email{jackman@stanford.edu}, with help from Christina
@@ -298,12 +354,18 @@ ideal(object, codes = object$codes,
 data(s109)
 
 ## ridiculously short run for examples
+n <- dim(s109$legis.data)[1]
+x0 <- rep(0,n)
+x0[s109$legis.data$party=="D"] <- -1
+x0[s109$legis.data$party=="R"] <- 1
+
 id1 <- ideal(s109,
              d=1,
+	     startvals=list(x=x0),
              normalize=TRUE,
              store.item=TRUE,
-             maxiter=500,
-             burnin=100,
+             maxiter=100,
+             burnin=0,
              thin=10,
              verbose=TRUE)  
 summary(id1)

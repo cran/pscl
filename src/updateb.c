@@ -13,6 +13,8 @@
 #include "ideal.h"
 
 void updateb(double **ystar, int **ok, double **beta, double **xreg,
+	     double **bHat, double **z,
+	     double sd,
 	     double **bp, double **bpv,
 	     int n, int m, int d, 
 	     int impute)
@@ -21,15 +23,15 @@ void updateb(double **ystar, int **ok, double **beta, double **xreg,
   extern double *bxprod, **bchol, *bz, *bbp, **bba,
     **xpx, **bvpost, **bpriormat, *bprior, *bbar, *xpy;
 
- /*we can do this better*/ q = d + 1;
+  q = d + 1;
 
-/*   xpy = dvector(q); */
-/*   xpx = dmatrix(q,q); */
-/*   bbar = dvector(q); */
-/*   bprior = dvector(q); */
-/*   bvpost = dmatrix(q,q); */
-/*   bpriormat = dmatrix(q,q); */
-
+  /*   xpy = dvector(q); */
+  /*   xpx = dmatrix(q,q); */
+  /*   bbar = dvector(q); */
+  /*   bprior = dvector(q); */
+  /*   bvpost = dmatrix(q,q); */
+  /*   bpriormat = dmatrix(q,q); */
+  
   for (j=0;j<q;j++){               /* initialize */
     xpy[j] = 0.0;
     for (k=0;k<q;k++){
@@ -46,12 +48,16 @@ void updateb(double **ystar, int **ok, double **beta, double **xreg,
 	bprior[k]=bp[j][k];           /* copy prior mean */  
       }                               /* end initializations */
       //Rprintf("\nupdateb: calling crosscheck\n");
-      crosscheck(xreg,ystar,ok,n,q,j,xpx,xpy); /* screen out missing data */
+      crosscheck(xreg,z,ok,n,q,j,xpx,xpy); /* screen out missing data */
       //Rprintf("\nupdateb: calling bayesreg\n");
       bayesreg(xpx,xpy,bprior,bpriormat,bbar,bvpost,q);
-      //Rprintf("\nupdateb: calling rmvnorm\n");
-      // rmvnorm(beta[j],bbar,bvpost,q);           /* sample from mv normal */
-      rmvnorm(beta[j],bbar,bvpost,q, bxprod, bchol, bz, bbp, bba);           /* sample from mv normal */
+      for(k=0;k<q;k++){
+	bHat[j][k] = bbar[k];
+      }
+      renormalizeVector(bbar,q,sd);
+      // Rprintf("\nupdateb: calling rmvnorm...");
+      rmvnorm(beta[j],bbar,bvpost,q, bxprod, bchol, bz, bbp, bba);    
+      // Rprintf("done\n");
     }
   }
 
@@ -63,14 +69,21 @@ void updateb(double **ystar, int **ok, double **beta, double **xreg,
 	bprior[k]=bp[j][k];           /* copy prior mean */
       }                               /* end initializations */
       //Rprintf("\nupdateb: calling crossxyj\n");
-      crossxyj(xreg,ystar,n,q,j,xpy); /* xpy */
+      crossxyj(xreg,z,n,q,j,xpy); /* xpy */
       //Rprintf("\nupdateb: calling bayesreg\n");
       bayesreg(xpx,xpy,bprior,bpriormat,bbar,bvpost,q);
-      //Rprintf("\nupdateb: calling rmvnorm\n");
-      // rmvnorm(beta[j],bbar,bvpost,q);           /* sample from mv normal */
-      rmvnorm(beta[j],bbar,bvpost,q, bxprod, bchol, bz, bbp, bba);           /* sample from mv normal */
+      for(k=0;k<q;k++){
+	bHat[j][k] = bbar[k];
+      }
+      //Rprintf("\nupdateb: calling renormalizeVector\n");
+      renormalizeVector(bbar,q,sd);
+
+      // Rprintf("\nupdateb: calling rmvnorm...");
+      rmvnorm(beta[j],bbar,bvpost,q, bxprod, bchol, bz, bbp, bba);   
+      // Rprintf("done\n");
     }
   }
+
 
 /*   free_dmatrix(xpx,q); */
 /*   free_dmatrix(bvpost,q); */

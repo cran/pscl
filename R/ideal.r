@@ -17,6 +17,7 @@ ideal <- function(object,
                   thin=100,
                   burnin=5000,
                   impute=FALSE,
+                  mda=TRUE,
                   normalize=FALSE,
                   meanzero=normalize,
                   priors=NULL,
@@ -43,6 +44,8 @@ ideal <- function(object,
     cl$burnin <- burnin
   if(is.null(cl$impute))
     cl$impute <- impute
+  if(is.null(cl$mda))
+    cl$mda <- mda
   if(is.null(cl$store.item))
     cl$store.item <- store.item
   if(is.null(cl$normalize))
@@ -302,21 +305,21 @@ ideal <- function(object,
 
   ## user has passed something in startvals
   if(is.list(startvals)){
-    if(!is.null(startvals$xstart)){
-      if(length(startvals$xstart) != n*d)
+    if(!is.null(startvals$x)){
+      if(length(startvals$x) != n*d)
         stop("length of xstart not n by d")
       if(d==1)
-        xstart <- matrix(startvals$xstart,ncol=1)
+        xstart <- matrix(startvals$x,ncol=1)
       else
-        xstart <- startvals$xstart
+        xstart <- startvals$x
       if (sum(is.na(xstart))!=0)
         stop("xstart contains missing values")
     }
     
-    if(!is.null(startvals$bstart)){
-      if(length(startvals$bstart) != m*(d+1))
+    if(!is.null(startvals$b)){
+      if(length(startvals$b) != m*(d+1))
         stop("length of bstart not m by d+1")
-      bstart <- startvals$bstart
+      bstart <- startvals$b
       if(sum(is.na(bstart))!=0)
         stop("bstart contains missing values")
     } 
@@ -384,6 +387,7 @@ ideal <- function(object,
                  PACKAGE=.package.Name,
                  as.integer(n), as.integer(m), as.integer(d), as.double(yToC), 
                  as.integer(maxiter), as.integer(thin), as.integer(impute),
+                 as.integer(mda),
                  as.double(xp), as.double(xpv), as.double(bp),
                  as.double(bpv), as.double(xstart), as.double(bstart),
                  xoutput=NULL,
@@ -396,7 +400,8 @@ ideal <- function(object,
     output <- .C("IDEAL",
                  PACKAGE=.package.Name,
                  as.integer(n), as.integer(m), as.integer(d), as.double(yToC), 
-                 as.integer(maxiter), as.integer(thin), as.integer(impute),      
+                 as.integer(maxiter), as.integer(thin), as.integer(impute),
+                 as.integer(mda),
                  as.double(xp), as.double(xpv), as.double(bp),
                  as.double(bpv), as.double(xstart), as.double(bstart),
                  xoutput=as.double(rep(0,n*d*numrec)),
@@ -409,6 +414,7 @@ ideal <- function(object,
                  PACKAGE=.package.Name,
                  as.integer(n), as.integer(m), as.integer(d), as.double(yToC),          
                  as.integer(maxiter), as.integer(thin), as.integer(impute),
+                 as.integer(mda),
                  as.double(xp), as.double(xpv), as.double(bp),
                  as.double(bpv), as.double(xstart), as.double(bstart),
                  xoutput=as.double(rep(0,n*d*numrec)),

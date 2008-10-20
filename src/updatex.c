@@ -15,6 +15,8 @@
 #include "ideal.h"
 
 void updatex(double **ystar, int **ok, double **beta, 
+	     double **xHat, double **z,
+	     double sd,
 	     double **x, double **xp, double **xpv,
 	     int n, int m, int d, 
 	     int impute)
@@ -36,7 +38,7 @@ void updatex(double **ystar, int **ok, double **beta,
   //w = dmatrix(n,m);
   for(i=0;i<n;i++){
     for(j=0;j<m;j++){
-      w[i][j] = ystar[i][j] + beta[j][d]; /*d+1*/
+      w[i][j] = z[i][j] + beta[j][d]; /*d+1*/
     }
   }
   
@@ -71,9 +73,13 @@ void updatex(double **ystar, int **ok, double **beta,
       crosscheckx(beta,w,ok,m,d,i,bpb,bpw); /* xprods, filter missings */
       //Rprintf("\nupdatex: calling bayesreg\n");
       bayesreg(bpb,bpw,xprior,xpriormat,xbar,xvpost,d);
-      //Rprintf("\nupdatex: calling rmvnorm\n");
+      // Rprintf("\nupdatex: calling rmvnorm\n");
       // rmvnorm(x[i],xbar,xvpost,d);    /* do the sampling */
-      rmvnorm(x[i],xbar,xvpost,d, xxprod, xxchol, xz, xxp, xxa);    /* do the sampling */
+      for(k=0;k<d;k++){
+	xHat[i][k] = xbar[k];
+      }
+      renormalizeVector(xbar,d,sd);
+      rmvnorm(x[i],xbar,xvpost,d, xxprod, xxchol, xz, xxp, xxa); /* do the sampling */  
     }
   }
   
@@ -99,8 +105,11 @@ void updatex(double **ystar, int **ok, double **beta,
       crossxyi(beta,w,m,d,i,bpw);    /* bpw */
       //Rprintf("\nupdatex: calling bayesreg\n");
       bayesreg(bpb,bpw,xprior,xpriormat,xbar,xvpost,d);
-      //Rprintf("\nupdatex: calling rmvnorm\n");
-      // rmvnorm(x[i],xbar,xvpost,d);    /* do the sampling */
+      // Rprintf("\nupdatex: calling rmvnorm\n");
+      for(k=0;k<d;k++){
+	xHat[i][k] = xbar[k];
+      }
+      renormalizeVector(xbar,d,sd);
       rmvnorm(x[i],xbar,xvpost,d, xxprod, xxchol, xz, xxp, xxa);    /* do the sampling */
     }
   }

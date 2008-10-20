@@ -22,15 +22,17 @@ double **bpb, *xprior, **xpriormat, *xbar, **xvpost, *bpw, **w;
 double **xpx, **bvpost, **bpriormat, *bprior, *bbar, *xpy;
 
 void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
-	   int *impute1, double *xpriormeans1, 
+	   int *impute1, int *mda, double *xpriormeans1, 
 	   double  *xpriorprec1, double *bpriormeans1, double *bpriorprec1, 
 	   double *xstart1, double *bstart1, double *xoutput, double *boutput,
 	   int *burnin1, int *usefile, int *bsave, char **filename1, int *verbose1)
 {
   int e, xocursor, bocursor, xlength, blength, q, nm, iter;
+  int i, j, k;
   int inloop, **ok, burnin, n, m, d, maxiter, thin, impute, verbose;
-  double **ystar, **x, **xreg, **y, **beta, **bp, **bpv, iterPerCent;
-  double **xp, **xpv, *xtemp, *btemp;
+  double **ystar, **x, **xreg, **y, **beta, **bp, **bpv, iterPerCent, s, sd;
+  double **bHat, **xHat, **z;
+  double **xp, **xpv, *xtemp, *btemp, nm_doub;
   FILE *ofp;
    // extern double **bpb, *xprior, **xpriormat, *xbar, **xvpost, *bpw, **w;
    // extern double **xpx, **bvpost, **bpriormat, *bprior, *bbar, *xpy;
@@ -46,19 +48,29 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
   burnin=*burnin1;
 
   /*Creating the matrices we'll need*/
-  iter = 0;                  /* initialize iter count */ 
-  nm = n * m;                
-  q = d + 1;                 /* item parameters, per item */ 
+  iter = 0;              /* initialize iter count */ 
+  nm = n * m;   
+  q = d + 1;             /* item parameters, per item */ 
+
   y = dmatrix(n,m);      /* roll call data */
+  sd = 1.0;              /* standard deviation latent scale for MDA */
+
   ystar = dmatrix(n,m);  /* latent utility differential */ 
-  x = dmatrix(n,d);      /* latent indicators */ 
-  xreg = dmatrix(n,q);   /* regressors for updates of beta */
+  z = dmatrix(n,m);
+
   beta = dmatrix(m,q);   /* item parameters */ 
+  bHat = dmatrix(m,q);   /* expected a posteriori */
   bp  = dmatrix(m,q);    /* initialize prior means, item parameters */
   bpv = dmatrix(m,q);    /* initialize prior variances, item parameters */
+
+  x = dmatrix(n,d);      /* latent traits */
+  xHat = dmatrix(n,d);   /* expected a posteriori */
+  xreg = dmatrix(n,q);   /* regressors for updates of beta */
   xp  = dmatrix(n,d);    /* initialize prior means, latent traits */
   xpv = dmatrix(n,d);    /* initialize prior variances, latent traits */
+
   ok = imatrix(n,m);     /* initialize ok indicator matrix */  
+ 
 
   if (*usefile == 1) {
     ofp = fopen(R_ExpandFileName(*filename1), "a");
@@ -156,8 +168,20 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
     bocursor = -1;
   }
   
-  check(y,ok,n,m);
+  /* check for missing y, indicator and count */
+  nm_doub = check(y,ok,n,m);
 
+  /** copy start values for beta and x to bHat and xHat **/
+  for(i = 0; i < n; i++){
+    for(k = 0;k < d; k++){
+      xHat[i][k] = x[i][k];
+    }
+  }
+  for(j = 0; j < m; j++){
+    for(k = 0; k < q; k++){
+      bHat[j][k] = beta[j][k];
+    }
+  }
 
   /*******************************
    * INITIALIZE REUSED VARIABLES *
@@ -213,22 +237,38 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
 		  iter,
 		  round(iterPerCent*5.0),  
 		  maxiter);
+	  Rprintf("\nMDA sigma=%6.3lf\n",sd);      
 	} 
       }
 
       if(iter>maxiter)                    /* are we done? */
 	break;
       //Rprintf("\niter: %d\n",iter);
-      updatey(ystar,y,x,beta,n,m,d,iter);   
+
+      s = updatey(ystar,y,x,beta,
+		  xHat,bHat,z,
+		  sd,
+		  n,m,d,iter);   
+
+      sd = 1.0;
+      if(*mda == 1)
+	sd = r_sd(s,nm_doub);       /* sample standard deviation */
+	
+
       //Rprintf("past update y\n");
       
-      updatex(ystar,ok,beta,x,xp,xpv,n,m,d,impute);
+      updatex(ystar,ok,beta,
+	      xHat,z,
+	      sd,x,xp,xpv,n,m,d,impute);
       //Rprintf("past updatex\n"); 
 
       makexreg(xreg,x,n,d,q);
       //Rprintf("past makexreg\n");
       
-      updateb(ystar,ok,beta,xreg,bp,bpv,n,m,d,impute);
+      updateb(ystar,ok,beta,xreg,
+	      bHat,z,
+	      sd,
+	      bp,bpv,n,m,d,impute);
       //Rprintf("past updateb\n");      
 
       R_CheckUserInterrupt();               /* check for user interrupt */
