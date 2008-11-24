@@ -59,7 +59,7 @@ constrain.legis <- function(obj,
                    bp + 2*sign(bstart-bp)/sqrt(bpv))
   options(warn=0)
 
-  return(list(xp=xp,xpv=xpv,bp=bp,bpv=bpv,xstart=xstart,bstart=bstart))
+  return(list(xp=xp,xpv=xpv,bp=bp,bpv=bpv,x=xstart,b=bstart))
 }
 
 

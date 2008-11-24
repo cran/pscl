@@ -69,6 +69,7 @@ ideal(object, codes = object$codes,
     variance 100 for the bill parameters (item parameters).  If not \code{NULL}, \code{priors} must be a
     \code{list} with as many as four named components \code{xp, xpv, bp,
       bpv}, where
+    \describe{
     \item{\code{xp}}{a \code{n} by \code{d} matrix
       of prior \emph{means} for the legislators' ideal points;
       or alternatively, a scalar, which will be replicated to fill a \code{n}
@@ -84,7 +85,8 @@ ideal(object, codes = object$codes,
     \item{\code{bpv}}{a \code{m} by \code{d+1} matrix of prior
       precisions for the item parameters;
       or alternatively, a scalar, which will be replicated to fill a \code{m}
-      by \code{d+1} matrix.}  
+      by \code{d+1} matrix.}
+    }
     None of the components should contain \code{NA}.  If any
     of the four possible components are not provided, then the
     corresponding component of \code{priors} is assigned using the default
@@ -234,13 +236,13 @@ ideal(object, codes = object$codes,
 
   This Gibbs-plus-DA strategy is easily implemented, but can sometimes
   require many thousands of samples in order to generate tolerable
-  explorations of the marginal posterior densities of the latent
+  explorations of the posterior densities of the latent
   traits, particularly for legislators with
   short and/or extreme voting histories (the equivalent in the
   educational testing setting is a test-taker who gets many items
   right or wrong).  The MCMC algorithm can generate better performance
-  via a parameter expansion strategy usually referred to as marginal
-  data augmentation (e.g., van Dyk and Meng 2001).  The idea is to
+  via a parameter expansion strategy usually referred to as \emph{marginal
+  data augmentation} (e.g., van Dyk and Meng 2001).  The idea is to
   introduce a additional working parameter into the MCMC sampler that
   has the effect of improving the performance of the sampler in the
   sub-space of parameters of direct interest.  In this case we
@@ -259,7 +261,7 @@ ideal(object, codes = object$codes,
 }
   
 \value{a \code{\link{list}} of class \code{ideal} with named components
-
+  
   \item{n}{\code{\link{numeric}}, integer, number of legislators in the
     analysis, after any subseting via processing the \code{dropList}.}
 

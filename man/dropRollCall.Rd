@@ -16,34 +16,35 @@ dropRollCall(object, dropList,debug=FALSE)
 
   \item{dropList}{a \code{\link{list}} (or \code{\link{alist}}) with
     some (or all) of the following components:
-    
-    \item{codes}{character or numeric, possibly a vector.  If
-      character, it should match the names of \code{object$codes},
-      indicating the set of entries in \code{object$votes} to be set to
-      \code{NA}.  If numeric, then \code{codes} indicates the entries in
-      \code{object$votes} that will be set to \code{NA}.}
-    
-    \item{lop}{numeric, non-negative integer, less than number of
-      legislators represented in \code{object}.  Roll calls with \code{lop}
-      or fewer legislators voting in the minority are dropped.}
-    
-    \item{legisMin}{numeric, non-negative integer, less than
-      number of roll calls represented in \code{object}.  Legislators with
-      \code{legisMin} or fewer votes are dropped.}
-    
-    \item{dropLegis}{an \code{\link{expression}} that evaluates to
-      mode \code{logical}, vector of length equal to the number of
-      legislators represented in \code{object}.  The expression is evaluated
-      in the \code{legis.data} component of the rollcall \code{object}.
-      Legislators for whom the expression evaluates to \code{TRUE} are
-      dropped.}
-
-    \item{dropVotes}{an \code{\link{expression}} that evaluates to
-      mode \code{logical}, vector of length equal to the number of
-      rollcalls represented in \code{object}.  The expression is evaluated
-      in the \code{votes.data} component of the rollcall \code{object}.
-      Rollcalls for which the expression evaluates to \code{TRUE} are
-      dropped.}
+    \describe{
+      \item{codes}{character or numeric, possibly a vector.  If
+	character, it should match the names of \code{object$codes},
+	indicating the set of entries in \code{object$votes} to be set to
+	\code{NA}.  If numeric, then \code{codes} indicates the entries in
+	\code{object$votes} that will be set to \code{NA}.}
+      
+      \item{lop}{numeric, non-negative integer, less than number of
+	legislators represented in \code{object}.  Roll calls with \code{lop}
+	or fewer legislators voting in the minority are dropped.}
+      
+      \item{legisMin}{numeric, non-negative integer, less than
+	number of roll calls represented in \code{object}.  Legislators with
+	\code{legisMin} or fewer votes are dropped.}
+      
+      \item{dropLegis}{an \code{\link{expression}} that evaluates to
+	mode \code{logical}, vector of length equal to the number of
+	legislators represented in \code{object}.  The expression is evaluated
+	in the \code{legis.data} component of the rollcall \code{object}.
+	Legislators for whom the expression evaluates to \code{TRUE} are
+	dropped.}
+      
+      \item{dropVotes}{an \code{\link{expression}} that evaluates to
+	mode \code{logical}, vector of length equal to the number of
+	rollcalls represented in \code{object}.  The expression is evaluated
+	in the \code{votes.data} component of the rollcall \code{object}.
+	Rollcalls for which the expression evaluates to \code{TRUE} are
+	dropped.}
+    }
   }
   \item{debug}{\code{logical}, set to \code{TRUE} to see messages
       printed to the console as inspection and subsetting of the

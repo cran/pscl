@@ -280,7 +280,8 @@ ideal <- function(object,
   ################################################################
   if(verbose)
     cat("\nchecking start values...\n")
-  xstart <- bstart <- NULL
+  xstart <- NULL
+  bstart <- NULL
   options(warn=-1)
 
   if(!is.list(startvals)){
@@ -305,17 +306,21 @@ ideal <- function(object,
 
   ## user has passed something in startvals
   if(is.list(startvals)){
-    if(!is.null(startvals$x)){
-      if(length(startvals$x) != n*d)
+    cat("found user-supplied list in startvals\n")
+    cat("starvals is a list containing:\n")
+    print(names(startvals))
+    
+    if(!is.null(startvals$xstart)){
+      if(length(startvals$xstart) != n*d)
         stop("length of xstart not n by d")
       if(d==1)
-        xstart <- matrix(startvals$x,ncol=1)
+        xstart <- matrix(startvals$xstart,ncol=1)
       else
-        xstart <- startvals$x
+        xstart <- startvals$xstart
       if (sum(is.na(xstart))!=0)
         stop("xstart contains missing values")
     }
-    
+
     if(!is.null(startvals$b)){
       if(length(startvals$b) != m*(d+1))
         stop("length of bstart not m by d+1")

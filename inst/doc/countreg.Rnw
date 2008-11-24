@@ -910,17 +910,16 @@ negative binomial (ZINB) regression. The default model is fitted via
 <<zinb0, eval=FALSE>>=
 fm_zinb0 <- zeroinfl(ofp ~ ., data = dt, dist = "negbin")
 @
-This has just an intercept in the zero-inflation model, but---as the hurdle
-model \code{fm_hurdle} fitted above has shown---the available regressors can be
-used for distinguishing between zero and larger counts. Therefore, a second
-model 
+As for the hurdle model above, all regressors from the count model are also
+used in the zero-inflation model. Again, we can modify the regressors in 
+the zero-inflation part, e.g., by fitting a second model
 <<zinb, eval=FALSE>>=
 fm_zinb <- zeroinfl(ofp ~ . | hosp + numchron + privins + school + gender,
   data = dt, dist = "negbin")
 @
-is fitted that has the same variables in the zero-inflation part as the hurdle
-component in \code{fm_hurdle}. This improves the ZINB fit significantly
-which can again be brought out by a Wald test
+that has the same variables in the zero-inflation part as the hurdle
+component in \code{fm_hurdle}. By omitting the \code{health} variable, the
+fit does not change significantly which can again be brought out by a Wald test
 <<waldtest-zinb>>=
 waldtest(fm_zinb0, fm_zinb)
 @

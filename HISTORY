@@ -1,8 +1,10 @@
-1.02 * added MDA option in ideal
-     * added politicalInformation
+1.03 * bug in ideal start value argument processing thanks to Bjorn Hoyland
+
+1.02 * added politicalInformation data
+     * added MDA option to ideal
 
 1.01 * added EfronMorris data
-	* added RockTheVote data
+     * added RockTheVote data
  
 1.00 * updated CITATION and docs to version 1.00 accompanying JSS paper
 

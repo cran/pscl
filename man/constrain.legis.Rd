@@ -89,10 +89,10 @@ constrain.legis(obj, dropList = list(codes = "notInLegis", lop = 0),
   \item{bpv}{prior meansprecisions for item parameters.  A matrix of
     dimensions number of items or votes in \code{rc} by \code{d+1}.}
   
-  \item{xstart}{start values for ideal points.  A matrix of dimensions
+  \item{x}{start values for ideal points.  A matrix of dimensions
     number of legislators in \code{rc} by \code{d}.}
   
-  \item{bstart}{start values for ideal points.  A matrix of dimensions
+  \item{b}{start values for ideal points.  A matrix of dimensions
     number of items or votes in \code{rc} by \code{d+1}.}
 
 }
