@@ -726,7 +726,7 @@ The overall impression from all displays is that the changes in the mean
 can only explain a modest amount of variation in the data.
 
 <<models, echo=FALSE, results=hide>>=
-if(refit_models) file.remove("countreg-models.rda")
+if(refit_models & file.exists("countreg-models.rda")) file.remove("countreg-models.rda")
 if(file.exists("countreg-models.rda")) {
   load("countreg-models.rda")
 } else {

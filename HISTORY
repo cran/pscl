@@ -1,3 +1,8 @@
+1.03.2	* fixing .Last.lib problems
+		* turned off MDA option in ideal by default, seems broken, needs work
+
+1.03a	* make startvalues in ideal accept names other than xstart (anything unique that starts with x will do)
+
 1.03 * bug in ideal start value argument processing thanks to Bjorn Hoyland
 
 1.02 * added politicalInformation data

@@ -14,7 +14,7 @@ ideal(object, codes = object$codes,
       dropList = list(codes = "notInLegis", lop = 0),
       d = 1, maxiter = 10000, thin = 100, burnin = 5000,
       impute = FALSE,
-      mda = TRUE,
+      mda = FALSE,
       normalize = FALSE,
       meanzero = normalize,
       priors = NULL, startvals = "eigen",
@@ -49,8 +49,8 @@ ideal(object, codes = object$codes,
     of the rollcall matrix as missing at random, sampling from the
     predictive density of the missing entries at each MCMC iteration.}
   
-  \item{mda}{\code{\link{logical}}, do marginal data augmentation (see
-  Deatils); default is \code{TRUE}}
+  \item{mda}{\code{\link{logical}}, do parameter expansion/marginal data augmentation (see
+  Details); default is \code{FALSE} (experimental)}
   	    
   \item{normalize}{\code{\link{logical}}, impose identification with
     the constraint that the ideal points have mean zero and
@@ -148,7 +148,6 @@ ideal(object, codes = object$codes,
   for the \code{\link{constrain.legis}} and
   \code{\link{constrain.items}}.
 
-
   Another route to identification is via \emph{post-processing}.  That
   is, the user can run \code{ideal} without any identification
   constraints (which does not pose any formal/technical problem in a
@@ -204,19 +203,21 @@ ideal(object, codes = object$codes,
   described above to get start values for the rollcall/item
   parameters.
   
-  If \code{startvals} is a \code{list}, it must contain the components
-  \code{x} and/or \code{b}, each of which should be matrices.
-  The component \code{x} must be of dimensions equal to the number of individuals
-  (legislators) by \code{d}.  If supplied, \code{startvals$b} must
-  be of dimensions number of items (votes) by \code{d}+1.  The
-  \code{x} and \code{b} components cannot contain \code{NA}.
-  If \code{x} is not supplied when \code{startvals} is a list, then
-  start values are generated using the default \code{eiegn} method
-  described above, and start values for the rollcall/item parameters are
-  regenerated using the probit method, ignoring any user-supplied values
-  in \code{startvals$b}.  That is, user-supplied values in
-  \code{startvals$b} are only used when accompanied by a valid set
-  of start values for the ideal points in \code{startvals$x}.
+  If \code{startvals} is a \code{list}, it must contain the named
+  components \code{x} and/or \code{b}, or named components that
+  (uniquely) begin with the letters \code{x} and/or \code{b}.  The
+  component \code{x} must be a vector or a matrix of dimensions equal to
+  the number of individuals (legislators) by \code{d}.  If supplied,
+  \code{startvals$b} must be a matrix with dimension number of items
+  (votes) by \code{d}+1.  The \code{x} and \code{b} components cannot
+  contain \code{NA}.  If \code{x} is not supplied when \code{startvals}
+  is a list, then start values are generated using the default
+  \code{eiegn} method described above, and start values for the
+  rollcall/item parameters are regenerated using the probit method,
+  ignoring any user-supplied values in \code{startvals$b}.  That is,
+  user-supplied values in \code{startvals$b} are only used when
+  accompanied by a valid set of start values for the ideal points in
+  \code{startvals$x}.
 
   \strong{Implementation via Data Augmentation}.  The MCMC algorithm
   for this problem consists of a Gibbs sampler for the ideal points
@@ -234,7 +235,7 @@ ideal(object, codes = object$codes,
   \eqn{(\beta,\alpha)} are extremely simple to sample from; see the
   references for details.  
 
-  This Gibbs-plus-DA strategy is easily implemented, but can sometimes
+  This data-augmented Gibbs sampling strategy is easily implemented, but can sometimes
   require many thousands of samples in order to generate tolerable
   explorations of the posterior densities of the latent
   traits, particularly for legislators with
@@ -247,14 +248,15 @@ ideal(object, codes = object$codes,
   has the effect of improving the performance of the sampler in the
   sub-space of parameters of direct interest.  In this case we
   introduce a variance parameter \eqn{\sigma^2} for the latent data;
-  in the DA algorithm of Albert and Chib (1993) this parameter is set
+  in the DA algorithm of Albert and Chib (1993) --- and in any conventional
+  probit analysis --- this parameter is set
   to 1.0 for identification.  In the MDA approach we carry this
   (unidentified) parameter into the DA stage of the algorithm with an
   improper prior, \eqn{p(\sigma^2) \propto \sigma^{-2}},
   generating \eqn{y^*} that exhibit bigger moves from iteration to
   iteration, such that in turn the MCMC algorithm displays better
   mixing with respect to the identified parameters of direct interest,
-  \eqn{x} and \eqn{(\beta,\alpha)}, than the performance obtained from
+  \eqn{x} and \eqn{(\beta,\alpha)} than the mixing obtained from
   the Gibbs-with-DA MCMC algorithm.   The MDA algorithm is the default
   in \code{ideal}, but Gibbs-with-DA can be implemented by setting
   \code{mda=FALSE} in the call to \code{ideal}.         

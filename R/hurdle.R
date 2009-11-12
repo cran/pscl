@@ -378,7 +378,7 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
         	    "geometric" = pnbinom(0, size = 1, mu = mu, lower.tail = FALSE, log.p = TRUE))
   Yhat <- exp((p0_zero - p0_count) + log(mu))
 
-  res <- Y - Yhat
+  res <- sqrt(weights) * (Y - Yhat)
 
 
   rval <- list(coefficients = list(count = coefc, zero = coefz),
@@ -388,10 +388,10 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
     method = method,
     control = control,
     start = start,
-    weights = weights,
+    weights = if(identical(as.vector(weights), rep(1, n))) NULL else weights,
     offset = if(identical(offset, rep(0, n))) NULL else offset,
     n = n,
-    df.null = n - 2,
+    df.null = n - 2, ## effective: df.null - sum(weights == 0)
     df.residual = n - (kx + kz + (dist == "negbin") + (zero.dist == "negbin")),
     terms = list(count = mtX, zero = mtZ, full = mt),
     theta = theta,
@@ -458,20 +458,21 @@ logLik.hurdle <- function(object, ...) {
 print.hurdle <- function(x, digits = max(3, getOption("digits") - 3), ...)
 {
 
-  cat("\nCall:", deparse(x$call, width.cutoff = floor(getOption("width") * 0.85)), "\n", sep = "\n")
+  cat("\nCall:", deparse(x$call, width.cutoff = floor(getOption("width") * 0.85)), "", sep = "\n")
   
   if(!x$converged) {
     cat("model did not converge\n")
   } else {
     cat(paste("Count model coefficients (truncated ", x$dist$count, " with log link):\n", sep = ""))
     print.default(format(x$coefficients$count, digits = digits), print.gap = 2, quote = FALSE)
-    if(x$dist$count == "negbin") cat(paste("Theta =", round(x$theta["count"], digits), "\n\n"))
+    if(x$dist$count == "negbin") cat(paste("Theta =", round(x$theta["count"], digits), "\n"))
   
     zero_dist <- if(x$dist$zero != "binomial") paste("censored", x$dist$zero, "with log link")
       else paste("binomial with", x$link, "link")
-    cat(paste("Zero hurdle model coefficients (", zero_dist, "):\n", sep = ""))
+    cat(paste("\nZero hurdle model coefficients (", zero_dist, "):\n", sep = ""))
     print.default(format(x$coefficients$zero, digits = digits), print.gap = 2, quote = FALSE)
     if(x$dist$zero == "negbin") cat(paste("Theta =", round(x$theta["zero"], digits), "\n"))
+    cat("\n")
   }
   
   invisible(x)
@@ -479,6 +480,9 @@ print.hurdle <- function(x, digits = max(3, getOption("digits") - 3), ...)
 
 summary.hurdle <- function(object,...)
 {
+  ## residuals
+  object$residuals <- residuals(object, type = "pearson")
+  
   ## compute z statistics
   kc <- length(object$coefficients$count)
   kz <- length(object$coefficients$zero)
@@ -506,7 +510,7 @@ summary.hurdle <- function(object,...)
     else tail(na.omit(object$optim$count$count), 1) + tail(na.omit(object$optim$zero$count), 1)
   
   ## delete some slots
-  object$residuals <- object$fitted.values <- object$terms <- object$model <- object$y <-
+  object$fitted.values <- object$terms <- object$model <- object$y <-
     object$x <- object$levels <- object$contrasts <- object$start <- object$separate <- NULL
 
   ## return
@@ -517,12 +521,17 @@ summary.hurdle <- function(object,...)
 print.summary.hurdle <- function(x, digits = max(3, getOption("digits") - 3), ...)
 {
 
-  cat("\nCall:", deparse(x$call, width.cutoff = floor(getOption("width") * 0.85)), "\n", sep = "\n")
+  cat("\nCall:", deparse(x$call, width.cutoff = floor(getOption("width") * 0.85)), "", sep = "\n")
   
   if(!x$converged) {
     cat("model did not converge\n")
   } else {
-    cat(paste("Count model coefficients (truncated ", x$dist$count, " with log link):\n", sep = ""))
+
+    cat("Pearson residuals:\n")
+    print(structure(quantile(x$residuals),
+      names = c("Min", "1Q", "Median", "3Q", "Max")), digits = digits, ...)  
+
+    cat(paste("\nCount model coefficients (truncated ", x$dist$count, " with log link):\n", sep = ""))
     printCoefmat(x$coefficients$count, digits = digits, signif.legend = FALSE)
   
     zero_dist <- if(x$dist$zero != "binomial") paste("censored", x$dist$zero, "with log link")
@@ -635,17 +644,26 @@ fitted.hurdle <- function(object, ...) {
 }
 
 residuals.hurdle <- function(object, type = c("pearson", "response"), ...) {
+
   type <- match.arg(type)
-  if(type == "response") return(object$residuals) else {
+  res <- object$residuals
+
+  switch(type,
+  
+  "response" = {
+    return(res)
+  },
+  
+  "pearson" = {
     mu <- predict(object, type = "count")
     phi <- predict(object, type = "zero")
     theta1 <- switch(object$dist$count,
       "poisson" = 0,
       "geometric" = 1,
-      "negbin" = 1/object$theta)
+      "negbin" = 1/object$theta["count"])
     vv <- object$fitted.values * (1 + ((1-phi) + theta1) * mu)
-    return(object$residuals/sqrt(vv))  
-  }  
+    return(res/sqrt(vv))
+  })
 }
 
 predprob.hurdle <- function(obj, ...){

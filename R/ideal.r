@@ -1,14 +1,4 @@
 ## IDEAL
-
-## ## for creating a package
-.package.Name <- "pscl"
-
-## .First.lib<-function(lib,pkg) {
-##   library.dynam(.package.Name,
-##                 pkg,
-##                 lib)
-## }
-
 ideal <- function(object,
                   codes=object$codes,
                   dropList=list(codes="notInLegis",lop=0),
@@ -17,7 +7,7 @@ ideal <- function(object,
                   thin=100,
                   burnin=5000,
                   impute=FALSE,
-                  mda=TRUE,
+                  mda=FALSE,
                   normalize=FALSE,
                   meanzero=normalize,
                   priors=NULL,
@@ -310,13 +300,13 @@ ideal <- function(object,
     cat("starvals is a list containing:\n")
     print(names(startvals))
     
-    if(!is.null(startvals$xstart)){
-      if(length(startvals$xstart) != n*d)
+    if(!is.null(startvals$x)){
+      if(length(startvals$x) != n*d)
         stop("length of xstart not n by d")
       if(d==1)
-        xstart <- matrix(startvals$xstart,ncol=1)
+        xstart <- matrix(startvals$x,ncol=1)
       else
-        xstart <- startvals$xstart
+        xstart <- startvals$x
       if (sum(is.na(xstart))!=0)
         stop("xstart contains missing values")
     }

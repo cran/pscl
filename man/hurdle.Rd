@@ -1,5 +1,6 @@
 \name{hurdle}
 \alias{hurdle}
+\alias{print.hurdle}
 
 \title{Hurdle Models for Count Data Regression}
 

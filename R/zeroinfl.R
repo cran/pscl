@@ -361,7 +361,7 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
   mu <- exp(X %*% coefc + offset)[,1]
   phi <- linkinv(Z %*% coefz)[,1]
   Yhat <- (1-phi) * mu
-  res <- Y - Yhat
+  res <- sqrt(weights) * (Y - Yhat)
 
   rval <- list(coefficients = list(count = coefc, zero = coefz),
     residuals = res,
@@ -370,10 +370,10 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
     method = method,
     control = ocontrol,
     start = start,
-    weights = weights,
+    weights = if(identical(as.vector(weights), rep(1, n))) NULL else weights,
     offset = if(identical(offset, rep(0, n))) NULL else offset,
     n = n,
-    df.null = n - 2,
+    df.null = n - 2, ## effective: df.null - sum(weights == 0)
     df.residual = n - (kx + kz + (dist == "negbin")),
     terms = list(count = mtX, zero = mtZ, full = mt),
     theta = theta,
@@ -439,7 +439,7 @@ logLik.zeroinfl <- function(object, ...) {
 print.zeroinfl <- function(x, digits = max(3, getOption("digits") - 3), ...)
 {
 
-  cat("\nCall:", deparse(x$call, width.cutoff = floor(getOption("width") * 0.85)), "\n", sep = "\n")
+  cat("\nCall:", deparse(x$call, width.cutoff = floor(getOption("width") * 0.85)), "", sep = "\n")
   
   if(!x$converged) {
     cat("model did not converge\n")
@@ -450,6 +450,7 @@ print.zeroinfl <- function(x, digits = max(3, getOption("digits") - 3), ...)
   
     cat(paste("\nZero-inflation model coefficients (binomial with ", x$link, " link):\n", sep = ""))
     print.default(format(x$coefficients$zero, digits = digits), print.gap = 2, quote = FALSE)
+    cat("\n")
   }
   
   invisible(x)
@@ -457,6 +458,9 @@ print.zeroinfl <- function(x, digits = max(3, getOption("digits") - 3), ...)
 
 summary.zeroinfl <- function(object,...)
 {
+  ## residuals
+  object$residuals <- residuals(object, type = "pearson")
+  
   ## compute z statistics
   kc <- length(object$coefficients$count)
   kz <- length(object$coefficients$zero)
@@ -475,7 +479,7 @@ summary.zeroinfl <- function(object,...)
   object$coefficients$zero <- coef[(kc+1):(kc+kz),,drop = FALSE]
   
   ## delete some slots
-  object$residuals <- object$fitted.values <- object$terms <- object$model <- object$y <-
+  object$fitted.values <- object$terms <- object$model <- object$y <-
     object$x <- object$levels <- object$contrasts <- object$start <- NULL
 
   ## return
@@ -486,12 +490,17 @@ summary.zeroinfl <- function(object,...)
 print.summary.zeroinfl <- function(x, digits = max(3, getOption("digits") - 3), ...)
 {
 
-  cat("\nCall:", deparse(x$call, width.cutoff = floor(getOption("width") * 0.85)), "\n", sep = "\n")
+  cat("\nCall:", deparse(x$call, width.cutoff = floor(getOption("width") * 0.85)), "", sep = "\n")
   
   if(!x$converged) {
     cat("model did not converge\n")
   } else {
-    cat(paste("Count model coefficients (", x$dist, " with log link):\n", sep = ""))
+
+    cat("Pearson residuals:\n")
+    print(structure(quantile(x$residuals),
+      names = c("Min", "1Q", "Median", "3Q", "Max")), digits = digits, ...)  
+
+    cat(paste("\nCount model coefficients (", x$dist, " with log link):\n", sep = ""))
     printCoefmat(x$coefficients$count, digits = digits, signif.legend = FALSE)
   
     cat(paste("\nZero-inflation model coefficients (binomial with ", x$link, " link):\n", sep = ""))
@@ -583,8 +592,17 @@ fitted.zeroinfl <- function(object, ...) {
 }
 
 residuals.zeroinfl <- function(object, type = c("pearson", "response"), ...) {
+
   type <- match.arg(type)
-  if(type == "response") return(object$residuals) else {
+  res <- object$residuals
+
+  switch(type,
+  
+  "response" = {
+    return(res)
+  },
+  
+  "pearson" = {
     mu <- predict(object, type = "count")
     phi <- predict(object, type = "zero")
     theta1 <- switch(object$dist,
@@ -592,8 +610,8 @@ residuals.zeroinfl <- function(object, type = c("pearson", "response"), ...) {
       "geometric" = 1,
       "negbin" = 1/object$theta)
     vv <- object$fitted.values * (1 + (phi + theta1) * mu)
-    return(object$residuals/sqrt(vv))  
-  }  
+    return(res/sqrt(vv))  
+  })
 }
 
 terms.zeroinfl <- function(x, model = c("count", "zero"), ...) {

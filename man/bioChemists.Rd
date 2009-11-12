@@ -18,8 +18,8 @@
     }
   }
 \source{found in Stata format at \url{http://www.indiana.edu/~jslsoc/stata/socdata/couart2.dta}}
-\references{Long, J. Scott (1990).  The origins of sex difference in
-  science. \emph{Social Forces}. 68:1297-1315.
+\references{Long, J. Scott (1990).  The origins of sex differences in
+  science. \emph{Social Forces}. 68(3):1297-1316.
 
   Long, J. Scott (1997).  \emph{Regression Models for Categorical and
     Limited Dependent Variables}. Thousand Oaks, California: Sage.

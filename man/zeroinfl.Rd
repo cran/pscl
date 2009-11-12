@@ -39,7 +39,7 @@ zeroinfl(formula, data, subset, na.action, weights, offset,
   combining a point mass at zero with a proper count distribution.
   Thus, there are two sources of zeros: zeros may come from 
   both the point mass and from the count component. Usually the count model 
-  is a poisson or negative binomial regression (with log link). 
+  is a Poisson or negative binomial regression (with log link). 
   The geometric distribution is a special case of the negative binomial
   with size parameter equal to 1.
   For modeling the unobserved state (zero vs. count), a binary model is used:
