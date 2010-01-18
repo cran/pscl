@@ -8,7 +8,7 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
   ## set up likelihood components
   zeroPoisson <- function(parms) {
     ## mean
-    mu <- as.vector(exp(Z %*% parms))
+    mu <- as.vector(exp(Z %*% parms + offsetz))
     ## log-likelihood
     loglik0 <- -mu ## = dpois(0, lambda = mu, log = TRUE)
     ## collect and return
@@ -18,7 +18,7 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
 
   countPoisson <- function(parms) {
     ## mean
-    mu <- as.vector(exp(X %*% parms + offset))[Y1]
+    mu <- as.vector(exp(X %*% parms + offsetx))[Y1]
     ## log-likelihood
     loglik0 <- -mu ## = dpois(0, lambda = mu, log = TRUE)
     loglik1 <- dpois(Y[Y1], lambda = mu, log = TRUE)
@@ -29,7 +29,7 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
 
   zeroNegBin <- function(parms) {
     ## parameters
-    mu <- as.vector(exp(Z %*% parms[1:kz]))
+    mu <- as.vector(exp(Z %*% parms[1:kz] + offsetz))
     theta <- exp(parms[kz+1])
     ## log-likelihood
     loglik0 <- suppressWarnings(dnbinom(0, size = theta, mu = mu, log = TRUE))
@@ -40,7 +40,7 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
 
   countNegBin <- function(parms) {
     ## parameters
-    mu <- as.vector(exp(X %*% parms[1:kx] + offset))[Y1]
+    mu <- as.vector(exp(X %*% parms[1:kx] + offsetx))[Y1]
     theta <- exp(parms[kx+1])
     ## log-likelihood
     loglik0 <- suppressWarnings(dnbinom(0, size = theta, mu = mu, log = TRUE))
@@ -56,21 +56,21 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
 
   zeroBinom <- function(parms) {
     ## mean
-    mu <- as.vector(linkinv(Z %*% parms))
+    mu <- as.vector(linkinv(Z %*% parms + offsetz))
     ## log-likelihood
     loglik <- sum(weights[Y0] * log(1 - mu[Y0])) + sum(weights[Y1] * log(mu[Y1]))
     loglik  
   }
 
   countGradPoisson <- function(parms) {
-    eta <- as.vector(X %*% parms + offset)[Y1]
+    eta <- as.vector(X %*% parms + offsetx)[Y1]
     mu <- exp(eta)
     colSums(((Y[Y1] - mu) - exp(ppois(0, lambda = mu, log.p = TRUE) -
       ppois(0, lambda = mu, lower.tail = FALSE, log.p = TRUE) + eta)) * weights[Y1] * X[Y1, , drop = FALSE])
   }
   
   countGradGeom <- function(parms) {
-    eta <- as.vector(X %*% parms + offset)[Y1]
+    eta <- as.vector(X %*% parms + offsetx)[Y1]
     mu <- exp(eta)      
     colSums(((Y[Y1] - mu * (Y[Y1] + 1)/(mu + 1)) -
       exp(pnbinom(0, mu = mu, size = 1, log.p = TRUE) -
@@ -79,7 +79,7 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
   }
 
   countGradNegBin <- function(parms) {
-    eta <- as.vector(X %*% parms[1:kx] + offset)[Y1]
+    eta <- as.vector(X %*% parms[1:kx] + offsetx)[Y1]
     mu <- exp(eta)      
     theta <- exp(parms[kx+1])
     logratio <- pnbinom(0, mu = mu, size = theta, log.p = TRUE) -
@@ -93,21 +93,21 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
   }  
   
   zeroGradPoisson <- function(parms) {
-    eta <- as.vector(Z %*% parms)
+    eta <- as.vector(Z %*% parms + offsetz)
     mu <- exp(eta)
     colSums(ifelse(Y0, -mu, exp(ppois(0, lambda = mu, log.p = TRUE) -
       ppois(0, lambda = mu, lower.tail = FALSE, log.p = TRUE) + eta)) * weights * Z)
   }
 
   zeroGradGeom <- function(parms) {
-    eta <- as.vector(Z %*% parms)
+    eta <- as.vector(Z %*% parms + offsetz)
     mu <- exp(eta)
     colSums(ifelse(Y0, -mu/(mu + 1), exp(pnbinom(0, mu = mu, size = 1, log.p = TRUE) -
       pnbinom(0, mu = mu, size = 1, lower.tail = FALSE, log.p = TRUE) - log(mu + 1) + eta)) * weights * Z)
   }
 
   zeroGradNegBin <- function(parms) {
-    eta <- as.vector(Z %*% parms[1:kz])
+    eta <- as.vector(Z %*% parms[1:kz] + offsetz)
     mu <- exp(eta)
     theta <- exp(parms[kz+1])
     logratio <- pnbinom(0, mu = mu, size = theta, log.p = TRUE) -
@@ -120,7 +120,7 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
   }
 
   zeroGradBinom <- function(parms) {
-    eta <- as.vector(Z %*% parms)
+    eta <- as.vector(Z %*% parms + offsetz)
     mu <- linkinv(eta)
     colSums(ifelse(Y0, -1/(1-mu), 1/mu)  * linkobj$mu.eta(eta) * weights * Z)  
   }
@@ -187,7 +187,7 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
     ffz <- ffc <- ff <- formula
     ffz[[2]] <- NULL
   }
-  if(any(sapply(unlist(as.list(ffz[[2]])), function(x) identical(x, as.name("."))))) {
+  if(length(grep("in formula and no", try(terms(ffz), silent = TRUE), fixed = TRUE)) > 0) {
     ffz <- eval(parse(text = sprintf( paste("%s -", deparse(ffc[[2]])), deparse(ffz) )))
   }
 
@@ -212,6 +212,8 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
     stop("invalid dependent variable, non-integer values")
   Y <- as.integer(round(Y + 0.001))
   if(any(Y < 0)) stop("invalid dependent variable, negative counts")
+  if(zero.dist == "negbin" & isTRUE(all.equal(as.vector(Z), rep.int(Z[1], length(Z)))))
+    stop("negative binomial zero hurdle model is not identified with only an intercept")
   
   if(control$trace) {
     cat("dependent variable:\n")
@@ -230,14 +232,18 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
   ## weights and offset
   weights <- model.weights(mf)
   if(is.null(weights)) weights <- 1
-  if(length(weights) == 1) weights <- rep(weights, n)
+  if(length(weights) == 1) weights <- rep.int(weights, n)
   weights <- as.vector(weights)
   names(weights) <- rownames(mf)
   
-  offset <- model.offset(mf)
-  if(is.null(offset)) offset <- 0
-  if(length(offset) == 1) offset <- rep(offset, n)
-  offset <- as.vector(offset)
+  offsetx <- model_offset_2(mf, terms = mtX, offset = TRUE)
+  if(is.null(offsetx)) offsetx <- 0
+  if(length(offsetx) == 1) offsetx <- rep.int(offsetx, n)
+  offsetx <- as.vector(offsetx)
+  offsetz <- model_offset_2(mf, terms = mtZ, offset = FALSE)
+  if(is.null(offsetz)) offsetz <- 0
+  if(length(offsetz) == 1) offsetz <- rep.int(offsetz, n)
+  offsetz <- as.vector(offsetz)
 
   ## starting values
   start <- control$start
@@ -246,12 +252,12 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
     if(!("count" %in% names(start))) {
       valid <- FALSE
       warning("invalid starting values, count model coefficients not specified")
-      start$count <- rep(0, kx)
+      start$count <- rep.int(0, kx)
     }
     if(!("zero" %in% names(start))) {
       valid <- FALSE
       warning("invalid starting values, zero-inflation model coefficients not specified")
-      start$zero <- rep(0, kz)
+      start$zero <- rep.int(0, kz)
     }
     if(length(start$count) != kx) {
       valid <- FALSE
@@ -275,12 +281,12 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
   
   if(is.null(start)) {
     if(control$trace) cat("generating starting values...")
-    model_count <- glm.fit(X, Y, family = poisson(), weights = weights, offset = offset)
+    model_count <- glm.fit(X, Y, family = poisson(), weights = weights, offset = offsetx)
     model_zero <- switch(zero.dist,
-      "poisson" = glm.fit(Z, Y, family = poisson(), weights = weights),
-      "negbin" = glm.fit(Z, Y, family = poisson(), weights = weights),
-      "geometric" = suppressWarnings(glm.fit(Z, factor(Y > 0), family = binomial(), weights = weights)),
-      "binomial" = suppressWarnings(glm.fit(Z, factor(Y > 0), family = binomial(link = linkstr), weights = weights)))
+      "poisson" = glm.fit(Z, Y, family = poisson(), weights = weights, offset = offsetz),
+      "negbin" = glm.fit(Z, Y, family = poisson(), weights = weights, offset = offsetz),
+      "geometric" = suppressWarnings(glm.fit(Z, factor(Y > 0), family = binomial(), weights = weights, offset = offsetz)),
+      "binomial" = suppressWarnings(glm.fit(Z, factor(Y > 0), family = binomial(link = linkstr), weights = weights, offset = offsetz)))
     start <- list(count = model_count$coefficients, zero = model_zero$coefficients)
     start$theta <- c(count = if(dist == "negbin") 1 else NULL,
                      zero = if(zero.dist == "negbin") 1 else NULL)
@@ -364,14 +370,14 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
                                     paste("zero",  colnames(Z), sep = "_"))
 
   ## fitted and residuals
-  phi <- if(zero.dist == "binomial") linkinv(Z %*% coefz)[,1] else exp(Z %*% coefz)[,1]
+  phi <- if(zero.dist == "binomial") linkinv(Z %*% coefz + offsetz)[,1] else exp(Z %*% coefz + offsetz)[,1]
   p0_zero <- switch(zero.dist,
   		    "binomial" = log(phi),
         	    "poisson" = ppois(0, lambda = phi, lower.tail = FALSE, log.p = TRUE),
         	    "negbin" = pnbinom(0, size = theta["zero"], mu = phi, lower.tail = FALSE, log.p = TRUE),
         	    "geometric" = pnbinom(0, size = 1, mu = phi, lower.tail = FALSE, log.p = TRUE))
 
-  mu <- exp(X %*% coefc + offset)[,1]
+  mu <- exp(X %*% coefc + offsetx)[,1]
   p0_count <- switch(dist,
         	    "poisson" = ppois(0, lambda = mu, lower.tail = FALSE, log.p = TRUE),
         	    "negbin" = pnbinom(0, size = theta["count"], mu = mu, lower.tail = FALSE, log.p = TRUE),
@@ -380,6 +386,8 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
 
   res <- sqrt(weights) * (Y - Yhat)
 
+  ## effective observations
+  nobs <- sum(weights > 0) ## = n - sum(weights == 0)
 
   rval <- list(coefficients = list(count = coefc, zero = coefz),
     residuals = res,
@@ -388,11 +396,12 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
     method = method,
     control = control,
     start = start,
-    weights = if(identical(as.vector(weights), rep(1, n))) NULL else weights,
-    offset = if(identical(offset, rep(0, n))) NULL else offset,
-    n = n,
-    df.null = n - 2, ## effective: df.null - sum(weights == 0)
-    df.residual = n - (kx + kz + (dist == "negbin") + (zero.dist == "negbin")),
+    weights = if(identical(as.vector(weights), rep.int(1L, n))) NULL else weights,
+    offset = list(count = if(identical(offsetx, rep.int(0, n))) NULL else offsetx,
+      zero = if(identical(offsetz, rep.int(0, n))) NULL else offsetz),
+    n = nobs,
+    df.null = nobs - 2,
+    df.residual = nobs - (kx + kz + (dist == "negbin") + (zero.dist == "negbin")),
     terms = list(count = mtX, zero = mtZ, full = mt),
     theta = theta,
     SE.logtheta = SE.logtheta,
@@ -579,7 +588,8 @@ predict.hurdle <- function(object, newdata, type = c("response", "prob", "count"
 	} else {
 	  stop("predicted probabilities cannot be computed with missing newdata")
 	}
-	offset <- if(is.null(object$offset)) rep(0, NROW(X)) else object$offset
+	offsetx <- if(is.null(object$offset$count)) rep.int(0, NROW(X)) else object$offset$count
+	offsetz <- if(is.null(object$offset$zero))  rep.int(0, NROW(Z)) else object$offset$zero
       } else {
         return(object$fitted.values)
       }
@@ -587,21 +597,22 @@ predict.hurdle <- function(object, newdata, type = c("response", "prob", "count"
       mf <- model.frame(delete.response(object$terms$full), newdata, na.action = na.action, xlev = object$levels)
       X <- model.matrix(delete.response(object$terms$count), mf, contrasts = object$contrasts$count)
       Z <- model.matrix(delete.response(object$terms$zero),  mf, contrasts = object$contrasts$zero)
-      offset <- if(!is.null(off.num <- attr(object$terms$full, "offset"))) 
-          eval(attr(object$terms$full, "variables")[[off.num + 1]], newdata)
-        else if(!is.null(object$offset)) eval(object$call$offset, newdata)
-      if(is.null(offset)) offset <- rep(0, NROW(X))
+      offsetx <- model_offset_2(mf, terms = object$terms$count, offset = FALSE)
+      offsetz <- model_offset_2(mf, terms = object$terms$zero,  offset = FALSE)
+      if(is.null(offsetx)) offsetx <- rep.int(0, NROW(X))
+      if(is.null(offsetz)) offsetz <- rep.int(0, NROW(Z))
+      if(!is.null(object$call$offset)) offsetx <- offsetx + eval(object$call$offset, newdata)
     }
 
-    phi <- if(object$dist$zero == "binomial") object$linkinv(Z %*% object$coefficients$zero)[,1]
-      else exp(Z %*% object$coefficients$zero)[,1]
+    phi <- if(object$dist$zero == "binomial") object$linkinv(Z %*% object$coefficients$zero + offsetz)[,1]
+      else exp(Z %*% object$coefficients$zero + offsetz)[,1]
     p0_zero <- switch(object$dist$zero,
                       "binomial" = log(phi),
-		      "poisson" = ppois(0, lambda = mu, lower.tail = FALSE, log.p = TRUE),
+		      "poisson" = ppois(0, lambda = phi, lower.tail = FALSE, log.p = TRUE),
 		      "negbin" = pnbinom(0, size = object$theta["zero"], mu = phi, lower.tail = FALSE, log.p = TRUE),
 		      "geometric" = pnbinom(0, size = 1, mu = phi, lower.tail = FALSE, log.p = TRUE))
 
-    mu <- exp(X %*% object$coefficients$count + offset)[,1]
+    mu <- exp(X %*% object$coefficients$count + offsetx)[,1]
     p0_count <- switch(object$dist$count,
 		      "poisson" = ppois(0, lambda = mu, lower.tail = FALSE, log.p = TRUE),
 		      "negbin" = pnbinom(0, size = object$theta["count"], mu = mu, lower.tail = FALSE, log.p = TRUE),
@@ -684,4 +695,24 @@ hurdletest <- function(object, ...) {
   rval <- car::linear.hypothesis(object, lh, ...)
   attr(rval, "heading")[1] <- "Wald test for hurdle models\n\nRestrictions:"
   return(rval)
+}
+
+## convenience helper function
+model_offset_2 <- function(x, terms = NULL, offset = TRUE)
+## allow optionally different terms
+## potentially exclude "(offset)"
+{
+  if(is.null(terms)) terms <- attr(x, "terms")
+  offsets <- attr(terms, "offset")
+  if(length(offsets) > 0) {
+    ans <- if(offset) x$"(offset)" else NULL
+    if(is.null(ans)) ans <- 0
+    for(i in offsets) ans <- ans + x[[deparse(attr(terms, "variables")[[i + 1]])]]
+    ans
+  }
+  else {
+    ans <- if(offset) x$"(offset)" else NULL
+  }
+  if(!is.null(ans) && !is.numeric(ans)) stop("'offset' must be numeric")
+  ans
 }

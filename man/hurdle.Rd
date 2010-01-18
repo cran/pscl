@@ -23,7 +23,8 @@ hurdle(formula, data, subset, na.action, weights, offset,
     via \code{\link[stats]{model.frame}}.}
   \item{weights}{optional numeric vector of weights.}
   \item{offset}{optional numeric vector with an a priori known component to be
-    included in the linear predictor of the count model.}
+    included in the linear predictor of the count model. See below for more
+    information on offsets.}
   \item{dist}{character specification of count model family.}
   \item{zero.dist}{character specification of the zero hurdle model family.}
   \item{link}{character specification of link function in the binomial
@@ -48,6 +49,10 @@ hurdle(formula, data, subset, na.action, weights, offset,
   counts) either a binomial model can be employed or a censored count distribution.
   Binomial logit and censored geometric models as the hurdle part both lead to 
   the same likelihood function and thus to the same coefficient estimates.
+  A censored negative binomial model for the zero hurdle is only identified
+  if there is at least one non-constant regressor with (true) coefficient different
+  from zero (and if all coefficients are close to zero the model can be poorly
+  conditioned).
   
   The \code{formula} can be used to specify both components of the model:
   If a \code{formula} of type \code{y ~ x1 + x2} is supplied, then the same
@@ -56,6 +61,17 @@ hurdle(formula, data, subset, na.action, weights, offset,
   could be specified for the zero hurdle component, e.g.,
   \code{y ~ x1 + x2 | z1 + z2 + z3} giving the count data model \code{y ~ x1 + x2}
   conditional on (\code{|}) the zero hurdle model \code{y ~ z1 + z2 + z3}.
+  
+  Offsets can be specified in both parts of the model pertaining to count and
+  zero hurdle model: \code{y ~ x1 + offset(x2) | z1 + z2 + offset(z3)}, where
+  \code{x2} is used as an offset (i.e., with coefficient fixed to 1) in the
+  count part and \code{z3} analogously in the zero hurdle part. By the rule
+  stated above \code{y ~ x1 + offset(x2)} is expanded to
+  \code{y ~ x1 + offset(x2) | x1 + offset(x2)}. Instead of using the
+  \code{offset()} wrapper within the \code{formula}, the \code{offset} argument
+  can also be employed which sets an offset only for the count model. Thus,
+  \code{formula = y ~ x1} and \code{offset = x2} is equivalent to
+  \code{formula = y ~ x1 + offset(x2) | x1}.
   
   All parameters are estimated by maximum likelihood using \code{\link[stats]{optim}},
   with control options set in \code{\link{hurdle.control}}.
@@ -90,8 +106,9 @@ hurdle(formula, data, subset, na.action, weights, offset,
   \item{control}{the control arguments passed to the \code{optim} call,}
   \item{start}{the starting values for the parameters passed to the \code{optim} call(s),}
   \item{weights}{the case weights used,}
-  \item{offset}{the offset vector used (if any),}
-  \item{n}{number of observations,}
+  \item{offset}{a list with elements \code{"count"} and \code{"zero"}
+    containing the offset vectors (if any) from the respective models,}
+  \item{n}{number of observations (with weights > 0),}
   \item{df.null}{residual degrees of freedom for the null model (= \code{n - 2}),}
   \item{df.residual}{residual degrees of freedom for fitted model,}
   \item{terms}{a list with elements \code{"count"}, \code{"zero"} and
@@ -166,6 +183,7 @@ fm_hnb1 <- hurdle(art ~ ., data = bioChemists, dist = "negbin")
 summary(fm_hnb1)
 
 ## negbin-negbin
+## (poorly conditioned zero hurdle, note the standard errors)
 fm_hnb2 <- hurdle(art ~ ., data = bioChemists, dist = "negbin", zero = "negbin")
 summary(fm_hnb2)
 }

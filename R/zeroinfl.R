@@ -7,9 +7,9 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
   ## set up likelihood
   ziPoisson <- function(parms) {
     ## count mean
-    mu <- as.vector(exp(X %*% parms[1:kx] + offset))
+    mu <- as.vector(exp(X %*% parms[1:kx] + offsetx))
     ## binary mean
-    phi <- as.vector(linkinv(Z %*% parms[(kx+1):(kx+kz)]))
+    phi <- as.vector(linkinv(Z %*% parms[(kx+1):(kx+kz)] + offsetz))
     
     ## log-likelihood for y = 0 and y >= 1
     loglik0 <- log( phi + exp( log(1-phi) - mu ) ) ## -mu = dpois(0, lambda = mu, log = TRUE)
@@ -22,9 +22,9 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
   
   ziNegBin <- function(parms) {
     ## count mean
-    mu <- as.vector(exp(X %*% parms[1:kx] + offset))
+    mu <- as.vector(exp(X %*% parms[1:kx] + offsetx))
     ## binary mean
-    phi <- as.vector(linkinv(Z %*% parms[(kx+1):(kx+kz)]))
+    phi <- as.vector(linkinv(Z %*% parms[(kx+1):(kx+kz)] + offsetz))
     ## negbin size
     theta <- exp(parms[(kx+kz)+1])
     
@@ -41,10 +41,10 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
 
   gradPoisson <- function(parms) {
     ## count mean
-    eta <- as.vector(X %*% parms[1:kx] + offset)
+    eta <- as.vector(X %*% parms[1:kx] + offsetx)
     mu <- exp(eta)
     ## binary mean
-    etaz <- as.vector(Z %*% parms[(kx+1):(kx+kz)])
+    etaz <- as.vector(Z %*% parms[(kx+1):(kx+kz)] + offsetz)
     muz <- linkinv(etaz)
   
     ## densities at 0
@@ -61,10 +61,10 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
   
   gradGeom <- function(parms) {
     ## count mean
-    eta <- as.vector(X %*% parms[1:kx] + offset)
+    eta <- as.vector(X %*% parms[1:kx] + offsetx)
     mu <- exp(eta)
     ## binary mean
-    etaz <- as.vector(Z %*% parms[(kx+1):(kx+kz)])
+    etaz <- as.vector(Z %*% parms[(kx+1):(kx+kz)] + offsetz)
     muz <- linkinv(etaz)
 
     ## densities at 0
@@ -82,10 +82,10 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
 
   gradNegBin <- function(parms) {
     ## count mean
-    eta <- as.vector(X %*% parms[1:kx] + offset)
+    eta <- as.vector(X %*% parms[1:kx] + offsetx)
     mu <- exp(eta)
     ## binary mean
-    etaz <- as.vector(Z %*% parms[(kx+1):(kx+kz)])
+    etaz <- as.vector(Z %*% parms[(kx+1):(kx+kz)] + offsetz)
     muz <- linkinv(etaz)
     ## negbin size
     theta <- exp(parms[(kx+kz)+1])
@@ -151,7 +151,7 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
     ffz <- ffc <- ff <- formula
     ffz[[2]] <- NULL
   }
-  if(any(sapply(unlist(as.list(ffz[[2]])), function(x) identical(x, as.name("."))))) {
+  if(length(grep("in formula and no", try(terms(ffz), silent = TRUE), fixed = TRUE)) > 0) {
     ffz <- eval(parse(text = sprintf( paste("%s -", deparse(ffc[[2]])), deparse(ffz) )))
   }
 
@@ -194,15 +194,18 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
   ## weights and offset
   weights <- model.weights(mf)
   if(is.null(weights)) weights <- 1
-  if(length(weights) == 1) weights <- rep(weights, n)
+  if(length(weights) == 1) weights <- rep.int(weights, n)
   weights <- as.vector(weights)
   names(weights) <- rownames(mf)
   
-  offset <- model.offset(mf)
-  if(is.null(offset)) offset <- 0
-  if(length(offset) == 1) offset <- rep(offset, n)
-  offset <- as.vector(offset)
-
+  offsetx <- model_offset_2(mf, terms = mtX, offset = TRUE)
+  if(is.null(offsetx)) offsetx <- 0
+  if(length(offsetx) == 1) offsetx <- rep.int(offsetx, n)
+  offsetx <- as.vector(offsetx)
+  offsetz <- model_offset_2(mf, terms = mtZ, offset = FALSE)
+  if(is.null(offsetz)) offsetz <- 0
+  if(length(offsetz) == 1) offsetz <- rep.int(offsetz, n)
+  offsetz <- as.vector(offsetz)
 
   ## starting values
   start <- control$start
@@ -211,12 +214,12 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
     if(!("count" %in% names(start))) {
       valid <- FALSE
       warning("invalid starting values, count model coefficients not specified")
-      start$count <- rep(0, kx)
+      start$count <- rep.int(0, kx)
     }
     if(!("zero" %in% names(start))) {
       valid <- FALSE
       warning("invalid starting values, zero-inflation model coefficients not specified")
-      start$zero <- rep(0, kz)
+      start$zero <- rep.int(0, kz)
     }
     if(length(start$count) != kx) {
       valid <- FALSE
@@ -237,8 +240,8 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
   
   if(is.null(start)) {
     if(control$trace) cat("generating starting values...")
-    model_count <- glm.fit(X, Y, family = poisson(), weights = weights, offset = offset)
-    model_zero <- glm.fit(Z, as.integer(Y0), weights = weights, family = binomial(link = linkstr))
+    model_count <- glm.fit(X, Y, family = poisson(), weights = weights, offset = offsetx)
+    model_zero <- glm.fit(Z, as.integer(Y0), weights = weights, family = binomial(link = linkstr), offset = offsetz)
     start <- list(count = model_count$coefficients, zero = model_zero$coefficients)
     if(dist == "negbin") start$theta <- 1
 
@@ -254,9 +257,9 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
     
       while(abs((ll_old - ll_new)/ll_old) > control$reltol) {
         ll_old <- ll_new
-        model_count <- glm.fit(X, Y, weights = weights * (1-probi), offset = offset,
+        model_count <- glm.fit(X, Y, weights = weights * (1-probi), offset = offsetx,
 	  family = poisson(), start = start$count)
-        model_zero <- suppressWarnings(glm.fit(Z, probi, weights = weights,
+        model_zero <- suppressWarnings(glm.fit(Z, probi, weights = weights, offset = offsetz,
 	  family = binomial(link = linkstr), start = start$zero))
         mui <- model_count$fitted
         probi <- model_zero$fitted
@@ -283,9 +286,9 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
       while(abs((ll_old - ll_new)/ll_old) > control$reltol) {
         ll_old <- ll_new
         model_count <- suppressWarnings(glm.fit(X, Y, weights = weights * (1-probi),
-	  offset = offset, family = negative.binomial(1), start = start$count))
+	  offset = offsetx, family = negative.binomial(1), start = start$count))
         model_zero <- suppressWarnings(glm.fit(Z, probi, weights = weights,
-	  family = binomial(link = linkstr), start = start$zero))
+	  offset = offsetz, family = binomial(link = linkstr), start = start$zero))
         start <- list(count = model_count$coefficients, zero = model_zero$coefficients)
         mui <- model_count$fitted
         probi <- model_zero$fitted
@@ -307,12 +310,15 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
         ll_old <- ll_new
 	warning("EM estimation of starting values not available")
       }
+      
+      ## offset handling in glm.nb is sub-optimal, hence...
+      offset <- offsetx
     
       while(abs((ll_old - ll_new)/ll_old) > control$reltol) {
         ll_old <- ll_new
         model_count <- suppressWarnings(glm.nb(Y ~ 0 + X + offset(offset), weights = weights * (1-probi),
 	  start = start$count, init.theta = start$theta))
-        model_zero <- suppressWarnings(glm.fit(Z, probi, weights = weights,
+        model_zero <- suppressWarnings(glm.fit(Z, probi, weights = weights, offset = offsetz,
 	  family = binomial(link = linkstr), start = start$zero))
         start <- list(count = model_count$coefficients, zero = model_zero$coefficients, theta = model_count$theta)
         mui <- model_count$fitted
@@ -358,10 +364,13 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
                                     paste("zero",  colnames(Z), sep = "_"))
 
   ## fitted and residuals
-  mu <- exp(X %*% coefc + offset)[,1]
-  phi <- linkinv(Z %*% coefz)[,1]
+  mu <- exp(X %*% coefc + offsetx)[,1]
+  phi <- linkinv(Z %*% coefz + offsetz)[,1]
   Yhat <- (1-phi) * mu
   res <- sqrt(weights) * (Y - Yhat)
+
+  ## effective observations
+  nobs <- sum(weights > 0) ## = n - sum(weights == 0)
 
   rval <- list(coefficients = list(count = coefc, zero = coefz),
     residuals = res,
@@ -370,11 +379,12 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
     method = method,
     control = ocontrol,
     start = start,
-    weights = if(identical(as.vector(weights), rep(1, n))) NULL else weights,
-    offset = if(identical(offset, rep(0, n))) NULL else offset,
-    n = n,
-    df.null = n - 2, ## effective: df.null - sum(weights == 0)
-    df.residual = n - (kx + kz + (dist == "negbin")),
+    weights = if(identical(as.vector(weights), rep.int(1L, n))) NULL else weights,
+    offset = list(count = if(identical(offsetx, rep.int(0, n))) NULL else offsetx,
+      zero = if(identical(offsetz, rep.int(0, n))) NULL else offsetz),
+    n = nobs,
+    df.null = nobs - 2,
+    df.residual = nobs - (kx + kz + (dist == "negbin")),
     terms = list(count = mtX, zero = mtZ, full = mt),
     theta = theta,
     SE.logtheta = SE.logtheta,
@@ -535,21 +545,23 @@ predict.zeroinfl <- function(object, newdata, type = c("response", "prob", "coun
 	} else {
 	  stop("predicted probabilities cannot be computed with missing newdata")
 	}
-	offset <- if(is.null(object$offset)) rep(0, NROW(X)) else object$offset
-        mu <- exp(X %*% object$coefficients$count + offset)[,1]
-        phi <- object$linkinv(Z %*% object$coefficients$zero)[,1]	
+	offsetx <- if(is.null(object$offset$count)) rep.int(0, NROW(X)) else object$offset$count
+	offsetz <- if(is.null(object$offset$zero))  rep.int(0, NROW(Z)) else object$offset$zero
+        mu <- exp(X %*% object$coefficients$count + offsetx)[,1]
+        phi <- object$linkinv(Z %*% object$coefficients$zero + offsetz)[,1]
       }
     } else {
       mf <- model.frame(delete.response(object$terms$full), newdata, na.action = na.action, xlev = object$levels)
       X <- model.matrix(delete.response(object$terms$count), mf, contrasts = object$contrasts$count)
       Z <- model.matrix(delete.response(object$terms$zero),  mf, contrasts = object$contrasts$zero)
-      offset <- if(!is.null(off.num <- attr(object$terms$full, "offset"))) 
-          eval(attr(object$terms$full, "variables")[[off.num + 1]], newdata)
-        else if(!is.null(object$offset)) eval(object$call$offset, newdata)	
-      if(is.null(offset)) offset <- rep(0, NROW(X))
+      offsetx <- model_offset_2(mf, terms = object$terms$count, offset = FALSE)
+      offsetz <- model_offset_2(mf, terms = object$terms$zero,  offset = FALSE)
+      if(is.null(offsetx)) offsetx <- rep.int(0, NROW(X))
+      if(is.null(offsetz)) offsetz <- rep.int(0, NROW(Z))
+      if(!is.null(object$call$offset)) offsetx <- offsetx + eval(object$call$offset, newdata)
 
-      mu <- exp(X %*% object$coefficients$count + offset)[,1]
-      phi <- object$linkinv(Z %*% object$coefficients$zero)[,1]
+      mu <- exp(X %*% object$coefficients$count + offsetx)[,1]
+      phi <- object$linkinv(Z %*% object$coefficients$zero + offsetz)[,1]
       rval <- (1-phi) * mu
     }
     

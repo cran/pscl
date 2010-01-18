@@ -21,7 +21,8 @@ zeroinfl(formula, data, subset, na.action, weights, offset,
     via \code{\link[stats]{model.frame}}.}
   \item{weights}{optional numeric vector of weights.}
   \item{offset}{optional numeric vector with an a priori known component to be
-    included in the linear predictor of the count model.}
+    included in the linear predictor of the count model. See below for more
+    information on offsets.}
   \item{dist}{character specification of count model family (a log link is 
     always used).}
   \item{link}{character specification of link function in the binary
@@ -57,6 +58,17 @@ zeroinfl(formula, data, subset, na.action, weights, offset,
   A simple inflation model where all zero counts have the same
   probability of belonging to the zero component can by specified by the formula
   \code{y ~ x1 + x2 | 1}.
+
+  Offsets can be specified in both components of the model pertaining to count and
+  zero-inflation model: \code{y ~ x1 + offset(x2) | z1 + z2 + offset(z3)}, where
+  \code{x2} is used as an offset (i.e., with coefficient fixed to 1) in the
+  count component and \code{z3} analogously in the zero-inflation component. By the rule
+  stated above \code{y ~ x1 + offset(x2)} is expanded to
+  \code{y ~ x1 + offset(x2) | x1 + offset(x2)}. Instead of using the
+  \code{offset()} wrapper within the \code{formula}, the \code{offset} argument
+  can also be employed which sets an offset only for the count model. Thus,
+  \code{formula = y ~ x1} and \code{offset = x2} is equivalent to
+  \code{formula = y ~ x1 + offset(x2) | x1}.  
   
   All parameters are estimated by maximum likelihood using \code{\link[stats]{optim}},
   with control options set in \code{\link{zeroinfl.control}}.
@@ -90,8 +102,9 @@ zeroinfl(formula, data, subset, na.action, weights, offset,
   \item{control}{the control arguments passed to the \code{optim} call,}
   \item{start}{the starting values for the parameters passed to the \code{optim} call,}
   \item{weights}{the case weights used,}
-  \item{offset}{the offset vector used (if any),}
-  \item{n}{number of observations,}
+  \item{offset}{a list with elements \code{"count"} and \code{"zero"}
+    containing the offset vectors (if any) from the respective models,}
+  \item{n}{number of observations (with weights > 0),}
   \item{df.null}{residual degrees of freedom for the null model (= \code{n - 2}),}
   \item{df.residual}{residual degrees of freedom for fitted model,}
   \item{terms}{a list with elements \code{"count"}, \code{"zero"} and

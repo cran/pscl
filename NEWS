@@ -1,5 +1,17 @@
+1.03.3	* improved offset handling in hurdle()/zeroinfl(): offsets in zero
+	  model are now allowed and can be different from count model.
+	  See ?hurdle/?zeroinfl for details.
+	* included error message for negative binomial zero hurdle model with
+	  only an intercept as such models are not identified
+	* fixed bug in predict() method for "hurdle" object when a Poisson
+	  zero hurdle model is employed
+        * fixed bug in formula processing of hurdle()/zeroinfl(): formulas
+	  of type "y ~ . | . - x1 - x2" were not processed correctly.
+	* for weighted hurdle/zeroinfl models the number of observations is
+	  now the effective number, i.e., with weights > 0
+
 1.03.2	* fixing .Last.lib problems
-		* turned off MDA option in ideal by default, seems broken, needs work
+	* turned off MDA option in ideal by default, seems broken, needs work
 
 1.03a	* make startvalues in ideal accept names other than xstart (anything unique that starts with x will do)
 
