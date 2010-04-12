@@ -9,7 +9,7 @@
 \usage{data(EfronMorris)}
 
 \format{
-  \itemize{
+  \describe{
 	\item{\code{name}}{character, name of player}
 	\item{\code{team}}{character, team of player, abbreviated}
 	\item{\code{league}}{character, National League or American League}
@@ -23,8 +23,8 @@
 }
 
 \source{Efron, Bradley and Carl Morris. 1975. Data Analysis Using
-Stein's Estimator and Its Generalizations.  Journal of the American
-Statistical Association. 70:311-319.
+Stein's Estimator and Its Generalizations.  \emph{Journal of the American
+Statistical Association}. 70:311-319.
 }
   
 \examples{

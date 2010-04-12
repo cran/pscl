@@ -48,8 +48,8 @@ odTest(glmobj, alpha=.05, digits = max(3, getOption("digits") - 3))
 \references{A. Colin Cameron and Pravin K. Trivedi (1998) \emph{Regression
     analysis of count data}. New York: Cambridge University Press.
 
-  Lawless, J. F. (1987) "Negative Binomial and Mixed Poisson
-  Regressions." \emph{The Canadian Journal of Statistics}. 15:209-225.
+  Lawless, J. F. (1987) Negative Binomial and Mixed Poisson
+  Regressions. \emph{The Canadian Journal of Statistics}. 15:209-225.
  }
 
   \author{Simon Jackman \email{jackman@stanford.edu}.  John Fox noted an

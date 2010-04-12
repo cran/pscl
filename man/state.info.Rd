@@ -10,7 +10,7 @@
 \usage{data(state.info)
 }
 \format{
-  \itemize{
+  \describe{
     \item{\code{icpsr}}{integer, numeric code for state used by the
       Inter-university Consortium for Political and Social Research}
     \item{\code{state}}{character, name of state or \code{Washington

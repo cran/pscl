@@ -6,7 +6,7 @@
 }
 \description{
 	On October 11, 2002, the United States Senate
-  voted 77-23 to authorize the use of military force against Iraq.  This data set lists the "Ayes" and "Nays" for each Senator and some covariates.
+  voted 77-23 to authorize the use of military force against Iraq.  This data set lists the \dQuote{Ayes} and \dQuote{Nays} for each Senator and some covariates.
 }
 \usage{data(iraqVote)}
 \format{

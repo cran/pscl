@@ -22,14 +22,14 @@
 
 \details{Green and Vavreck (2008) implemented a cluster-randomized
  experimental design in assessing the effects of a voter mobilization
- treatment in the 2004 U.S.~~Presidential election.  The clusters in this
+ treatment in the 2004 U.S. Presidential election.  The clusters in this
  design are geographic areas served by a single cable television system.
  So as to facilitate analysis, the researchers restricted their
  attention to small cable systems whose reach is limited to a single zip
  code.  Further, since the experiment was fielded during the last week
  of the presidential election, the researchers restricted their search
  to cable systems that were not in the 16 hotly-contested
- ``battleground'' states (as designated by the \emph{Los Angeles
+ \dQuote{battleground} states (as designated by the \emph{Los Angeles
    Times}).
 
  Eighty-five cable systems were available for randomization and were
@@ -57,13 +57,13 @@
   years old.
 }
 
-%\source{
-%  ~~~~ reference to a publication or URL from which the data were obtained ~~~~
-%}
-
-\references{Green, Donald P. and Lynn Vavreck. 2008. "Analysis of
+\references{Green, Donald P. and Lynn Vavreck. 2008. Analysis of
 Cluster-Randomized Experiments: A Comparison of Alternative Estimation
-Approaches." \emph{Political Analysis} 16:138-152.}
+Approaches. \emph{Political Analysis} 16:138-152.
+
+Jackman, Simon, 2009. \emph{Bayesian Analysis for the Social Sciences}.  
+Wiley: Hoboken, New Jersey.  Example 7.9.
+}
 
 \examples{
 data(RockTheVote)

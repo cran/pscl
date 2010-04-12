@@ -48,6 +48,8 @@
   and America}, ed. Peter Flora and Arnold J. Heidenheimer. New
   Brunswick: Transaction Books. 
 }
+
+\references{Jackman, Simon. 2009.  \emph{Bayesian Analysis for the Social Sciences}. Wiley: Hoboken, New Jersey.}
   
 \examples{
 data(unionDensity)

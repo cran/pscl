@@ -40,7 +40,7 @@ simpi(n)
 seed <- round(pi*10000)  ## hah hah hah
 m <- 6
 z <- rep(NA,m)
-lim <- matrix(NA)
+lim <- rep(NA,m)
 for(i in 1:m){
   cat(paste("simulation for ",i,"\n"))
   set.seed(seed)

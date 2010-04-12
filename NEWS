@@ -1,6 +1,13 @@
+1.03.5	* added AustralianElectionPolling
+	* tidy up Rd files for data sets (itemize -> describe)
+	* use dQuote in Rd files (or not)
+	* update AustralianElections with 2007 results
+
 1.03.4	* added iraqVote
 	* updated presidentialElections with 2008 results
         * added nj07
+	* added vote92
+
 
 1.03.3	* improved offset handling in hurdle()/zeroinfl(): offsets in zero
 	  model are now allowed and can be different from count model.

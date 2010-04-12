@@ -47,7 +47,7 @@ hitmiss(obj, digits = max(3, getOption("digits") - 3), ...)
 
 \author{Simon Jackman \email{jackman@stanford.edu}}
 
-\note{ToDo: The \code{glm} method should also handle binomial data presented
+\note{To-do: The \code{glm} method should also handle binomial data presented
   as two-vector success/failures counts; and count data with
   \code{family=poisson}, the \code{glm.nb} models and \code{zeroinfl}
   and \code{hurdle} etc.   We should also make the output a class with
@@ -56,8 +56,7 @@ hitmiss(obj, digits = max(3, getOption("digits") - 3), ...)
 }
 
 \seealso{\code{\link{pR2}} for pseudo r-squared;  \code{\link{predict}};
-  \code{\link{extractAIC}}.  See also the \code{lroc} function in the
-  \code{epicalc} package for ROC computations.}
+  \code{\link{extractAIC}}.  See also the \pkg{ROCR} package and the \code{lroc}  function in the \pkg{epicalc} package for ROC computations for assessing binary classifications.} 
 
 \examples{
 data(admit)

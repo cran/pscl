@@ -35,7 +35,7 @@
 \details{
   Predicted probabilities are computed using the mean of the posterior
   density of
-  of \deqn{x} (ideal points, or latent ability) and \deqn{beta} (bill or
+  of \eqn{x} (ideal points, or latent ability) and \eqn{\beta} (bill or
   item parameters).  The percentage correctly predicted
   are determined by counting the percentages of votes with predicted
   probabilities of a Yea vote greater than or equal to the \code{cutoff} as the

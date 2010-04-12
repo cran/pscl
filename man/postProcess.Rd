@@ -147,7 +147,7 @@ data(s109)
 ## short run for examples
 id1 <- ideal(s109,
              d=1,
-             meanzero=FALSE,     ## no identification...!
+             normalize=FALSE,     ## no identification...!
              store.item=TRUE,
              maxiter=500,
              burnin=0,

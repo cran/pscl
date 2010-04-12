@@ -3,7 +3,7 @@
 \title{convert an object of class ideal to a coda MCMC object}
 \description{
   Converts the x element of an \code{ideal} object to an MCMC object,
-  as used in the \code{coda} package.
+  as used in the \pkg{coda} package.
 }
 
 \usage{
@@ -19,7 +19,7 @@ idealToMCMC(object, burnin=NULL)
 }
 
 \value{A \code{\link[coda:mcmc]{mcmc}} object as used by the
-  \code{coda} package, starting at
+  \pkg{coda} package, starting at
   iteration \code{start}, drawn from the \code{x} component of the
   \code{\link{ideal}} object.}
 

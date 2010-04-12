@@ -102,7 +102,7 @@ diagnosing convergence of the MCMC algorithms.}
 data(s109)
 id1 <- ideal(s109,
              d=1,
-             meanzero=TRUE,
+             normalize=TRUE,
              store.item=TRUE,
              maxiter=500,   ## short run for examples
              burnin=100,

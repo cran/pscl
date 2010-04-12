@@ -2,17 +2,18 @@
 \alias{AustralianElections}
 \docType{data}
 \title{elections to Australian House of
-  Representatives, 1949-2004}
+  Representatives, 1949-2007}
 
 \description{
-  Aggregate data on the 23 elections to Australia's House of
-  Representatives, 1949 to 2004. 
+  Aggregate data on the 24 elections to Australia's House of
+  Representatives, 1949 to 2007. 
 }
 
 \usage{data(AustralianElections)}
 
 \format{
-  \itemize{
+ A data frame with the following variables:	
+  \describe{
     \item{\code{date}}{date of election, stored using the
       \code{\link{Date}} class}
     \item{\code{Seats}}{numeric, number of seats in the House of
@@ -21,8 +22,8 @@
     \item{\code{ALPSeats}}{numeric, number of seats won by the
       Australian Labor Party}
     \item{\code{LPSeats}}{numeric, number of seats won by the Liberal Party} 
-    \item{\code{CPSeats}}{numeric, number of seats won by the Country
-      Party (later known as the National Party)}
+    \item{\code{NPSeats}}{numeric, number of seats won by the National
+      Party (previously known as the Country Party)}
     \item{\code{OtherSeats}}{numeric, number of seats won by other
       parties and/or independent candidates}
     \item{\code{ALP}}{numeric, percentage of first preference votes cast for
@@ -55,7 +56,10 @@
 
 \source{Australian Electoral Commission. \url{http://www.aec.gov.au}.
 }
-  
+
+\references{Jackman, Simon. 2009. \emph{Bayesian Analysis for the Social Sciences}.  Wiley: Hoboken, New Jersey.  Example 3.5.
+} 
+ 
 \examples{
 data(AustralianElections)
 attach(AustralianElections)

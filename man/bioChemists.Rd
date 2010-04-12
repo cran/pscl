@@ -7,7 +7,7 @@
 }
 \usage{data(bioChemists)}
 \format{
-  \itemize{
+  \describe{
     \item{\code{art}}{count of articles produced during last 3 years of Ph.D.}
     \item{\code{fem}}{factor indicating gender of student, with levels Men and Women}
     \item{\code{mar}}{factor indicating marital status of student, with levels
@@ -18,10 +18,10 @@
     }
   }
 \source{found in Stata format at \url{http://www.indiana.edu/~jslsoc/stata/socdata/couart2.dta}}
-\references{Long, J. Scott (1990).  The origins of sex differences in
+\references{Long, J. Scott. 1990.  The origins of sex differences in
   science. \emph{Social Forces}. 68(3):1297-1316.
 
-  Long, J. Scott (1997).  \emph{Regression Models for Categorical and
+  Long, J. Scott. 1997.  \emph{Regression Models for Categorical and
     Limited Dependent Variables}. Thousand Oaks, California: Sage.
 }
 \keyword{datasets}

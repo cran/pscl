@@ -349,7 +349,7 @@ ideal(object, codes = object$codes,
   \emph{ex post}.
   
   \code{\link[MCMCpack:MCMCirt1d]{MCMCirt1d}} and 
-  \code{\link[MCMCpack:MCMCirtKd]{MCMCirtKd}} in the \code{MCMCpack}
+  \code{\link[MCMCpack:MCMCirtKd]{MCMCirtKd}} in the \pkg{MCMCpack}
   package provide similar functionality to \code{ideal}.
   
 }

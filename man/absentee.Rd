@@ -55,11 +55,10 @@
   \emph{Statistics and Econometrics: Methods and Applications}.  New
   York: John Wiley and Sons.
 
-  Jackman, Simon.  2007.  \emph{Bayesian Analysis for the Social Sciences}.  In
-  preparation. 
+  Jackman, Simon.  2009.  \emph{Bayesian Analysis for the Social Sciences}. 
+  Wiley: Hoboken, New Jersey.  Examples 2.13, 2.14, 2.15.
 }
 \examples{
-## example code for pscl package
 data(absentee)
 summary(absentee)
 

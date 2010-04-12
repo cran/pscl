@@ -36,8 +36,8 @@ vuong(m1, m2, digits = getOption("digits"))
   nothing returned, prints the test-statistic and \eqn{p} value and
   exits silently.
 }
-\references{Vuong, Q.H. 1989. "Likelihood ratio tests for model
-  selection and non-nested hypotheses." \emph{Econometrica}. 57:307-333.}
+\references{Vuong, Q.H. 1989. Likelihood ratio tests for model
+  selection and non-nested hypotheses. \emph{Econometrica}. 57:307-333.}
 \author{Simon Jackman \email{jackman@stanford.edu}}
 
 \examples{

@@ -37,8 +37,8 @@
 }
 
 \references{
-  Michael Baraon and Richard E. Cohen.  2006. The Almanac of American
-  Politics, 2006. National Journal Group: Washington, D.C.
+  Michael Baraon and Richard E. Cohen.  2006. \emph{The Almanac of American
+  Politics, 2006.} National Journal Group: Washington, D.C.
 }
 \examples{
 data(ca2006)
