@@ -196,7 +196,7 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
   mf <- eval(mf, parent.frame())
   
   ## extract terms, model matrices, response
-  mt <- terms(formula, data = data)
+  mt <- attr(mf, "terms")
   mtX <- terms(ffc, data = data)
   X <- model.matrix(mtX, mf)
   mtZ <- terms(ffz, data = data)
@@ -692,7 +692,7 @@ hurdletest <- function(object, ...) {
   stopifnot(require("car"))
   nam <- names(object$coefficients$count)
   lh <- paste("count_", nam, " = ", "zero_", nam, sep = "")
-  rval <- car::linear.hypothesis(object, lh, ...)
+  rval <- car::linearHypothesis(object, lh, ...)
   attr(rval, "heading")[1] <- "Wald test for hurdle models\n\nRestrictions:"
   return(rval)
 }

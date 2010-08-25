@@ -1,3 +1,6 @@
+1.03.6	* made gam dependency explicit
+	* change linear.hypothesis to linearHypothesis
+
 1.03.5	* added AustralianElectionPolling
 	* tidy up Rd files for data sets (itemize -> describe)
 	* use dQuote in Rd files (or not)

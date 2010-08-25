@@ -43,7 +43,8 @@ zeroinfl(formula, data, subset, na.action, weights, offset,
   is a Poisson or negative binomial regression (with log link). 
   The geometric distribution is a special case of the negative binomial
   with size parameter equal to 1.
-  For modeling the unobserved state (zero vs. count), a binary model is used:
+  For modeling the unobserved state (zero vs. count), a binary model is used
+  that captures the probability of zero inflation.
   in the simplest case only with an intercept but potentially containing regressors.
   For this zero-inflation model, a binomial model with different links can be
   used, typically logit or probit.

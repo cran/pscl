@@ -160,7 +160,7 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
   mf <- eval(mf, parent.frame())
   
   ## extract terms, model matrices, response
-  mt <- terms(formula, data = data)
+  mt <- attr(mf, "terms")
   mtX <- terms(ffc, data = data)
   X <- model.matrix(mtX, mf)
   mtZ <- terms(ffz, data = data)

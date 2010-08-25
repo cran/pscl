@@ -7,7 +7,7 @@
 \newcommand{\class}[1]{``\code{#1}''}
 \newcommand{\fct}[1]{\code{#1()}}
 
-\author{Achim Zeileis\\Wirtschaftsuniversit\"at Wien \And
+\author{Achim Zeileis\\Universit\"at Innsbruck \And
         Christian Kleiber\\Universit\"at Basel \And
 	Simon Jackman\\Stanford University}
 \Plainauthor{Achim Zeileis, Christian Kleiber, Simon Jackman}
@@ -38,10 +38,10 @@
 
 \Address{
   Achim Zeileis\\
-  Department of Statistics and Mathematics\\
-  Wirtschaftsuniversit\"at Wien\\
-  Augasse 2--6\\
-  A-1090 Wien, Austria\\
+  Department of Statistics\\
+  Universit\"at Innsbruck\\
+  Universit\"atsstr.~15\\
+  6020 Innsbruck, Austria\\
   E-mail: \email{Achim.Zeileis@R-project.org}\\
   URL: \url{http://statmath.wu-wien.ac.at/~zeileis/}
 }
@@ -277,7 +277,7 @@ functions are complemented by further generic inference functions in
 contributed packages: e.g., \pkg{lmtest} \citep{countreg:Zeileis+Hothorn:2002}
 provides a \fct{coeftest} function that also computes partial Wald tests
 but allows for specification of alternative (robust) standard errors. Similarly,
-\fct{waldtest} from \pkg{lmtest} and \fct{linear.hypothesis} from \pkg{car}
+\fct{waldtest} from \pkg{lmtest} and \fct{linearHypothesis} from \pkg{car}
 \citep{countreg:Fox:2002} assess nested models via Wald tests (using
 different specifications for the nested models). Finally, \fct{lrtest}
 from \pkg{lmtest} compares nested models via likelihood ratio (LR) tests
@@ -462,10 +462,10 @@ respectively. For details see Appendix~\ref{app:hurdle}.
 A set of standard extractor functions for fitted model objects is available for
 objects of class \class{hurdle}, including the usual \fct{summary} method that
 provides partial Wald tests for all coefficients. No \fct{anova} method is provided,
-but the general \fct{coeftest}, \fct{waldtest} from \pkg{lmtest}, and \fct{linear.hypothesis}
+but the general \fct{coeftest}, \fct{waldtest} from \pkg{lmtest}, and \fct{linearHypothesis}
 from \pkg{car} can be used for Wald tests and \fct{lrtest} from \pkg{lmtest}
 for LR tests of nested models. The function \fct{hurdletest} is a convenience
-interface to \fct{linear.hypothesis} for testing for the presence of a hurdle
+interface to \fct{linearHypothesis} for testing for the presence of a hurdle
 (which is only applicable if the same regressors and the same count distribution
 are used in both components).
 
@@ -544,7 +544,7 @@ a set of standard extractor functions for fitted model objects is available for
 objects of class \class{zeroinfl}, including the usual \fct{summary} method that
 provides partial Wald tests for all coefficients. Again, no \fct{anova} method is provided,
 but the general functions \fct{coeftest} and \fct{waldtest} from \pkg{lmtest},
-as well as \fct{linear.hypothesis} from \pkg{car} can be used for Wald tests,
+as well as \fct{linearHypothesis} from \pkg{car} can be used for Wald tests,
 and \fct{lrtest} from \pkg{lmtest} for LR tests of nested models. 
 
 
@@ -1124,7 +1124,7 @@ argument, the estimates for a single component can be extracted. Concatenating
 the parameters by default and providing a matching covariance matrix estimate
 (that does not contain the covariances of further nuisance parameters) facilitates
 the application of generic inference functions such as \fct{coeftest}, \fct{waldtest},
-and \fct{linear.hypothesis}. All of these compute Wald tests for which coefficient
+and \fct{linearHypothesis}. All of these compute Wald tests for which coefficient
 estimates and associated covariances is essentially all information required and 
 can therefore be queried in an object-oriented way with the \fct{coef} and \fct{vcov}
 methods.
@@ -1170,7 +1170,7 @@ Function & Description \\ \hline
 \fct{logLik} & extract fitted log-likelihood \\ \hline
 \fct{coeftest} & partial Wald tests of coefficients \\
 \fct{waldtest} & Wald tests of nested models \\
-\fct{linear.hypothesis} & Wald tests of linear hypotheses \\
+\fct{linearHypothesis} & Wald tests of linear hypotheses \\
 \fct{lrtest} & likelihood ratio tests of nested models \\
 \fct{AIC} & compute information criteria (AIC, BIC, \dots) \\ \hline
 \end{tabular}

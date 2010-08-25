@@ -15,7 +15,7 @@ hurdletest(object, \dots)
 \arguments{
   \item{object}{A fitted model object of class \code{"hurdle"}
     as returned by \code{\link{hurdle}}, see details for more information.}
-  \item{\dots}{arguments passed to \code{\link[car]{linear.hypothesis}}.}
+  \item{\dots}{arguments passed to \code{\link[car]{linearHypothesis}}.}
 }
 
 \details{
@@ -26,13 +26,13 @@ hurdletest(object, \dots)
   model.
   
   The function \code{hurdletest} is a simple convenience interface to
-  the function \code{\link[car]{linear.hypothesis}} from the \pkg{car}
+  the function \code{\link[car]{linearHypothesis}} from the \pkg{car}
   packages that can be employed to carry out a Wald test for this 
   hypothesis.
 }
 
 \value{
-  An object of class \code{"anova"} as returned by \code{\link[car]{linear.hypothesis}}.
+  An object of class \code{"anova"} as returned by \code{\link[car]{linearHypothesis}}.
 }
 
 \references{
@@ -45,7 +45,7 @@ Cambridge: Cambridge University Press.
 
 \author{Achim Zeileis <Achim.Zeileis@R-project.org>}
 
-\seealso{\code{\link{hurdle}}, \code{\link[car]{linear.hypothesis}}}
+\seealso{\code{\link{hurdle}}, \code{\link[car]{linearHypothesis}}}
 
 \examples{
 data("bioChemists", package = "pscl")
