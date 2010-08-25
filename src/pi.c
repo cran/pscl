@@ -13,7 +13,7 @@ void simpi(int *n, int *z)
   GetRNGstate();
 
   for(i=0;i<*n;i++){
-    d = pythag(unif_rand(),unif_rand());
+    d = hypot(unif_rand(),unif_rand());
     if(d<1.0) 
       (*z)++;
   }
