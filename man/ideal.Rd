@@ -65,8 +65,8 @@ ideal(object, codes = object$codes,
   \item{priors}{a \code{list} of parameters (means and variances)
     specifying normal priors for the legislators' ideal points. The
     default is \code{NULL}, in which case the normal priors used have mean zero and
-    variance 1 for the ideal points (ability parameters) and mean zero and
-    variance 100 for the bill parameters (item parameters).  If not \code{NULL}, \code{priors} must be a
+    precision 1 for the ideal points (ability parameters) and mean zero and
+    precision .04 (variance 25) for the bill parameters (item discrimination and difficulty parameters).  If not \code{NULL}, \code{priors} must be a
     \code{list} with as many as four named components \code{xp, xpv, bp,
       bpv}, where
     \describe{
@@ -119,19 +119,19 @@ ideal(object, codes = object$codes,
   
   \strong{Identification}: The model parameters are \strong{not
     identified} without the user supplying some restrictions on the
-    model parameters (e.g., translations, rotations and re-scalings of
+    model parameters; i.e., translations, rotations and re-scalings of
     the ideal points are observationally equivalent, via offsetting
-    transformations of the item parameters).  It is the user's
+    transformations of the item parameters.  It is the user's
     responsibility to impose these identifying restrictions if
     desired; the following brief discussion provides some guidance.
 
   For one-dimensional models (i.e., \code{d=1}), a simple route to
   identification is the \code{normalize} option, which guarantees
   \emph{local} identification (identification up to a 180 rotation of
-  the recovered dimension). Near-degenerate\dQuote{spike} priors
+  the recovered dimension). Near-degenerate \dQuote{spike} priors
   (priors with arbitrarily large precisions) or the
   \code{constrain.legis} option on any two legislators' ideal points
-  ensures \emph{global} identification.
+  ensures \emph{global} identification in one dimension.
 
   Identification in higher dimensions can be obtained by supplying
   fixed values for \code{d+1} legislators' ideal points, provided the
@@ -142,7 +142,7 @@ ideal(object, codes = object$codes,
   ideal points are transformed back into the space of identified
   parameters, applying the linear transformation that maps the
   \code{d+1} fixed ideal points from their sampled values to their
-  fixed values.  Alternatively (and equivalently), one can impose
+  fixed values.  Alternatively, one can impose
   restrictions on the item parameters via
   \code{\link{constrain.items}}. See the examples in the documentation
   for the \code{\link{constrain.legis}} and
@@ -156,7 +156,9 @@ ideal(object, codes = object$codes,
   \code{\link{postProcess}} to map the MCMC output from the space of
   unidentified parameters into the subspace of identified parameters.
   See the example in the documentation for the
-  \code{\link{postProcess}} function.  When the
+  \code{\link{postProcess}} function.
+
+  When the
   \code{normalize} option is set to \code{TRUE}, an unidentified model
   is run, and the \code{ideal} object is post-processed with the
   \code{normalize} option, and then returned to the user (but again,
@@ -173,9 +175,9 @@ ideal(object, codes = object$codes,
   \code{d} principal components (eigenvectors), scaling the
   eigenvectors by the square root of their corresponding eigenvector.
   If the user is imposing constraints on ideal points (via
-  \code{\link{constrain.legis}}), these are applied to the
-  corresponding elements of the start values generated from the eigen
-  decomposition.  Then, to generate start
+  \code{\link{constrain.legis}}), these constraints are applied to the
+  corresponding elements of the start values generated from the
+  eigen-decomposition.  Then, to generate start 
   values for the rollcall/item parameters, a series of
   \code{\link[=family]{binomial}} \code{\link[=glm]{glms}} are
   estimated (with a probit \code{\link[=make.link]{link}}), one for
@@ -191,7 +193,7 @@ ideal(object, codes = object$codes,
 
   The default \code{eigen} method generates extremely good start values
   for low-dimensional models fit to recent U.S. congresses (where high
-  rates of party line voting mean low dimensional models fit well).  The
+  rates of party line voting result in excellent fits from low dimensional models).  The
   \code{eigen} method may be computationally expensive or even
   impossible to implement for \code{rollcall} objects with large numbers
   of legislators.
@@ -241,25 +243,27 @@ ideal(object, codes = object$codes,
   traits, particularly for legislators with
   short and/or extreme voting histories (the equivalent in the
   educational testing setting is a test-taker who gets many items
-  right or wrong).  The MCMC algorithm can generate better performance
-  via a parameter expansion strategy usually referred to as \emph{marginal
-  data augmentation} (e.g., van Dyk and Meng 2001).  The idea is to
-  introduce a additional working parameter into the MCMC sampler that
-  has the effect of improving the performance of the sampler in the
-  sub-space of parameters of direct interest.  In this case we
-  introduce a variance parameter \eqn{\sigma^2} for the latent data;
-  in the DA algorithm of Albert and Chib (1993) --- and in any conventional
-  probit analysis --- this parameter is set
-  to 1.0 for identification.  In the MDA approach we carry this
-  (unidentified) parameter into the DA stage of the algorithm with an
-  improper prior, \eqn{p(\sigma^2) \propto \sigma^{-2}},
-  generating \eqn{y^*} that exhibit bigger moves from iteration to
-  iteration, such that in turn the MCMC algorithm displays better
-  mixing with respect to the identified parameters of direct interest,
-  \eqn{x} and \eqn{(\beta,\alpha)} than the mixing obtained from
-  the Gibbs-with-DA MCMC algorithm.   The MDA algorithm is the default
-  in \code{ideal}, but Gibbs-with-DA can be implemented by setting
-  \code{mda=FALSE} in the call to \code{ideal}.         
+  right or wrong).
+
+  % The MCMC algorithm can generate better performance
+  % via a parameter expansion strategy usually referred to as \emph{marginal
+  % data augmentation} (e.g., van Dyk and Meng 2001).  The idea is to
+  % introduce a additional working parameter into the MCMC sampler that
+  % has the effect of improving the performance of the sampler in the
+  % sub-space of parameters of direct interest.  In this case we
+  % introduce a variance parameter \eqn{\sigma^2} for the latent data;
+  % in the DA algorithm of Albert and Chib (1993) --- and in any conventional
+  % probit analysis --- this parameter is set
+  % to 1.0 for identification.  In the MDA approach we carry this
+  % (unidentified) parameter into the DA stage of the algorithm with an
+  % improper prior, \eqn{p(\sigma^2) \propto \sigma^{-2}},
+  % generating \eqn{y^*} that exhibit bigger moves from iteration to
+  % iteration, such that in turn the MCMC algorithm displays better
+  % mixing with respect to the identified parameters of direct interest,
+  % \eqn{x} and \eqn{(\beta,\alpha)} than the mixing obtained from
+  % the Gibbs-with-DA MCMC algorithm.   The MDA algorithm is the default
+  % in \code{ideal}, but Gibbs-with-DA can be implemented by setting
+  % \code{mda=FALSE} in the call to \code{ideal}.
 }
   
 \value{a \code{\link{list}} of class \code{ideal} with named components
@@ -273,27 +277,31 @@ ideal(object, codes = object$codes,
   \item{d}{\code{\link{numeric}}, integer, number of dimensions
     fitted.}
 
-  \item{x}{a \code{\link{matrix}} containing the MCMC samples for
-    the ideal point of each legislator in each dimension for each
-    iteration from \code{burnin} to \code{maxiter}, at an interval of
-    \code{thin}.  Rows of the \code{x} matrix index iterations; columns
-    index legislators.}
+  \item{x}{a three-dimensional \code{\link{array}} containing the MCMC
+    output with respect to the 
+    the ideal point of each legislator in each dimension.
+    The three-dimensional array is in iteration-legislator-dimension
+    order.  The iterations run from \code{burnin} to \code{maxiter}, at
+    an interval of \code{thin}.}
 
-   \item{beta}{a \code{\link{matrix}} containing the MCMC samples
-    for the item discrimination parameter for each item in each
-    dimension, plus an intercept, for each iteration from \code{burnin}
-    to \code{maxiter}, at an interval of \code{thin}. Rows of the
-    \code{beta} matrix index MCMC iterations; columns index parameters.}
+   \item{beta}{a three-dimensional \code{\link{array}} containing the
+    MCMC output for the item parameters.  The three-dimensional array is
+    in iteration-rollcall-parameter order.  The iterations run from \code{burnin} to \code{maxiter}, at
+    an interval of \code{thin}.  Each rollcall has \code{d+1}
+    parameters, with the item-discrimination parameters stored first, in
+    the first \code{d} components of the 3rd dimension of the
+    \code{beta} array; the item-difficulty parameter follows in the
+    final \code{d+1} component of the 3rd dimension of the \code{beta}
+    array.}
 
-  \item{xbar}{a \code{\link{matrix}} containing the means of the
+  \item{xbar}{a \code{n} by \code{d} \code{\link{matrix}} containing the means of the
     MCMC samples for the ideal point of each legislator in each dimension,
     using iterations \code{burnin} to \code{maxiter}, at an interval of
-    \code{thin}; i.e., the column means of \code{x}.}
-
-  \item{betabar}{a \code{\link{matrix}} containing the means of
-    the MCMC samples for the vote-specific parameters, using iterations
-    \code{burnin} to \code{maxiter}, at an interval of \code{thin};
-    i.e., the column means of \code{beta}.}
+    \code{thin}.}
+  
+  \item{betabar}{a \code{m} by \code{d+1} \code{\link{matrix}} containing the means of
+    the MCMC samples for the item-specific parameters, using iterations
+    \code{burnin} to \code{maxiter}, at an interval of \code{thin}.}
 
   \item{call}{an object of class \code{\link{call}}, containing
     the arguments passed to \code{ideal} as unevaluated expressions.}
@@ -381,8 +389,8 @@ idLong <- ideal(s109,
                 priors=list(xpv=1e-12,bpv=1e-12),
                 normalize=TRUE,
                 store.item=TRUE,
-                maxiter=260e3,
-                burnin=1e4,
+                maxiter=260E3,
+                burnin=10E3,
                 thin=100)  
 }
 }

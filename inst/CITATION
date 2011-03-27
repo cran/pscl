@@ -7,7 +7,7 @@ note <- sprintf("R package version %s", meta$Version)
 
 citEntry(entry="Manual",
          title = "{pscl}: Classes and Methods for {R} Developed in the Political Science Computational Laboratory, Stanford University",
-         author = person(last = "Jackman", first = "Simon", email = "jackman@stanford.edu"),
+         author = person("Simon", "Jackman", email = "jackman@stanford.edu"),
          organization = "Department of Political Science, Stanford University",
          address = "Stanford, California",
          year = year,

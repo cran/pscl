@@ -1,9 +1,9 @@
 \name{pR2}
 \alias{pR2}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{compute various pseduo-R2 measures}
+\title{compute various pseudo-R2 measures}
 \description{
-  compute various pseduo-R2 measures for various GLMs
+  compute various pseudo-R2 measures for various GLMs
 }
 \usage{
 pR2(object, ...)

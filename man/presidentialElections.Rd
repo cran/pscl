@@ -30,7 +30,7 @@
   
 \examples{
 data(presidentialElections)
-require(lattice)
+library(lattice)
 xyplot(demVote ~ year | state,
        panel=panel.lines,
        ylab="Democratic Vote for President (percent)",

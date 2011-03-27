@@ -1,3 +1,20 @@
+1.03.10	* pythag deprecated in Rmath.h, use system hypot instead (3/13/2011)
+	* warnings about memory etc only come on with verbose=TRUE (req by Stephen Jessee)
+
+1.03.9	* ideal: small change in partyLoyalty (thanks to Chris Hanretty)
+	* ideal: reformat output of ideal to be 3-d arrays
+	* ideal: change default prior precision for item parameters to .04 (used to be .01) 
+	* added UKHouseOfCommons data; Example 6.9 in BASS
+
+1.03.8	* added an optional "at" argument to predprob() methods for
+	  count data so that the counts at which the probabilities
+	  are evaluated can be specified
+ 
+1.03.7	* small bug in constrain.item (reported by Paul Johnson)
+	* change normalization option in ideal to generate posterior means with mean 0, sd 1
+	* do normalization over all dimensions
+	* typos in documentation for pseudo-R2 (thanks to Henrik Pärn)
+ 
 1.03.6	* made gam dependency explicit
 	* change linear.hypothesis to linearHypothesis
 
@@ -10,7 +27,6 @@
 	* updated presidentialElections with 2008 results
         * added nj07
 	* added vote92
-
 
 1.03.3	* improved offset handling in hurdle()/zeroinfl(): offsets in zero
 	  model are now allowed and can be different from count model.

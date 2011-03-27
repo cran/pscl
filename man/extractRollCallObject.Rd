@@ -31,7 +31,7 @@ extractRollCallObject(object)
 data(s109)
 id1 <- ideal(s109,
              d=1,
-             meanzero=TRUE,
+	     normalize=TRUE,
              maxiter=500,      ## short run for demo purposes
              burnin=100,
              thin=10)

@@ -4,26 +4,39 @@ postProcess <- function(object,
                         debug=FALSE){
   if(class(object)!="ideal")
     stop("postProcess only defined for objects of class ideal")
-  
-  ## process constraints
 
-  ## not a list (i.e., usually "normalize" with d=1)
+  ## not a list of normalizing constraint (i.e., usually "normalize=TRUE" with d=1)
   if(!is.list(constraints)){
-    if(constraints=="normalize" & object$d>1)
-      stop("normalize option for postProcess only valid for one-dimesional models")  
-
-    if(constraints=="normalize" & object$d==1){
-      ## impose the mean zero, standard deviation one constraint
-      newObject <- normalizeIdeal(object)
+    if(constraints=="normalize"){
+      ## get constraints needed for mean zero, standard deviation one restriction
+      tMat <- getNormalizingTransform(object)  ## coefficients for linear map
+      if(debug){
+        cat("transformation matrix is:\n")
+        print(tMat)
+      }
+      newObject <- implementConstraints(object,tMat,debug)
     }
   }
-
+  
   if(is.list(constraints))
     newObject <- postProcessAffine(object,constraints,debug)
 
   return(newObject)
 }
- 
+
+getNormalizingTransform <- function(object){
+  n <- object$n
+  m <- object$m
+  d <- object$d
+
+  offsets <- apply(object$xbar,2,mean)  
+  s <- apply(object$xbar,2,sd)
+
+  coefs <- 1/s * diag(d)               ## d by d
+  coefs <- rbind(coefs,-offsets/s)     ## d+1 by d
+  return(coefs)
+}
+
 affineTrans <- function(x,target){
   d <- dim(x)[2]
   x0 <- cbind(x,1)
@@ -39,67 +52,17 @@ affineTrans <- function(x,target){
   }
   foo <- solve(A)%*%b
   foo <- matrix(foo,nrow=d+1)
-  foo <- cbind(foo,
-               c(rep(0,d),1))
-  foo
-}
-
-## normalize the ideal point estimates (d=1 only)
-normalizeIdeal <- function(object){
-  d <- object$d
-  n <- object$n
-  m <- object$m
-  burnin <- eval(object$call$burnin)
-  theIters <- object$x[,1]
-  keep <- theIters > burnin
-  niter <- dim(object$x)[1]
-  haveBeta <- eval(object$call$store.item)
-
-  xMeans <- apply(object$x[,-1],1,mean)
-  xSd <- apply(object$x[,-1],1,sd)
-  
-  xNew <- t(scale(t(object$x[,-1])))
-  
-  if(haveBeta){
-    maxiter <- length(xMeans)
-    newBeta <- NA * object$beta
-    newBeta[,1] <- object$beta[,1]
-    d <- object$d
-    for(iter in 1:maxiter){
-      beta0 <- matrix(object$beta[iter,-1],
-                      nrow=d+1,
-                      byrow=FALSE)
-      beta0[2,] <- beta0[2,] - xMeans[iter]*beta0[1,]  ## difficulty 
-      beta0[1,] <- beta0[1,]*xSd[iter]                 ## discrimination 
-      newBeta[iter,-1] <- as.vector(beta0)
-    }
-  }
-  
-  newObject <- object
-  
-  newObject$x <- cbind(object$x[,1],xNew)
-  dimnames(newObject$x) <- dimnames(object$x)
-  newObject$xbar <- matrix(apply(newObject$x[keep,-1],2,mean),
-                           nrow=n,ncol=d,byrow=TRUE)
-  dimnames(newObject$xbar) <- dimnames(object$xbar)
-
-  if(haveBeta){
-    newObject$beta <- newBeta
-    newObject$betabar <- matrix(apply(newBeta[keep,-1],2,mean),
-                                nrow=m,ncol=d+1,byrow=TRUE)
-    dimnames(newObject$betabar) <- dimnames(object$betabar)
-  }
-  newObject
+  return(foo)
 }
 
 postProcessAffine <- function(object,constraints,debug){
   d <- object$d
   n <- object$n
   m <- object$m
-  burnin <- eval(object$call$burnin)
-  theIters <- object$x[,1]
-  keep <- theIters > burnin
-  niter <- dim(object$x)[1]
+  nSavedIters <- dim(object$x)[1]
+  theIters <- dimnames(object$x)[[1]]
+  keep <- checkBurnIn(object,
+                      burnin=object$call$burnin)
   
   nCon <- length(constraints)
   if(nCon != (d+1)){
@@ -115,7 +78,11 @@ postProcessAffine <- function(object,constraints,debug){
   target <- matrix(NA,d+1,d)
   for(i in 1:(d+1))
     target[i,] <- constraints[[i]]
-  
+  if(debug){
+    cat("target:\n")
+    print(target)
+  }
+    
   ## form id vector, where are the named legislators in the ideal object?
   legis.names <- dimnames(eval(object$call$object)$votes)[[1]]
   if(is.null(legis.names)){
@@ -142,65 +109,127 @@ postProcessAffine <- function(object,constraints,debug){
   
   ## initialize output objects
   newX <- NA * object$x
-  newX[,1] <- theIters
   dimnames(newX) <- dimnames(object$x)
   
   haveBeta <- eval(object$call$store.item)
   if(haveBeta){
     cat("will also transform item/bill parameters\n")
     newBeta <- NA * object$beta
-    newBeta[,1] <- object$beta[,1]
     dimnames(newBeta) <- dimnames(object$beta)
   }
   
   ## now loop over iterations
-  for(iter in 1:niter){
-    thisIter <- theIters[iter]
-    cat(paste("post-processing iteration",thisIter,"\n"))
-    x0 <- matrix(object$x[iter,-1],
-                 ncol=d,
-                 byrow=TRUE)
-    trans <- affineTrans(x=matrix(x0[ind,],
-                           nrow=d+1,ncol=d,byrow=FALSE),
-                         target=target)
-    tmpX <- cbind(x0,1)%*%trans
-    newX[iter,-1] <- as.vector(t(tmpX[,1:d]))
+  for(iter in 1:nSavedIters){
+    cat(paste("post-processing iteration",theIters[iter],"\n"))
+
+    x0 <- object$x[iter,ind,,drop=TRUE]
+    x0 <- matrix(x0,d+1,d)
+    tMat <- affineTrans(x0,target=target)
+    if(debug){
+      cat("transformation matrix:\n")
+      print(tMat)
+    }
+    thisX <- cbind(object$x[iter,,],1)
+    tmpX <- thisX%*%tMat
+    newX[iter,,] <- tmpX
     
     ## now transform beta (and alpha), if available
     if(haveBeta){
-      itMat <- try(solve(trans))
+      tMatStar <- rbind(t(tMat),
+                        c(rep(0,d),1))
+      itMat <- try(solve(tMatStar))
       if(!inherits(itMat,"try-error")){
-        beta0 <- matrix(object$beta[iter,-1],
-                        nrow=d+1,
-                        byrow=FALSE)
-        tmpBeta <- itMat%*%beta0
-        newBeta[iter,-1] <- as.vector(tmpBeta)
+        itMat[1:d,d+1] <- -itMat[1:d,d+1]   ## sign fix for minus intercept
+        beta0 <- object$beta[iter,,]
+        tmpBeta <- beta0%*%itMat
+        newBeta[iter,,] <- tmpBeta
+        if(debug){
+          cat("inverse transformation matrix:\n")
+          print(itMat)
+        }
       }
       
       if(debug){
-        muPP <- tmpX%*%tmpBeta
-        mu <- cbind(x0,-1)%*%beta0
+        muPP <- pnorm(cbind(newX[iter,,],-1)%*%t(tmpBeta))
+        mu <- pnorm(cbind(object$x[iter,,],-1)%*%t(beta0))
         cat("sanity check, comparison of predictions from original and post-processed:\n")
         print(summary(as.vector(mu-muPP)))
       }
-    }
-    
+    } 
   }
   
-  ## clean up objects for return to user as a proper ideal object
+  ## new ideal object
   newObject <- object
+
+  ## new ideal point samples
   newObject$x <- newX
-  newObject$xbar <- matrix(apply(newObject$x[keep,-1],2,mean),
-                           nrow=n,ncol=d,byrow=TRUE)
-  dimnames(newObject$xbar) <- dimnames(object$xbar)
+  dimnames(newObject$x) <- dimnames(object$x)
+  ## ideal point posterior means
+  newObject$xbar <- getMean(keep,newObject$x)
+  
+  ## for beta?
+  if(haveBeta){
+    newObject$beta <- newBeta
+    dimnames(newObject$beta) <- dimnames(object$beta)
+    newObject$betabar <- getMean(keep,newObject$beta)
+  }
+  
+  return(newObject)
+}
+
+
+## implementConstraints
+implementConstraints <- function(object,tMat,debug){
+  haveBeta <- eval(object$call$store.item)
+  if(haveBeta){
+    d <- dim(tMat)[2]
+    tMatStar <- rbind(t(tMat),
+                      c(rep(0,d),1))
+    itMat <- try(solve(tMatStar))
+    if(inherits(itMat,"try-error"))
+      stop("could not compute normalizing transformation for item parameters\n") 
+    newBeta <- array(NA,dim(object$beta))
+  }
+
+  keep <- checkBurnIn(object,
+                      burnin=object$call$burnin)
+  nSavedIters <- dim(object$x)[1]
+  newX <- array(NA,dim(object$x))
+  newObject <- object ## copy ideal object
+  
+  ## loop over iterations, implementing transformation
+  for(iter in 1:nSavedIters){
+    thisX <- cbind(newObject$x[iter,,],1)  ## add intercept for translation
+    newX[iter,,] <- thisX%*%tMat           ## transformation
+    
+    ## now transform beta (and alpha), if available
+    if(haveBeta){
+      beta0 <- object$beta[iter,,]
+      tmpBeta <- beta0%*%itMat
+      newBeta[iter,,] <- tmpBeta
+      
+      if(debug){
+        muPP <- pnorm(cbind(newX[iter,,],-1)%*%t(tmpBeta))
+        mu <- pnorm(cbind(object$x[iter,,],-1)%*%t(beta0))
+        cat("sanity check, comparison of predictions from original and post-processed:\n")
+        print(summary(as.vector(mu-muPP)))
+      }
+      
+    }
+  }
+
+  ## gather up for new ideal object
+  newObject$x <- newX
+  dimnames(newObject$x) <- dimnames(object$x)
+  ## new posterior means
+  newObject$xbar <- getMean(keep,newObject$x)
   
   ## for Beta?
   if(haveBeta){
     newObject$beta <- newBeta
-    newObject$betabar <- matrix(apply(newBeta[keep,-1],2,mean),
-                                nrow=m,ncol=d+1,byrow=TRUE)
-    dimnames(newObject$betabar) <- dimnames(object$betabar)
+    dimnames(newObject$beta) <- dimnames(object$beta)
+    newObject$betabar <- getMean(keep,newObject$beta)
   }
-  
-  newObject
+
+  return(newObject)
 }

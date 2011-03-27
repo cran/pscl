@@ -52,7 +52,7 @@ postProcess(object, constraints="normalize", debug = FALSE)
   iteration's sampled values for \code{x} (latent traits/ideal points)
   into the sub-space of identified parameters defined by the fixed
   points in \code{constraints}; i.e., what is the affine transformation
-  that maps the unconstrained ideal points into the constraints.  Aside
+  that maps the unconstrained ideal points into the constraints?  Aside
   from miniscule numerical inaccuracies resulting from matrix inversion
   etc, this transformation is exact: after post-processing, the
   \code{d+1} constrained points do not vary over the MCMC iterations.
@@ -80,16 +80,28 @@ postProcess(object, constraints="normalize", debug = FALSE)
   
   Local identification can be obtained for a one-dimensional model by
   simply imposing a normalizing restriction on the ideal points: this
-  normalization (mean zero, standard deviation one) is
-  the default behavior, but is only valid when the \code{rollcall}
-  object was fit with \code{d=1}.  An offsetting transformation is
-  applied to the items parameters as well.  Specifically, in
-  one-dimensional, the two-parameter IRT model is \deqn{P(y_{ij} = 1) =
-  F(x_i \beta_j - \alpha_j).}{Pr(y_[ij] = 1) = F(x_i b_j - a_j).}  If we
-  normalize the \eqn{x_i} to \eqn{x*_i = (x_i - c)/m} then the
-  offsetting transformations for the item/bill parameters are
-  \eqn{\beta_j^* = \beta_j m}{b*_j = b_j m} and \eqn{\alpha_j^* =
-  \alpha_j - c\beta_j}{a*_j = a_j - cb_j}.
+  normalization (mean zero, standard deviation one) is the default
+  behavior, but (a) is only sufficient for local identification when
+  the \code{rollcall} object was fit with \code{d=1}; (b) is not
+  sufficient for even local identification when \code{d>1}, with
+  further restrictions required so as to rule out other forms of
+  invariance (e.g., translation, or "dimension-switching", a
+  phenomenon akin to label-switching in mixture modeling).
+
+  The default is to impose dimension-by-dimension normalization with
+  respect to the means of the marginal posterior densities of the
+  ideal points, such that the these means (the usual Bayes estimates
+  of the ideal points) have mean zero and standard deviation one
+  across legislators.  An offsetting transformation is applied to the
+  items parameters as well, if they are saved in the \code{ideal} object.  
+
+  Specifically, in one-dimension, the
+  two-parameter IRT model is \deqn{P(y_{ij} = 1) = F(x_i \beta_j -
+  \alpha_j).}{Pr(y_[ij] = 1) = F(x_i b_j - a_j).}  If we normalize the
+  \eqn{x_i} to \eqn{x*_i = (x_i - c)/m} then the offsetting
+  transformations for the item/bill parameters are \eqn{\beta_j^* =
+  \beta_j m}{b*_j = b_j m} and \eqn{\alpha_j^* = \alpha_j -
+  c\beta_j}{a*_j = a_j - cb_j}.
 }
 
 \value{

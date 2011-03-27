@@ -1,4 +1,4 @@
-predprob.glm <- function(obj,newdata=NULL,...){
+predprob.glm <- function(obj, newdata = NULL, at = NULL, ...){
     if(!inherits(obj,"glm"))
         stop("predprob.glm only available for glm objects (including class negbin)\n")
 
@@ -17,7 +17,7 @@ predprob.glm <- function(obj,newdata=NULL,...){
                         type="response")
 
     y <- obj$y
-    yUnique <- min(y):max(y)
+    yUnique <- if(is.null(at)) 0:max(y) else at
     nUnique <- length(yUnique)
     p <- matrix(NA,length(yhat),nUnique)
     dimnames(p) <- list(NULL,yUnique)

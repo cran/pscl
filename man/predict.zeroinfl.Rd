@@ -20,7 +20,8 @@
 
 \usage{
 \method{predict}{zeroinfl}(object, newdata,
-  type = c("response", "prob", "count", "zero"), na.action = na.pass, \dots)
+  type = c("response", "prob", "count", "zero"), na.action = na.pass,
+  at = NULL, \dots)
 \method{residuals}{zeroinfl}(object, type = c("pearson", "response"), \dots)
 
 \method{coef}{zeroinfl}(object, model = c("full", "count", "zero"), \dots)
@@ -39,6 +40,9 @@
     respectively. For details see below.}
   \item{na.action}{function determining what should be done with missing values
     in \code{newdata}. The default is to predict \code{NA}.}
+  \item{at}{optionally, if \code{type = "prob"}, a numeric vector at which
+    the probabilities are evaluated. By default \code{0:max(y)} is used
+    where \code{y} is the original observed response.}
   \item{model}{character specifying for which component of the model the
     terms or model matrix should be extracted.}
   \item{\dots}{currently not used.}

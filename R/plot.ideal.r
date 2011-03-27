@@ -43,11 +43,15 @@ plot1d <- function(x,
   checkCI(conf.int)              ## check that confidence interval is ok
   q <- c((1-conf.int)/2, 1-((1-conf.int)/2))  ## quantiles from CI
   
-  xd <- getDimX(x,d)             ## indicators for dimension
-  xm <- apply(xd[keep,],2,mean,na.rm=T) ## xbar
+  xm <- x$xbar                   ## xbar
   indx <- order(xm)              ## sort index
-  exispar <- par(no.readonly=T) 
-  xq <- t(apply(xd[keep,],2,quantile,probs=q))  ## get CIs
+  exispar <- par(no.readonly=T)
+
+  myHPD <- function(x,prob){
+    tmp <- coda::as.mcmc(x)
+    return(coda::HPDinterval(tmp,prob))
+  }
+  xq <- t(apply(x$x[keep,,1],2,myHPD,prob=conf.int))  ## get HPDs
 
   ## names etc
   cat(paste("Looking up legislator names and party affiliations\n"))
@@ -60,13 +64,13 @@ plot1d <- function(x,
   rm(tmpObject)
   textLoc <- 1.05*min(xq)   ## where to put x labels
   
-  if(showAllNames)
+  if(showAllNames){
     par(mar=c(3,longName*.55,4,2)+0.1,
         oma=rep(0,4))
-  else
+  } else {
     par(mar=c(3,longName*.75,4,2)+0.1,
         oma=rep(0,4))
-    
+  }
   ## title string info
   mainString <- paste("Ideal Points: ",
                       "Posterior Means and ",
@@ -80,7 +84,8 @@ plot1d <- function(x,
        x=1.02*range(xq),
        xaxs="i",
        xlab="",ylab="",
-       axes=F, type="n",
+       axes=FALSE,
+       type="n",
        ...)
   mtext(mainString,side=3,line=3)
   
@@ -107,7 +112,7 @@ plot1d <- function(x,
     
     lines(y=c(i,i),x=xq[indx[i],],lwd=2)
     if (is.null(party)){
-      points(y=i,x=xm[indx[i]],col="red",pch=19)
+      points(y=i,x=xm[indx[i]],col="red",pch=19,xpd=NULL)
     }
     else{
       tbl <- table(party, exclude=NULL)
@@ -116,7 +121,7 @@ plot1d <- function(x,
       grp <- match(party[indx[i]],names(tbl))
       points(y=i,
              x=pt,
-             pch=19,col=cl[grp])    
+             pch=19,col=cl[grp],xpd=NULL)    
     }
   }  
   ##par(ps=8)
@@ -167,16 +172,13 @@ plot2d <- function(x,
   if(d1==d2)
     stop("can't do 2 dimensional summaries of the same dimension\n")
   
-  xd1 <- getDimX(x,d1)
-  xd2 <- getDimX(x,d2)
-  
   if(is.null(burnin)){    ## use x bar in ideal object
     xm1 <- x$xbar[,d1]
     xm2 <- x$xbar[,d2]
   }
   else{
-    xm1 <- apply(xd1[keep,],2,mean)  ## posterior means
-    xm2 <- apply(xd2[keep,],2,mean)
+    xm1 <- apply(x$x[keep,,d1],2,mean)  ## posterior means
+    xm2 <- apply(x$x[keep,,d2],2,mean)
   }
   
   if(oCP){
@@ -186,10 +188,11 @@ plot2d <- function(x,
       alphaBar <- x$betabar[,(x$d+1)]
     }
     else{
-      betaBar <- apply(x$beta[keep,-1],2,mean)
-      b1Bar <- betaBar[seq(from=d1,by=x$d+1,length=x$m)]
-      b2Bar <- betaBar[seq(from=d2,by=x$d+1,length=x$m)]
-      alphaBar <- betaBar[seq(from=x$d+1,by=x$d+1,length=x$m)]
+      bKeep <- x$beta[keep,,,drop=FALSE]
+      betaBar <- apply(bKeep,c(2,3),mean)
+      b1Bar <- betaBar[,d1]
+      b2Bar <- betaBar[,d2]
+      alphaBar <- betaBar[,x$d]
     }
   }
 
@@ -204,6 +207,7 @@ plot2d <- function(x,
          type="p",
          xlab=paste("Dimension ",as.character(d1),sep=""),
          ylab=paste("Dimension ",as.character(d2),sep=""),
+         xpd=NULL,
          ...)
     if(oCP){
       for(j in 1:x$m)
@@ -212,8 +216,9 @@ plot2d <- function(x,
                col=gray(.45))
     }
   }
-  else{
-    plot(x=xm1,y=xm2,
+  else{   ## we have party info
+    plot(x=xm1,
+         y=xm2,
          main=mainString,
          type="n",
          xlab=paste("Dimension ",as.character(d1),sep=""),
@@ -232,7 +237,8 @@ plot2d <- function(x,
       thisParty <- party==names(tbl)[i]
       points(y=xm2[thisParty],
              x=xm1[thisParty],
-             pch=16,col=cl[i])
+             pch=16,col=cl[i],
+             xpd=NULL)
     }
   }
   
@@ -315,7 +321,7 @@ tracex <- function(object,
     keep <- checkBurnIn(object,eval(object$call$burnin,envir=.GlobalEnv))
   else
     keep <- checkBurnIn(object,burnin)
-  start <- object$x[keep,1][1]
+  start <- as.numeric(dimnames(object$x)[[1]])[keep][1]
   
   ## #######################################################
   ## one-dimensional stuff
@@ -341,8 +347,8 @@ tracex <- function(object,
 
     
     for (i in 1:nLegis){
-      meat <- object$x[keep,p[[i]]+d-1]
-      iter <- object$x[keep,1]
+      meat <- object$x[keep,p[[i]],1]
+      iter <- as.numeric(dimnames(object$x)[[1]])[keep]
       par(mar=c(4, 4, 4, 2) + 0.1)      
 
       mainText <- plotName[i]
@@ -411,8 +417,8 @@ tracex <- function(object,
     col <- rainbow(nLegis)       ## colors
     meat <- list()               ## container for iters to plot
     for(i in 1:nLegis){
-      xTraces <- object$x[keep,p[[i]][1]]
-      yTraces <- object$x[keep,p[[i]][2]]
+      xTraces <- object$x[keep,p[[i]],d[1]]
+      yTraces <- object$x[keep,p[[i]],d[2]]
       meat[[i]] <- list(x=xTraces,
                         y=yTraces,
                         col=col[i])
@@ -434,8 +440,11 @@ tracex <- function(object,
       axis(1,las=1)
       axis(2,las=1)
       lineFunc <- function(obj){
-        points(obj$x[1],obj$y[1],pch=16,col=obj$col)
         lines(obj$x,obj$y,col=obj$col)
+        points(obj$x[1],obj$y[1],pch=1,col="black",cex=2)
+        npoints <- length(obj$x)
+        points(obj$x[npoints],obj$y[npoints],
+               pch=16,col="black",cex=2)
       }
       
       lapply(meat,lineFunc)

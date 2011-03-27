@@ -539,7 +539,7 @@ for determining the covariance matrix estimate.
 See Appendix~\ref{app:zeroinfl} for further technical details.
 
 The returned fitted model object is of class \class{zeroinfl} whose structure
-is virtually identical to that of \class{zeroinfl} models. As above,
+is virtually identical to that of \class{hurdle} models. As above,
 a set of standard extractor functions for fitted model objects is available for
 objects of class \class{zeroinfl}, including the usual \fct{summary} method that
 provides partial Wald tests for all coefficients. Again, no \fct{anova} method is provided,

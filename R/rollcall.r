@@ -310,8 +310,10 @@ partyLoyalty <- function(object){
     if(sum(thisParty,na.rm=TRUE)>2){
       foo <- apply(object$votes[thisParty,],2,
                    majOutcome)
-      if(is.list(foo))
+      if(is.list(foo)){
+        foo[which(lapply(foo,length)==0)] <- NA
         foo <- unlist(foo)
+      }
       partyDirections[,p] <- foo
      }
    }

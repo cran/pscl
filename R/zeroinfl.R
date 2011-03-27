@@ -528,7 +528,7 @@ print.summary.zeroinfl <- function(x, digits = max(3, getOption("digits") - 3), 
 }
 
 predict.zeroinfl <- function(object, newdata, type = c("response", "prob", "count", "zero"),
-  na.action = na.pass, ...)
+  na.action = na.pass, at = NULL, ...)
 {
     type <- match.arg(type)
 
@@ -575,7 +575,7 @@ predict.zeroinfl <- function(object, newdata, type = c("response", "prob", "coun
         else if(!is.null(object$model)) y <- model.response(object$model)
 	else stop("predicted probabilities cannot be computed for fits with y = FALSE and model = FALSE")
 
-      yUnique <- min(y):max(y)
+      yUnique <- if(is.null(at)) 0:max(y) else at
       nUnique <- length(yUnique)
       rval <- matrix(NA, nrow = length(rval), ncol = nUnique)
       dimnames(rval) <- list(rownames(X), yUnique)

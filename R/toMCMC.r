@@ -8,9 +8,23 @@ idealToMCMC <- function(object, burnin=NULL){
     b <- eval(object$call$burnin)
   keep <- checkBurnIn(object,b)
 
-  return(mcmc(data=object$x[keep,-1],
-              start=object$x[keep,1][1],
-              thin=eval(object$call$thin),
-              end=object$x[nrow(object$x),1])
+  iters <- as.numeric(dimnames(object$x[keep,,])[[1]])
+
+  out <- object$x[keep,,]
+  if(!is.null(object$beta)){
+    J <- dim(object$beta)[3]
+    for(j in 1:J){
+      thisBeta <- object$beta[keep,,j]
+      dimnames(thisBeta)[[2]] <- paste(dimnames(thisBeta[[2]]),
+                                       dimnames(object$beta[[3]])[j])
+      out <- cbind(out,thisBeta)
+    }
+  }
+
+  return(coda::mcmc(data=out,
+                    start=iters[1],
+                    thin=eval(object$call$thin),
+                    end=iters[length(iters)]
+                    )
          )
 }

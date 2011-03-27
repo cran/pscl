@@ -31,7 +31,6 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
   int i, j, k;
   int inloop, **ok, burnin, n, m, d, maxiter, thin, impute, verbose;
   double **ystar, **x, **xreg, **y, **beta, **bp, **bpv, iterPerCent, s, sd;
-  double **bHat, **xHat, **z;
   double **xp, **xpv, *xtemp, *btemp, nm_doub;
   FILE *ofp;
    // extern double **bpb, *xprior, **xpriormat, *xbar, **xvpost, *bpw, **w;
@@ -56,15 +55,12 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
   sd = 1.0;              /* standard deviation latent scale for MDA */
 
   ystar = dmatrix(n,m);  /* latent utility differential */ 
-  z = dmatrix(n,m);
 
   beta = dmatrix(m,q);   /* item parameters */ 
-  bHat = dmatrix(m,q);   /* expected a posteriori */
   bp  = dmatrix(m,q);    /* initialize prior means, item parameters */
   bpv = dmatrix(m,q);    /* initialize prior variances, item parameters */
 
   x = dmatrix(n,d);      /* latent traits */
-  xHat = dmatrix(n,d);   /* expected a posteriori */
   xreg = dmatrix(n,q);   /* regressors for updates of beta */
   xp  = dmatrix(n,d);    /* initialize prior means, latent traits */
   xpv = dmatrix(n,d);    /* initialize prior variances, latent traits */
@@ -82,8 +78,6 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
 
   /* get random number seed */
   GetRNGstate();
-
-
 
   /*for error checking: the parameters*/
   /*printf("Checking parameters\n");
@@ -171,18 +165,6 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
   /* check for missing y, indicator and count */
   nm_doub = check(y,ok,n,m);
 
-  /** copy start values for beta and x to bHat and xHat **/
-  for(i = 0; i < n; i++){
-    for(k = 0;k < d; k++){
-      xHat[i][k] = x[i][k];
-    }
-  }
-  for(j = 0; j < m; j++){
-    for(k = 0; k < q; k++){
-      bHat[j][k] = beta[j][k];
-    }
-  }
-
   /*******************************
    * INITIALIZE REUSED VARIABLES *
    *******************************/
@@ -217,7 +199,6 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
   bba = dmatrix(q,q);
 
 
-
   
   /**********************************************************************/
   /* C O M M E N C E   I T E R A T I O N S                              */
@@ -237,7 +218,6 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
 		  iter,
 		  round(iterPerCent*5.0),  
 		  maxiter);
-	  Rprintf("\nMDA sigma=%6.3lf\n",sd);      
 	} 
       }
 
@@ -245,29 +225,19 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
 	break;
       //Rprintf("\niter: %d\n",iter);
 
-      s = updatey(ystar,y,x,beta,
-		  xHat,bHat,z,
-		  sd,
-		  n,m,d,iter);   
-
-      sd = 1.0;
-      if(*mda == 1)
-	sd = r_sd(s,nm_doub);       /* sample standard deviation */
-	
+      updatey(ystar,y,x,beta,
+	      n,m,d,iter);   
 
       //Rprintf("past update y\n");
       
       updatex(ystar,ok,beta,
-	      xHat,z,
-	      sd,x,xp,xpv,n,m,d,impute);
+	      x,xp,xpv,n,m,d,impute);
       //Rprintf("past updatex\n"); 
 
       makexreg(xreg,x,n,d,q);
       //Rprintf("past makexreg\n");
       
       updateb(ystar,ok,beta,xreg,
-	      bHat,z,
-	      sd,
 	      bp,bpv,n,m,d,impute);
       //Rprintf("past updateb\n");      
 

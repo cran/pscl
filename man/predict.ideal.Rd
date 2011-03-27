@@ -85,13 +85,14 @@
 data(s109)
 
 \dontrun{
-id1 <- ideal(s109, meanzero=TRUE,
+id1 <- ideal(s109,
+             normalize=TRUE,
              store.item=TRUE)      ## too long for examples
 }
 
 id1 <- ideal(s109,
              d=1,
-             meanzero=TRUE,
+             normalize=TRUE,
              store.item=TRUE,  ## need this to be TRUE for predict
              maxiter=500,
              burnin=100,

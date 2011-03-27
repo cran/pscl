@@ -70,14 +70,14 @@ tracex(object, legis=NULL, d=1, conf.int=0.95,
 data(s109)
 ## short run for demo purposes only
 id1 <- ideal(s109,
-             meanzero=TRUE,
+             normalize=TRUE,
              maxiter=500,
              burnin=100,thin=10,
              verbose=TRUE)
 tracex(id1,legis="KENN")
 
-## n.b., no such legislator named Horrendous Goblin
-tracex(id1,legis=c("KENN","BOX","KYL","Horrendous Goblin"))
+## n.b., no such legislator named Thomas Bayes
+tracex(id1,legis=c("KENN","BOX","KYL","Thomas Bayes"))
 
 \dontrun{
 id2 <- ideal(s109,
@@ -85,15 +85,15 @@ id2 <- ideal(s109,
              maxiter=5000,   ## unidentified!
              burnin=0,
              thin=50)
-tracex(id2,d=1,legis=c("KENNEDY","BOXER","KYL","Horrendous Goblin"))
-tracex(id2,d=2,legis=c("KENNEDY","BOXER","KYL","Horrendous Goblin"))
+tracex(id2,d=1,legis=c("KENNEDY","BOXER","KYL","Thomas Bayes"))
+tracex(id2,d=2,legis=c("KENNEDY","BOXER","KYL","Thomas Bayes"))
 tracex(id2,d=1:2,
-       legis=c("KENNEDY","BOXER","KYL","Horrendous Goblin"))
+       legis=c("KENNEDY","BOXER","KYL","Thomas Bayes"))
 
 ## partial matching
 tracex(id2,d=1:2,
        legis=c("KENN","BOX","BID","SNO","SPEC","MCCA","KYL",
-               "Horrendous Goblin"),
+               "Thomas Bayes"),
        showAll=TRUE)
 }
 }

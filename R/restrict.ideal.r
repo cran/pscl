@@ -98,7 +98,7 @@ constrain.items <- function(obj,
       stop(paste(names(x)[i]," was not found in rc$vote.names"))
      cat(paste("matching supplied name",
               names(x)[i],"with",
-              rc$legis.names[ind],"\n"))
+              rc$vote.names[ind],"\n"))
     bp[ind,] <- c(x[[i]],0)
     bpv[ind,] <- c(rep(1e12,d),0.01)
     bstart[ind,1:d] <- x[[i]]

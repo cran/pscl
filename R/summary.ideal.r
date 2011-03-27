@@ -33,7 +33,7 @@ print.ideal <- function(x, ...) {
   printHeaderIdeal(x)
 
   if(is.null(x$call$file)){
-    cat("Ideal Points: Posterior Mean\n")
+    cat("Ideal Points: Posterior Means\n")
     print(round(x$xbar,2))
     cat("\n")
   }
@@ -41,7 +41,7 @@ print.ideal <- function(x, ...) {
 }
 
 summary.ideal <- function(object,
-                          quantiles=c(.025,.975),
+                          prob=.95,
                           burnin=NULL,
                           sort=TRUE,
                           include.beta=FALSE,
@@ -62,111 +62,71 @@ summary.ideal <- function(object,
     return(invisible(NULL))
   }
 
-  if(is.null(burnin))
+  if(is.null(burnin)){
     keep <- checkBurnIn(object,eval(object$call$burnin,envir=.GlobalEnv))
-  else
+  } else {
     keep <- checkBurnIn(object,burnin)
+  }
   
   xm <- NULL
+  xsd <- NULL
   bm <- NULL
-  xQuantTab <- NULL
-  bQuantTab <- NULL
+  bsd <- NULL
+  xHDR <- NULL
+  bHDR <- NULL
   xResults <- list()
   bResults <- list()
   bSig <- list()
 
-  ## get quantiles of x
-  if(!is.null(quantiles)){
-    localQuantiles <- sort(quantiles)
-    xQuantTab <- as.matrix(apply(object$x[keep,-1],2,
-                                 quantile,
-                                 probs=localQuantiles,
-                                 na.rm=T))
+  myHPD <- function(x,prob){
+    tmp <- coda::as.mcmc(x)
+    return(coda::HPDinterval(tmp,prob))
   }
-  if(length(quantiles) > 1)
-    xQuantTab <- t(xQuantTab)
-  rownames(xQuantTab) <- colnames(object$x)[-1]
-  ## get mean of x
-  if(is.null(burnin))
-    xm <- object$xbar    ## use xbar in fitted model
-  else{                  ## otherwise re-compute
-    xm <- apply(object$x[keep,-1],2,mean)
-    xm <- matrix(xm,ncol=object$d,byrow=TRUE)
-  }
-  xsd <- apply(object$x[keep,-1],2,sd)
-  xQuantTab <- cbind(xsd,xQuantTab)
+  
+  ## get HPD of x
+  xKeep <- object$x[keep,,,drop=FALSE]
+  xHDR <- apply(xKeep,
+                c(2,3),
+                myHPD,
+                prob=prob)
+  xm <- apply(xKeep,c(2,3),mean)   ## means
+  xsd <- apply(xKeep,c(2,3),sd)    ## standard deviations
+  dimnames(xHDR)[[1]] <- c("lower","upper") 
+  if(length(dim(xHDR))>2)
+    xHDR <- aperm(xHDR,c(2,1,3))
+  if (length(dim(xHDR))==2)
+    xHDR <- t(xHDR)
 
-  ## loop over dimensions
-  for(j in 1:object$d){
-    thisDimension <- seq(from=j,by=object$d,length=object$n)
-    xResults[[j]] <- cbind(xm[,j],
-                           xQuantTab[thisDimension,])
-    cNames <- c("Mean","Std.Dev.",
-                paste(as.character(localQuantiles*100),
-                      "%",
-                      sep=""))
-    dimnames(xResults[[j]])[[2]] <- cNames
-    if(sort)
-      xResults[[j]] <- xResults[[j]][order(xResults[[j]][,1]),]
-  }
-
-  ##################################################################
+  ## ################################################################
   ## get beta summaries
   if ((!is.null(object$beta)) && (include.beta)){
-    tmpRollCall <- computeMargins(eval(object$call$object),
-                                  dropList=object$call$dropList)
-    if(!is.null(quantiles))
-      bQuantTab <- as.matrix(apply(object$beta[keep,-1],2,
-                                quantile,
-                                probs=localQuantiles,na.rm=T))
-    if (length(quantiles)>1)
-      bQuantTab <- t(bQuantTab)
-    rownames(bQuantTab) <- colnames(object$beta)[-1]
-    if(is.null(burnin))
-      bm <- object$betabar
-    else{
-      bm <- apply(object$beta[keep,-1],2,mean)
-      bm <- matrix(bm,ncol=object$d+1,byrow=TRUE)
-    }
-    bsd <- apply(object$beta[keep,-1],2,sd)
-    bQuantTab <- cbind(bsd,bQuantTab)
-
-    ## loop over dimensions
-    for(b in 1:(object$d+1)){
-      thisDimension <- seq(from=b,by=object$d+1,length=object$m)
-      bResults[[b]] <- cbind(bm[,b],
-                             bQuantTab[thisDimension,])
-      dimnames(bResults[[b]])[[2]][1] <- "Mean"
-      dimnames(bResults[[b]])[[2]][2] <- "sd"
-
-      ## if available, tack on margins data
-      if(!is.null(tmpRollCall$voteMargins)){
-        bResults[[b]] <- cbind(bResults[[b]],
-                               tmpRollCall$voteMargins)
-      }
-    }
-    names(bResults) <- c(paste("Discrimination Parameter Dimension",
-                               1:object$d),
-                         "Difficulty")
+    bKeep <- object$beta[keep,,,drop=FALSE]
+    bHDR <- apply(bKeep,
+                  c(2,3),
+                  myHPD,
+                  prob=prob)
+    dimnames(bHDR)[[1]] <- c("lower","upper")
+    if (length(dim(bHDR))>2)
+      bHDR <- aperm(bHDR,c(2,1,3))
+    
+    bm <- apply(bKeep,c(2,3),mean)
+    bsd <- apply(bKeep,c(2,3),sd)
     
     ## "significance tests" for discrimination parameters
-    nQ <- length(quantiles)
-    if(nQ==2){
-      ## we have confidence interval
-      width <- abs(localQuantiles[2] - localQuantiles[1])
-      sigFunc <- function(x){
-        out <- sign(x[,3])==sign(x[,4])
-        labs <- rep(paste(round(width*100),"% CI",sep=""),2)
-        labs[1] <- paste(labs[1],"does NOT overlap 0")
-        labs[2] <- paste(labs[2],"overlaps 0")
-        out <- factor(out,
-                      levels=c("TRUE","FALSE"),
-                      labels=labs)
-        out
-      }
-      bSig <- lapply(bResults[-length(bResults)],sigFunc)
-      names(bSig) <- paste("Discrimination Parameter Dim",1:object$d)
+    ## we have HDR interval of content prob
+    sigFunc <- function(x){
+      out <- sign(x[1])==sign(x[2])
+      labs <- rep(paste(round(prob*100),"% CI",sep=""),2)
+      labs[1] <- paste(labs[1],"does NOT overlap 0")
+      labs[2] <- paste(labs[2],"overlaps 0")
+      out <- factor(out,
+                    levels=c("TRUE","FALSE"),
+                    labels=labs)
+      out
     }
+    bSig <- NULL
+    bSig <- apply(bHDR,c(1,3),sigFunc)
+    bSig <- bSig[,-grep("Difficulty",dimnames(bSig)[[2]])]
   }
 
   #####################################################################
@@ -178,8 +138,7 @@ summary.ideal <- function(object,
     if(is.null(party))
       party <- dropRollCall(eval(object$call$object),
                             eval(object$call$dropList))$legis.data$party
-  }
-  else{
+  } else {
     party <- eval(object$call$object)$legis.data$partyName
     if(is.null(party))
       party <- eval(object$call$object)$legis.data$party
@@ -189,33 +148,34 @@ summary.ideal <- function(object,
     for (b in 1:object$d){       ## loop over dimensions
       pall <- NULL
       pm <- tapply(xm[,b],party,mean)
-      if (!is.null(quantiles)){  ## quantiles, if requested
-        pq <- tapply(xm[,b],party,quantile,probs=localQuantiles)
-        for(j in 1:length(pq)){
-          pall <- rbind(pall,pq[[j]])
-        }
+      pq <- tapply(xm[,b],party,
+                   quantile,
+                   probs=c(0,prob) + (1-prob)/2)
+      for(j in 1:length(pq)){
+        pall <- rbind(pall,pq[[j]])
       }
       pall <- cbind(pm,pall)
       pall.final <- rbind(pall.final,pall)
       nms <- c(nms,paste(rownames(pall),": Dimension ",b,sep=""))
     }
-
+    
     colnames(pall.final)[1] <- "Mean"
     rownames(pall.final) <- nms
   }
-
-  #####################################################################
+  
+  ## ###################################################################
   ## gather for output
   out <- list(object=match.call()$object,
-              xResults=xResults,
-              bResults=bResults,
+              xm=xm,xsd=xsd,xHDR=xHDR,
+              bm=bm,bsd=bsd,bHDR=bHDR,
               bSig=bSig,
               party.quant=pall.final,
-              sort=sort)
-
+              sort=sort,
+              prob=prob)
+  
   class(out) <- "summary.ideal"
-
-  out
+  
+  return(out)
 }
 
 print.summary.ideal <- function(x, digits=3, ...){ 
@@ -239,36 +199,70 @@ print.summary.ideal <- function(x, digits=3, ...){
     cat("\n")
   }  
 
+  ## loop over dimensions
+  xResults <- list()
+  for(j in 1:d){
+    xResults[[j]] <- cbind(x$xm[,j],
+                           x$xsd[,j],
+                           x$xHDR[,,j])
+    cNames <- c("Mean","Std.Dev.","lower","upper")
+    dimnames(xResults[[j]])[[2]] <- cNames
+    if(x$sort)
+      xResults[[j]] <- xResults[[j]][order(xResults[[j]][,1]),]
+  }
+
   for(j in 1:d){
     if(x$sort)
-      cat(paste("Ideal Points, Dimension ",j,
+      cat(paste("Ideal Points, Dimension ",j," ",
                 "(sorted by posterior means):\n",sep=""))
     else
       cat(paste("Ideal Points, Dimension ",j,":\n",sep=""))
-    print(round(x$xResults[[j]],digits))
+    print(round(xResults[[j]],digits))
     cat("\n")
   }
 
-  ## report statistical tests of significance
-  if(length(x$bSig)!=0){
-    cat("Statistical tests of discrimination parameters:\n")
-    if(d==2){ ## do a cross-tabulation
-      cat("dimension 1 (rows) against dimension 2 (columns)\n")
-      print(table(x$bSig[[1]],x$bSig[[2]]))
-    }
-    else{
-      for(j in 1:d){
-        cat("Dimension:",j)
-        print(table(x$bSig[[j]]))
-        cat("\n")
+  ## loop over dimensions
+  bResults <- list()
+  if(!is.null(x$bm)){
+    for(b in 1:(d+1)){
+      bResults[[b]] <- cbind(x$bm[,b],
+                             x$bsd[,b],
+                             x$bHDR[,,b])
+      dimnames(bResults[[b]])[[2]][1] <- "Mean"
+      dimnames(bResults[[b]])[[2]][2] <- "sd"
+
+      tmpRollCall <- computeMargins(object=eval(eval(x$object)$call$object),
+                                    dropList=eval(eval(x$object)$call$dropList))
+      
+      ## if available, tack on margins data
+      if(!is.null(tmpRollCall$voteMargins)){
+        bResults[[b]] <- cbind(bResults[[b]],
+                               tmpRollCall$voteMargins)
       }
     }
-  }
-
-  if(length(x$bResults)!=0){
+    names(bResults) <- c(paste("Discrimination D",
+                               1:d),
+                         "Difficulty")
+    
+    
+    ## report statistical tests of significance
+    if(length(x$bSig)!=0){
+      cat("Statistical tests of discrimination parameters:\n")
+      if(d==2){ ## do a cross-tabulation
+        cat("dimension 1 (rows) against dimension 2 (columns)\n")
+        print(table(x$bSig[[1]],x$bSig[[2]]))
+      } else{
+        for (j in 1:d){
+          cat("Dimension:",j)
+          print(table(x$bSig[[j]]))
+          cat("\n")
+        }
+      }
+    }
+    
     for(j in 1:d){
-      cat(paste(names(x$bResults)[j],":\n"))
-      theseResults <- x$bResults[[j]]
+      cat(paste(names(bResults[[j]]),":\n"))
+      theseResults <- bResults[[j]]
       foo <- x$bSig[[j]] == (levels(x$bSig[[j]])[2])
       fooChar <- rep("  ",m)
       fooChar[foo] <- "NS"
@@ -277,17 +271,12 @@ print.summary.ideal <- function(x, digits=3, ...){
       print(round(theseResults,digits))
       cat("\n")
     }
-    cat(paste(names(x$bResults)[d+1],":\n"))
-    print(round(x$bResults[[d+1]],digits))
+    cat(paste(names(bResults)[d+1],":\n"))
+    print(round(bResults[[d+1]],digits))
   }
-
+  
   cat("\n")
   invisible(NULL)
 }
-
-
-
-
-
 
 

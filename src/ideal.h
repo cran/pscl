@@ -5,22 +5,16 @@ double check(double **data, int **ok, int n, int m);
 double dtnorm(double *mu, double *sd, double *y);
 
 void updatex(double **ystar, int **ok, double **beta, 
-	     double **xHat, double **z,
-	     double sd,
 	     double **x, double **xp, double **xpv,
 	     int n, int m, int d, 
 	     int impute);
 void makexreg(double **xreg, double **x, int n, int d, int q);
 
 void updateb(double **ystar, int **ok, double **beta, double **xreg,
-	     double **bHat, double **z,
-	     double sd,
 	     double **bp, double **bpv,
 	     int n, int m, int d, int impute);
 
-double updatey(double **ystar, double **y, double **x, double **beta,
-	       double **xHat, double **bHat, double **z,
-	       double sd,
+void updatey(double **ystar, double **y, double **x, double **beta,
 	       int n, int m, int d, int iter);
 
 void choldc(double **a, int n, double p[]);

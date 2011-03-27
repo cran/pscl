@@ -124,7 +124,7 @@ ideal <- function(object,
 
   ## check to see how much information will need to be stored
   numrec <- (maxiter-burnin)/thin+1
-  if (interactive() &
+  if (interactive() & verbose &
       ((store.item)&&((n+m)*d*numrec>2000000))
       ||
       ((!store.item)&&((n*d*numrec)>2000000))
@@ -138,7 +138,7 @@ ideal <- function(object,
       stop("User terminated execution of ideal.")
   }
 
-  if (interactive() & numrec>1000) {
+  if (interactive() & verbose & numrec>1000) {
     ans <- readline(paste("You are attempting to save ",numrec," iterations.  This\n",
                           "could result in a very large object and cause memory problems.\n",
                          "Do you want to continue with the current call to ideal? (y/n): ",
@@ -222,8 +222,8 @@ ideal <- function(object,
     else{
       if(verbose)
         cat("no prior precisions supplied for item parameters,\n",
-            "setting to default of .01\n")
-      bpv <- matrix(.01,m,d+1)
+            "setting to default of .04\n")
+      bpv <- matrix(.04,m,d+1)
     }
     
     if (((nrow(xp) != n)||(ncol(xp) != d)) || ((nrow(xpv)!=n)||(ncol(xpv)!=d))) {
@@ -256,14 +256,14 @@ ideal <- function(object,
   }
   if(is.null(bpv)){
     if(verbose)
-      cat("setting prior precisions for item parameters to all 0.01\n")
-    bpv <- matrix(0.01,m,d+1)
+      cat("setting prior precisions for item parameters to all 0.04\n")
+    bpv <- matrix(0.04,m,d+1)
   }
   
-  xp <- as.vector(t(xp))
-  xpv <- as.vector(t(xpv))
-  bp <- as.vector(t(bp))
-  bpv <- as.vector(t(bpv)) 
+  xp <- as.vector(xp)
+  xpv <- as.vector(xpv)
+  bp <- as.vector(bp)
+  bpv <- as.vector(bpv) 
 
   ################################################################
   ## check for start values - create if not supplied
@@ -334,15 +334,25 @@ ideal <- function(object,
 
   ## report to user
   if(verbose){
-    cat("using the following start values for ideal points (summary follows):\n")
-    print(summary(xstart))
-    
-    cat("using the following start values for item parameters (summary follows):\n")
-    print(summary(bstart))
+    if(n<501){
+      cat("using the following start values for ideal points:\n")      
+      print(xstart)
+    } else {
+      cat("using the following start values for ideal points (summary follows):\n")      
+      print(summary(xstart))
+    }
+
+    if(m<501){
+      cat("using the following start values for item parameters:\n")
+      print(bstart)
+    } else {
+      cat("using the following start values for item parameters (summary follows):\n")
+      print(summary(bstart))
+    }
   }
 
-  xstart <- as.vector(t(xstart))
-  bstart <- as.vector(t(bstart))
+  xstart <- as.vector(xstart)
+  bstart <- as.vector(bstart)
   
   options(warn=0)
 
@@ -351,7 +361,7 @@ ideal <- function(object,
   ##############################################################
 
   yToC <- ifelse(is.na(v), 9, v)
-  yToC <- as.vector(t(yToC))
+  yToC <- as.vector(yToC)
   cat("\nStarting MCMC Iterations...\n")
 
   ## ############################################
@@ -420,58 +430,51 @@ ideal <- function(object,
 
   cat("\n")
 
-  ## parse returns from C job
+  ## parse returns from C
+  xbar <- NULL
+  betabar <- NULL
   if (!usefile) {
-    x <- output$xoutput
-    x <- matrix(x,nrow=numrec,byrow=T)
     itervec <- seq(burnin,maxiter,by=thin)
-    x <- cbind(itervec,x)
-    rownames(x) <- x[,1]
-    colnames(x) <- gencolnames(legis.names,d)
+    keep <- itervec > burnin
+
+    ## ideal points
+    print(output$xoutput[1:(n*d)])
+    x <- array(output$xoutput,
+               c(n,d,numrec))
+    
+    ## reshape to iteration first format
+    x <- aperm(x,c(3,1,2))   
+    dimnames(x) <- list(itervec,
+                        legis.names,
+                        paste("D",1:d,sep=""))
+    if(verbose)
+      cat("...computing posterior means for ideal points...")
+    xbar <- getMean(keep,x)
+    if(verbose)
+      cat("done\n")
+
+    ###############################################################
+    ## item parameters
     if (store.item) {
-      b <- output$boutput
-      b <- matrix(b,nrow=numrec,byrow=T)
-      b <- cbind(itervec,b)
-      rownames(b) <- b[,1]
-      colnames(b) <- gencolnames(vote.names,d,beta=T)
-    }
-    else {
+      b <- array(output$boutput,c(d+1,m,numrec))  ## parameters by votes by iters
+      dimnames(b) <- list(c(paste("Discrimination D",1:d,sep=""),
+                            "Difficulty"),
+                          vote.names,
+                          itervec)
+      ## reshape to iteration first format
+      b <- aperm(b,c(3,2,1))                      ## iters by votes by parameters
+      if(verbose)
+        cat("...computing posterior means for item parameters...")
+      betabar <- getMean(keep,b)
+      if(verbose)
+        cat("done\n")
+    } else {
       b <- NULL
     }
-  }
-  else {   ## output went to a file
+  } else {   ## output went to a file
     b <- x <- NULL
   }
-
-  ## compute some summary stats now, since we almost always use them
-  xbar <- betabar <- NULL
-
-  if(!is.null(x)){
-    if(verbose)
-      cat("MCMC sampling done, computing posterior means for ideal points...\n")
-    keep <- x[,1] > burnin
-    xbar <- apply(x[keep,-1],2,mean)
-    xbar <- matrix(xbar,n,d,byrow=TRUE)
-    mnames <- NULL
-    if(d>1){
-      for(j in 1:d)
-        mnames <- c(mnames,paste("Dimension",j))
-    }
-    dimnames(xbar) <- list(legis.names,mnames)
-    if(verbose)
-    cat("done\n")
-  }
-  
-  if(store.item & !is.null(b)){
-    if(verbose)
-      cat("and for bill parameters...")
-    keep <- b[,1] > burnin
-    betabar <- apply(b[keep,-1],2,mean)
-    betabar <- matrix(betabar,m,d+1,byrow=TRUE)
-    if(verbose)
-    cat("done\n")
-  }
-
+ 
   ## wrap up for return to user
   out <- list(n=n,m=m,d=d,
               codes=codes,
@@ -484,39 +487,15 @@ ideal <- function(object,
   class(out) <- c("ideal")
 
   ## and, finally, if the user wanted meanzero
-  if(normalize)
+  if(normalize){
+    if(verbose)
+      cat("...normalizing output (post-processing)...")
     out <- postProcess(out,
                        constraints="normalize")
-  
+    if(verbose)
+      cat("done\n")
+  }  
   return(out) 
-}
-
-
-gencolnames <- function(name, d, beta=FALSE) {
-  if(d>1){            ## more than one dimension?
-    dname <- NULL
-    for(i in 1:d){
-      dname <- c(dname,paste(name,"d",i,sep=""))
-    }
-    if(beta)
-      dname <- c(dname,paste(name,"Difficulty",sep=""))
-    dname <- matrix(dname,ncol=length(name),byrow=TRUE)
-    dname <- as.vector(dname)
-    dname <- c("Iteration",dname)
-  }
-  else {
-    if(beta){
-      if(beta)
-        dname <- c(name,paste(name,"Intercept",sep=""))
-      dname <- matrix(dname,ncol=length(name),byrow=T)
-      dname <- as.vector(dname)
-      dname <- c("Iteration",dname)
-    }
-    else {
-      dname <- c("Iteration",name)
-    }
-  }
-  dname
 }
 
 x.startvalues <- function(x,d,scale=TRUE,constraint=NULL,verbose=FALSE){
@@ -546,7 +525,7 @@ x.startvalues <- function(x,d,scale=TRUE,constraint=NULL,verbose=FALSE){
   }
   if(verbose)
     cat("done\n")
-  v
+  return(v)
 }
 
 probit <- function(y,x){

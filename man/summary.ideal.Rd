@@ -8,7 +8,7 @@
 }
 
 \usage{
-\method{summary}{ideal}(object, quantiles = c(.025, .975),
+\method{summary}{ideal}(object, prob=.95,
               burnin=NULL,
               sort=TRUE,
               include.beta=FALSE,...)
@@ -18,9 +18,7 @@
 
   \item{object}{an object of class \code{\link{ideal}}.}
 
-  \item{quantiles}{a list of quantiles to report for each legislator's
-    ideal point and each item's discrimination parameter (if stored in
-    the \code{ideal} object).}
+  \item{prob}{scalar, a proportion between 0 and 1, the content of the highest posterior density (HPD) interval to compute for the parameters}
   
   \item{burnin}{of the recorded MCMC samples, how many to discard as
     burnin?  Default is \code{NULL}, in which case the value of
@@ -43,21 +41,14 @@
   \item{object}{the name of the ideal object as an
     \code{\link[=eval]{unevaluated}} \code{\link{expression}}, produced
     by \code{match.call()$object}}
-  \item{xResults}{a \code{\link{list}} of length \code{d} (the dimension
-    of the fitted model).  Component \code{i} of the list is a
-    \code{\link{matrix}} 
-    summarizing the MCMC output for the \code{n} legislators' ideal
-    points on the \code{i}-th dimension of the model. The columns of
-    this matrix contain the mean of the MCMC draws from the posterior
-    density of the legislators ideal points, the standard deviation, and
-    the requested \code{quantiles}.} 
-  \item{bResults}{a \code{\link{list}} of length \code{d+1}, similar
-    to \code{xResults}, but containing summaries of the bill parameters;
-    i.e., there are \code{d} discrimination parameters per bill, plus an
-    intercept.  If the bill/item parameters were not stored when
-    \code{\link{ideal}} was called (\code{store.item=FALSE}), or
-    \code{include.beta=FALSE}, then \code{bResults}
-    is a list of length zero.}
+  \item{xm}{\code{n} by \code{d} matrix of posterior means for the ideal points}
+  \item{xsd}{\code{n} by \code{d} matrix of posterior means for the ideal points}
+  \item{xHDR}{\code{n} by 2 by \code{d} array of HDRs for the ideal points}  
+  \item{bm}{\code{m} by \code{d+1} matrix of posterior means for the
+      item parameters}
+  \item{bsd}{\code{m} by \code{d+1} matrix of posterior standard deviation for the
+      item parameters}
+  \item{bHDR}{\code{m} by 2 by \code{d+1} array of HDRs for the item parameters}  
   \item{bSig}{a \code{\link{list}} of length \code{d}, each component a
     vector of length \code{m}, of mode \code{logical}, equal to
     \code{TRUE} if the corresponding discrimination parameter is

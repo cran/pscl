@@ -572,7 +572,7 @@ model.matrix.hurdle <- function(object, model = c("count", "zero"), ...) {
 }
 
 predict.hurdle <- function(object, newdata, type = c("response", "prob", "count", "zero"),
-  na.action = na.pass, ...)
+  na.action = na.pass, at = NULL, ...)
 {
     type <- match.arg(type)
 
@@ -629,7 +629,7 @@ predict.hurdle <- function(object, newdata, type = c("response", "prob", "count"
         else if(!is.null(object$model)) y <- model.response(object$model)
 	else stop("predicted probabilities cannot be computed for fits with y = FALSE and model = FALSE")
 
-      yUnique <- min(y):max(y)
+      yUnique <- if(is.null(at)) 0:max(y) else at
       nUnique <- length(yUnique)
       rval <- matrix(NA, nrow = length(mu), ncol = nUnique)
       dimnames(rval) <- list(rownames(X), yUnique)
