@@ -455,16 +455,17 @@ ideal <- function(object,
 
     ###############################################################
     ## item parameters
-    if (store.item) {
-      b <- array(output$boutput,c(d+1,m,numrec))  ## parameters by votes by iters
-      dimnames(b) <- list(c(paste("Discrimination D",1:d,sep=""),
+    if(store.item){
+      print(vote.names)
+      b <- array(output$boutput,c(m,d+1,numrec))  ## votes by parameters by iters
+      dimnames(b) <- list(vote.names,
+                          c(paste("Discrimination D",1:d,sep=""),
                             "Difficulty"),
-                          vote.names,
                           itervec)
       ## reshape to iteration first format
-      b <- aperm(b,c(3,2,1))                      ## iters by votes by parameters
+      b <- aperm(b,c(3,1,2))                      ## iters by votes by parameters
       if(verbose)
-        cat("...computing posterior means for item parameters...")
+      cat("...computing posterior means for item parameters...")
       betabar <- getMean(keep,b)
       if(verbose)
         cat("done\n")

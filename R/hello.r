@@ -7,7 +7,7 @@
 
     ver <- read.dcf(file=system.file("DESCRIPTION", package=pkgname), 
                     fields=c("Version", "Date"))
-    cat(paste(pkgname, ver[1], "\t", ver[2], "\n"))
+    packageStartupMessage(paste(pkgname, ver[1], "\t", ver[2], "\n"))
 
     #cat("   R classes and methods developed in the\n")
     #cat("   Political Science Computational Laboratory\n")

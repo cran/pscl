@@ -6,7 +6,7 @@
   Plot seats-votes curves produced by \code{seatsVotes}
 }
 \usage{
-plot.seatsVotes(x, type = c("seatsVotes", "density"),
+\method{plot}{seatsVotes}(x, type = c("seatsVotes", "density"),
                 legend = "bottomright", transform=FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.

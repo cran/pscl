@@ -10,7 +10,7 @@
 
 \usage{
 tracex(object, legis=NULL, d=1, conf.int=0.95,
-       showAll = FALSE, burnin=NULL,span=.25,
+       multi = FALSE, burnin=NULL,span=.25,
        legendLoc="topright")
 }
 
@@ -23,7 +23,7 @@ tracex(object, legis=NULL, d=1, conf.int=0.95,
   dimension(s) to be traced.} 
   \item{conf.int}{numeric, the level of the confidence interval on the
   posterior mean to be plotted.}
-  \item{showAll}{logical, if \code{TRUE} and \code{length(d)==2},
+  \item{multi}{logical, multiple plotting panels, one per legislators? If \code{FALSE} (default) and \code{length(d)==2},
   display traces for all selected legislators' ideal points on
   the one plot.}
  \item{burnin}{of the recorded MCMC samples, how many to discard as
@@ -81,8 +81,8 @@ tracex(id1,legis=c("KENN","BOX","KYL","Thomas Bayes"))
 
 \dontrun{
 id2 <- ideal(s109,
-             d=2,
-             maxiter=5000,   ## unidentified!
+             d=2,             ## unidentified!
+             maxiter=5000,   
              burnin=0,
              thin=50)
 tracex(id2,d=1,legis=c("KENNEDY","BOXER","KYL","Thomas Bayes"))
@@ -94,7 +94,7 @@ tracex(id2,d=1:2,
 tracex(id2,d=1:2,
        legis=c("KENN","BOX","BID","SNO","SPEC","MCCA","KYL",
                "Thomas Bayes"),
-       showAll=TRUE)
+       multi=TRUE)
 }
 }
 

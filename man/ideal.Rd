@@ -54,10 +54,8 @@ ideal(object, codes = object$codes,
   	    
   \item{normalize}{\code{\link{logical}}, impose identification with
     the constraint that the ideal points have mean zero and
-    standard deviation one.  This option is only functional for
-    unidimensional models (i.e., \code{d=1}), and is sufficient to
-    locally identify the model parameters in this case; more
-    restrictions are required for identification when \code{d > 1}.
+    standard deviation one, in each dimension.  For one dimensional models this option is sufficient to
+    locally identify the model parameters.
     See Details.}
 
   \item{meanzero}{to be deprecated/ignored; use \code{normalize} instead.}

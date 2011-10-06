@@ -68,8 +68,12 @@
   compute fitted responses. The latter additionally provides the predicted density
   (i.e., probabilities for the observed counts), the predicted mean from the count
   component (without zero hurdle) and the predicted ratio of probabilities for
-  observing a non-zero count. The \code{\link[stats]{residuals}} method can compute
-  raw residuals (observed - fitted) and Pearson residuals (raw residuals scaled by
+  observing a non-zero count. The latter is the ratio of probabilities for a non-zero
+  implied by the zero hurdle component and a non-zero count in the non-truncated
+  count distribution. See also Appendix C in Zeileis et al. (2008).
+  
+  The \code{\link[stats]{residuals}} method can compute raw residuals
+  (observed - fitted) and Pearson residuals (raw residuals scaled by
   square root of variance function).
   
   The \code{\link[stats]{terms}} and \code{\link[stats]{model.matrix}} extractors can
@@ -77,6 +81,13 @@
 
   A \code{\link[stats]{logLik}} method is provided, hence \code{\link[stats]{AIC}}
   can be called to compute information criteria.
+}
+
+\references{
+  Zeileis, Achim, Christian Kleiber and Simon Jackman 2008.
+  \dQuote{Regression Models for Count Data in R.} 
+  \emph{Journal of Statistical Software}, \bold{27}(8).
+  URL \url{http://www.jstatsoft.org/v27/i08/}.
 }
 
 \author{Achim Zeileis <Achim.Zeileis@R-project.org>}

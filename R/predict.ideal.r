@@ -1,5 +1,4 @@
 ## predict method for class ideal
-
 predict.ideal <- function(object,
                           cutoff=0.5,
                           burnin=NULL,
@@ -48,15 +47,19 @@ predict.ideal <- function(object,
   correct <- predprob
   if(!is.null(burnin)){
     cat("Computing posterior means using ideal object.\n")
-    x1 <- matrix(apply(object$x[keep,-1],2,mean),
-                 nrow=object$n,ncol=object$d,byrow=TRUE)
+    x1 <- matrix(apply(object$x[keep,],
+                       c(2,3),
+                       mean),
+                 nrow=object$n,
+                 ncol=object$d,
+                 byrow=TRUE)
     x1 <- cbind(x1,-1)            ## negative intercept !!! SDJ 05/15/07
     b <- matrix(apply(object$beta[keep,-1],2,mean),
                 nrow=object$m,ncol=object$d+1,byrow=TRUE)
   }
   else{
     cat("Using posterior means in ideal object.\n")
-    x1 <- cbind(object$xbar,-1)   ## negative intercept !!! SDJ 01/22/07
+    x1 <- cbind(object$xbar,-1.0)   ## negative intercept !!! SDJ 01/22/07
     b <- object$betabar
   }
   mu <- tcrossprod(x1,b)        ## this should be n by (d+1) times (d+1) by m

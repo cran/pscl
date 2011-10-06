@@ -9,7 +9,7 @@
 }
 
 \usage{
-plot.predict.ideal(x, type = c("legis", "votes"),...)
+\method{plot}{predict.ideal}(x, type = c("legis", "votes"),...)
 }
 
 \arguments{

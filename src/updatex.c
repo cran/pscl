@@ -36,7 +36,7 @@ void updatex(double **ystar, int **ok, double **beta,
   //w = dmatrix(n,m);
   for(i=0;i<n;i++){
     for(j=0;j<m;j++){
-      w[i][j] = ystar[i][j] + beta[j][d]; /*d+1*/
+      w[i][j] = ystar[i][j] + beta[j][d]; /*d+1*, add negative intercept to LHS */
     }
   }
   

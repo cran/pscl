@@ -272,6 +272,7 @@ convertCodes <- function(object,codes=object$codes){
   tmp <- matrix(-999,
                 dim(object$votes)[1],
                 dim(object$votes)[2])
+  dimnames(tmp) <- dimnames(object$votes)
   tmp[object$votes %in% theCodes$yea] <- 1
   tmp[object$votes %in% theCodes$nay] <- 0
   if(!is.null(theCodes$missing)){

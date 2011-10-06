@@ -249,7 +249,7 @@ tracex <- function(object,
                    legis=NULL,
                    d=1,
                    conf.int=0.95,
-                   showAll=FALSE,
+                   multi=FALSE,
                    burnin=NULL,
                    span=.25,
                    legendLoc="topright"){
@@ -347,7 +347,7 @@ tracex <- function(object,
 
     
     for (i in 1:nLegis){
-      meat <- object$x[keep,p[[i]],1]
+      meat <- object$x[keep,p[[i]],d]
       iter <- as.numeric(dimnames(object$x)[[1]])[keep]
       par(mar=c(4, 4, 4, 2) + 0.1)      
 
@@ -424,7 +424,7 @@ tracex <- function(object,
                         col=col[i])
     }
     
-    if(showAll){                         ## plot all 2d traces at once
+    if(!multi){                         ## plot all 2d traces at once
       xRange <- range(unlist(lapply(meat,function(x)x$x)),na.rm=TRUE)
       yRange <- range(unlist(lapply(meat,function(x)x$y)),na.rm=TRUE)
       require(graphics)
@@ -478,7 +478,7 @@ tracex <- function(object,
       }
     }
     
-    if(!showAll){
+    if(multi){                ## multiple panels, one per legislator
       par(mfrow=c(2,2))
       count <- 0
       for(i in 1:nLegis){

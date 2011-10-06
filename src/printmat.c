@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "util.h"
+#include <R_ext/Print.h>
 
 void printmat(double **mat, int nr, int nc)
 {
@@ -7,11 +8,10 @@ void printmat(double **mat, int nr, int nc)
 
   for(i=0;i<nr;i++){
     for(j=0;j<nc;j++){
-      fprintf(stdout,
-	      "mat[%d][%d]=%2.3lf ",
+      Rprintf("mat[%d][%d]=%2.3lf ",
 	      i,j,mat[i][j]);
     }
-    fprintf(stdout,"\n");
+    Rprintf("\n");
   }
   return;
 }

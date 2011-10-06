@@ -1,3 +1,11 @@
+1.04	* fixed quite serious bug with storing item parameters
+	* COPYING file deprecated (?), deleted from repos with r174
+
+1.03.12	* minor bug in tracex with d>1
+	* deprecate showAll plotting option in tracex, change to "multi" (default=FALSE)
+
+1.03.11 * small change to documentation for ca2006 (thanks Arthur Aguirre)
+
 1.03.10	* pythag deprecated in Rmath.h, use system hypot instead (3/13/2011)
 	* warnings about memory etc only come on with verbose=TRUE (req by Stephen Jessee)
 
