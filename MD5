@@ -1,14 +1,14 @@
 6e55e6571f5729f76216ca3212ad5686 *COPYRIGHTS
-1fe72e29bdf93233eaea75fc3a48ee34 *DESCRIPTION
+2b7f522a13245430f6ed26414f46fb0d *DESCRIPTION
 f6d779a47ad2a560d95384f8f21f6ed9 *NAMESPACE
-e1d131e976730a60c3181fdc0f885458 *NEWS
+3ba324bddbd7a9a4ffd009838516502f *NEWS
 e4141b58125086fe7a925a18a27fbf13 *R/betaHPD.r
 fa1ccedd12e25d0f4b57c837eee688c5 *R/dropRollCall.r
 9136707d4c7f8400c1581139132014eb *R/dropUnanimous.r
 2d2ad2f4dd964d982bfb1b039913a847 *R/extractVotes.r
 3a3b87569b3f7fbd008cd1d6553fdb32 *R/hello.r
 a68a2ed5e435379d9dbabf719ae32701 *R/hitmiss.R
-f48fb2f2eb3b5b4e8c003eb47f301f5f *R/hurdle.R
+ed0e60f8f2df4e1f70be74fdff483bd0 *R/hurdle.R
 ccb4b19614e6b88ae5105ebbcbdf00e1 *R/ideal.r
 24cfd3cf6b0498e16ab9a08a5ed63fd4 *R/idealHelper.r
 57c42afc03bc7b48bf57aad15e6b5696 *R/igamma.r
@@ -29,7 +29,7 @@ bd699e0c10f9ee81c7524ab48b4481d3 *R/readKH.r
 8181536f4cdf5dd0217ad9ead60c3546 *R/summary.ideal.r
 0202cd83b23bb8c999f9d270f6e210a9 *R/toMCMC.r
 bb44e8325e20f4a6a6e17b1346372eff *R/vuong.R
-7b31b9b295567dba2f9d167a83f5dc9e *R/zeroinfl.R
+9aefa6635344ef8c977e224805ded336 *R/zeroinfl.R
 bdfbae70de1517193e1dfb8740fe01e8 *R/zzz.R
 53313b6f0b69be68a1fc8770c9ef7eb0 *README
 860c7a4542ca222f8a3eaf80940fb625 *TODO
@@ -58,7 +58,7 @@ b1684d7631e2aaf9b870b79adae6832f *inst/CITATION
 bb8a5bd4fb174d03b3cf791d45f0f142 *inst/doc/auto/countreg.el
 f0b2acaed3829613387d308477b32cfb *inst/doc/countreg.Rnw
 5fbb807bd14a6fa797d43474e73009bb *inst/doc/countreg.bib
-baa8a3722d6c95286922500dcf7af523 *inst/doc/countreg.pdf
+09c3f5bd7dee2addcd5504c196078fa5 *inst/doc/countreg.pdf
 1f374780d3fdab077448b3f8c8ed4535 *man/AustralianElectionPolling.Rd
 4c7220ae568fc8650e5a083ecfe61751 *man/AustralianElections.Rd
 413c8bb8c2a97bf96a086752b64f9727 *man/EfronMorris.Rd

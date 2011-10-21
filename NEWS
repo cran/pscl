@@ -1,3 +1,6 @@
+1.04.1	* fixed bug in non-English locales for hurdle/zeroinfl formula
+	  processing if second part of formula contained a period.
+
 1.04	* fixed quite serious bug with storing item parameters
 	* COPYING file deprecated (?), deleted from repos with r174
 

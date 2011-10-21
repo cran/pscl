@@ -1,6 +1,6 @@
 Package: pscl
-Version: 1.04
-Date: 2011-10-06
+Version: 1.04.1
+Date: 2011-10-21
 Title: Political Science Computational Laboratory, Stanford University
 Author: Simon Jackman, with contributions from Alex Tahk, Achim
         Zeileis, Christina Maimone and Jim Fearon
@@ -19,6 +19,6 @@ LazyLoad: true
 LazyData: true
 License: GPL-2
 URL: http://pscl.stanford.edu/
-Packaged: 2011-10-13 17:32:26 UTC; jackman
+Packaged: 2011-10-22 16:51:07 UTC; jackman
 Repository: CRAN
-Date/Publication: 2011-10-15 19:53:30
+Date/Publication: 2011-10-23 15:40:37

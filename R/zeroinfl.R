@@ -151,7 +151,7 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
     ffz <- ffc <- ff <- formula
     ffz[[2]] <- NULL
   }
-  if(length(grep("in formula and no", try(terms(ffz), silent = TRUE), fixed = TRUE)) > 0) {
+  if(inherits(try(terms(ffz), silent = TRUE), "try-error")) {
     ffz <- eval(parse(text = sprintf( paste("%s -", deparse(ffc[[2]])), deparse(ffz) )))
   }
 
