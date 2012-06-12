@@ -18,29 +18,32 @@ ideal <- function(object,
 
   cat("ideal: analysis of roll call data via Markov chain Monte Carlo methods.\n\n")
 
-  ## name of rollcall object as unevaluated, parsed expression
+  ## calling args, some evaluated if symbols, for future use
   cl <- match.call()
-  if(is.null(cl$d))
-    cl$d <- d
+  
+  if(is.null(cl$d) | is.symbol(cl$d))
+    cl$d <- eval(d,parent.frame())
   if(is.null(cl$codes))
     cl$codes <- codes
   if(is.null(cl$dropList))
     cl$dropList <- dropList
-  if(is.null(cl$maxiter))
-    cl$maxiter <- maxiter
-  if(is.null(cl$thin))
-    cl$thin <- thin
-  if(is.null(cl$burnin))
-    cl$burnin <- burnin
+  if(is.null(cl$maxiter) | is.symbol(cl$maxiter))
+    cl$maxiter <- eval(maxiter,parent.frame())
+  if(is.null(cl$thin) | is.symbol(cl$thin))
+    cl$thin <- eval(thin,parent.frame())
+  if(is.null(cl$burnin) | is.symbol(cl$burnin))
+    cl$burnin <- eval(burnin,parent.frame())
   if(is.null(cl$impute))
     cl$impute <- impute
   if(is.null(cl$mda))
     cl$mda <- mda
-  if(is.null(cl$store.item))
-    cl$store.item <- store.item
+  if(is.null(cl$store.item) | is.symbol(cl$store.item))
+    cl$store.item <- eval(store.item,parent.frame())
   if(is.null(cl$normalize))
     cl$normalize <- normalize
-
+  if(is.null(cl$verbose))
+    cl$verbose <- verbose
+  
   ## check validity of user arguments
   if (!("rollcall" %in% class(object)))
     stop("object must be of class rollcall")
@@ -192,8 +195,7 @@ ideal <- function(object,
         xpv <- matrix(priors$xpv,n,d)
       if(is.matrix(priors$xpv))
         xpv <- priors$xpv
-    }
-    else{
+    } else {
       if(verbose)
         cat("no prior precisions supplied for ideal points,\n",
             "setting to default of 1\n")
@@ -205,8 +207,7 @@ ideal <- function(object,
         bp <- matrix(priors$bp,m,d+1)
       if(is.matrix(priors$bp))
         bp <- priors$bp
-    }
-    else{
+    } else {
       if(verbose)
         cat("no prior means supplied for item parameters,\n",
             "setting to default to 0\n")
@@ -214,15 +215,17 @@ ideal <- function(object,
     }
     
     if(!is.null(priors$bpv)){
-      if(length(priors$bpv)==1)   ## user supplied a scalar
+      if(length(priors$bpv)==1){   ## user supplied a scalar
         bpv <- matrix(priors$bpv,m,d+1)
-      if(is.matrix(priors$bpv))
+      }
+      if(is.matrix(priors$bpv)){
         bpv <- priors$bpv
-    }
-    else{
-      if(verbose)
+      }
+    } else {
+      if(verbose){
         cat("no prior precisions supplied for item parameters,\n",
             "setting to default of .04\n")
+      }
       bpv <- matrix(.04,m,d+1)
     }
     
@@ -302,7 +305,7 @@ ideal <- function(object,
     
     if(!is.null(startvals$x)){
       if(length(startvals$x) != n*d)
-        stop("length of xstart not n by d")
+        stop("supplied start values for x is not n by d")
       if(d==1)
         xstart <- matrix(startvals$x,ncol=1)
       else
@@ -410,7 +413,8 @@ ideal <- function(object,
                  as.double(xp), as.double(xpv), as.double(bp),
                  as.double(bpv), as.double(xstart), as.double(bstart),
                  xoutput=as.double(rep(0,n*d*numrec)),
-                 boutput=NULL,as.integer(burnin),
+                 boutput=as.double(0),
+                 as.integer(burnin),
                  as.integer(usefile), as.integer(store.item), as.character(file),
                  as.integer(verbose))
   }
@@ -534,7 +538,7 @@ probit <- function(y,x){
                 family=binomial(link=probit))
   b <- coef(glmobj)
   k <- length(b)
-  b <- b[c(2:k,1)]
+  b <- b[c(2:k,1)]   ## put intercept last
   b
 }
 
@@ -551,7 +555,13 @@ b.startvalues <- function(v,x,d,verbose=FALSE){
   for(j in 1:m){
     b[j,] <- probit(y=v[,j],x=x)
   }
-  b[,d+1] <- -b[,d+1]     ## flip the sign on the intercept, make it a difficulty parameter
+
+  ## check for crazy discrimination parameters
+  for(j in 1:d){
+    bad <- is.na(b[,j])
+    b[bad,j] <- 0
+  }
+  b[,d+1] <- -b[,d+1]     ## flip the sign on the intercepts, make it a difficulty parameter
   if(verbose)
     cat("done\n")
   b

@@ -191,8 +191,15 @@ implementConstraints <- function(object,tMat,debug){
     newBeta <- array(NA,dim(object$beta))
   }
 
+  ## get burnin
+  ##if(is.symbol(object$call$burnin)){
+  ##  burnin <- eval(object$call$burnin)
+  ##} else {
+  ##  burnin <- object$call$burnin
+  ##}
   keep <- checkBurnIn(object,
-                      burnin=object$call$burnin)
+                      burnin=eval(object$call$burnin))
+  
   nSavedIters <- dim(object$x)[1]
   newX <- array(NA,dim(object$x))
   newObject <- object ## copy ideal object

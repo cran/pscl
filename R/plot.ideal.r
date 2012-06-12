@@ -429,7 +429,7 @@ tracex <- function(object,
       yRange <- range(unlist(lapply(meat,function(x)x$y)),na.rm=TRUE)
       require(graphics)
       layout(mat=matrix(c(1,2),1,2,byrow=TRUE),
-             width=c(.7,.3))
+             widths=c(.7,.3))
       
       par(mar=c(4,4,1,1))
       plot(x=xRange,y=yRange,

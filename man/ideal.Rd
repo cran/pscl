@@ -301,8 +301,10 @@ ideal(object, codes = object$codes,
     the MCMC samples for the item-specific parameters, using iterations
     \code{burnin} to \code{maxiter}, at an interval of \code{thin}.}
 
+	\item{args}{calling arguments, evaluated in the frame calling \code{ideal}.}
+
   \item{call}{an object of class \code{\link{call}}, containing
-    the arguments passed to \code{ideal} as unevaluated expressions.}
+    the arguments passed to \code{ideal} as unevaluated expressions or values (for functions arguments that evaluate to scalar integer or logical such as \code{maxiter}, \code{burnin}, etc).}
 }
 
 \references{

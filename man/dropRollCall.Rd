@@ -41,7 +41,7 @@ dropRollCall(object, dropList,debug=FALSE)
       \item{dropVotes}{an \code{\link{expression}} that evaluates to
 	mode \code{logical}, vector of length equal to the number of
 	rollcalls represented in \code{object}.  The expression is evaluated
-	in the \code{votes.data} component of the rollcall \code{object}.
+	in the \code{vote.data} component of the rollcall \code{object}.
 	Rollcalls for which the expression evaluates to \code{TRUE} are
 	dropped.}
     }
