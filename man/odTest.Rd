@@ -59,7 +59,6 @@ odTest(glmobj, alpha=.05, digits = max(3, getOption("digits") - 3))
 
 \examples{
 data(bioChemists)
-require(MASS)
 modelnb <- glm.nb(art ~ .,
                  data=bioChemists,
                  trace=TRUE)

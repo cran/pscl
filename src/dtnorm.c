@@ -22,7 +22,6 @@ double dtnorm(double *mu, double *sd, double *y)
 {
   double f, z;
   double norm=0;
-  int loop=1; 
 
   if (*y==0.0){
     z = *mu/(*sd);

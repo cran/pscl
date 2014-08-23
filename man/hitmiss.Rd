@@ -60,7 +60,6 @@ hitmiss(obj, digits = max(3, getOption("digits") - 3), ...)
 
 \examples{
 data(admit)
-require(MASS)
 ## ordered probit model
 op1 <- polr(score ~ gre.quant + gre.verbal + ap + pt + female,
             Hess=TRUE,

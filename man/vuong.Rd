@@ -47,10 +47,11 @@ glm1 <- glm(art ~ ., data = bioChemists, family = poisson)
 zip <- zeroinfl(art ~ . | ., data = bioChemists, EM = TRUE)
 vuong(glm1, zip)
 
+\dontrun{
 ## compare negbin with zero-inflated negbin
 nb1 <- glm.nb(art ~ ., data=bioChemists)
 zinb <- zeroinfl(art ~ . | ., data = bioChemists, dist = "negbin", EM = TRUE)
 vuong(nb1, zinb)
 }
-
+}
 \keyword{models}

@@ -50,7 +50,7 @@ Cambridge: Cambridge University Press.
 \examples{
 data("bioChemists", package = "pscl")
 fm <- hurdle(art ~ ., data = bioChemists, dist = "negbin", zero = "negbin")
-if(require("car")) hurdletest(fm)
+hurdletest(fm)
 }
 
 \keyword{regression}

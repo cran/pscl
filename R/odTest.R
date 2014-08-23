@@ -11,7 +11,7 @@ odTest <- function(glmobj,
   poissonGLM <- glm(formula=eval(glmobj$call$formula),
                     data=eval(glmobj$call$data),
                     family="poisson")
-  require(stats)
+  ## require(stats)
   llhPoisson <- logLik(poissonGLM)
   llhNB <- logLik(glmobj)
   

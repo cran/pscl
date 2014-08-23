@@ -30,7 +30,6 @@
 \examples{
 data(admit)
 summary(admit)
-require(MASS)
 ## ordered probit model
 op1 <- polr(score ~ gre.quant + gre.verbal + ap + pt + female,
             Hess=TRUE,

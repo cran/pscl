@@ -20,7 +20,6 @@ void updatex(double **ystar, int **ok, double **beta,
 	     int impute)
 {
   int i, j, k, l;
-  double mu, var;
   extern double *xxprod, **xxchol, *xz, *xxp, **xxa;
   extern double **bpb, *xprior, **xpriormat, *xbar, **xvpost, *bpw, **w;
 

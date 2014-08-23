@@ -29,13 +29,8 @@ extractRollCallObject(object)
   details on the form of a \code{dropList}.}
 \examples{
 data(s109)
-id1 <- ideal(s109,
-             d=1,
-	     normalize=TRUE,
-             maxiter=500,      ## short run for demo purposes
-             burnin=100,
-             thin=10)
-
+f = system.file("extdata","id1.RData",package="pscl")
+load(f)
 tmp <- extractRollCallObject(id1)
 summary(tmp)
 v <- convertCodes(tmp)         ## roll call matrix per se  

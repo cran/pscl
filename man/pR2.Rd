@@ -40,7 +40,6 @@ pR2(object, ...)
 \seealso{\code{\link{extractAIC}}, \code{\link{logLik}}}
 \examples{
 data(admit)
-require(MASS)
 ## ordered probit model
 op1 <- polr(score ~ gre.quant + gre.verbal + ap + pt + female,
             Hess=TRUE,

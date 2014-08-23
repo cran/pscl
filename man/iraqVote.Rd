@@ -38,14 +38,5 @@ data(iraqVote)
 glm1 <- glm(y ~ gorevote + rep,
             data=iraqVote,
             family=binomial(link=probit))
-\dontrun{
-require(MCMCpack)
-albertChib <- MCMCprobit(y ~ gorevote + rep,
-                         data=iraqVote,
-                         burnin=0,
-                         B0=1e-3,
-                         mcmc=1e4,
-                         verbose=0)
-}
 }
 \keyword{datasets}

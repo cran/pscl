@@ -11,7 +11,6 @@
 \usage{
 constrain.items(obj, dropList = list(codes = "notInLegis", lop = 0),
                 x, d = 1)
-
 }
 
 \arguments{
@@ -80,26 +79,18 @@ constrain.items(obj, dropList = list(codes = "notInLegis", lop = 0),
   \code{\link{constrain.legis}}
 }
 \examples{
-## run ideal with the default parameters
-data(s109)
 \dontrun{
-## run a 1d model, look for lack of fit
-id1 <- ideal(s109,
-             d=1,
-             meanzero=TRUE,
-             store.item=TRUE,
-             maxiter=1e5,
-             burnin=1e3,
-             thin=1e2)  
+data(s109)
+f <- system.file("extdata","id1.Rdata",package="pscl")
+load(f)
 id1sum <- summary(id1,include.beta=TRUE)
-
 suspect1 <- id1sum$bSig[[1]]=="95% CI overlaps 0"
 close60 <- id1sum$bResults[[1]][,"Yea"] < 60
 close40 <- id1sum$bResults[[1]][,"Yea"] > 40
 suspect <- suspect1 & close60 & close40
 id1sum$bResults[[1]][suspect,]
 suspectVotes <- dimnames(id1sum$bResults[[1]][suspect,])[[1]]
-}
+
 
 ## constraints on 2d model,
 ## close rollcall poorly fit by 1d model
@@ -110,7 +101,6 @@ cl <- constrain.items(s109,
                         "2-169"=c(7,0)),
                       d=2)
 
-\dontrun{
 id1Constrained <- ideal(s109,
                         d=2,
                         meanzero=TRUE,
@@ -121,7 +111,6 @@ id1Constrained <- ideal(s109,
                         thin=1e2)
 summary(id1Constrained,include.beta=TRUE)
 }
-
 }
 \keyword{datagen}
 

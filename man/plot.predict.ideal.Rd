@@ -43,13 +43,8 @@
 
 \examples{
 data(s109)
-id1 <- ideal(s109,
-             d=1,
-             normalize=TRUE,    ## local identification in 1d
-             store.item=TRUE,   ## need this for predictions
-             maxiter=500,       ## short run for demo purposes
-             burnin=100,
-             thin=10) 
+f = system.file("extdata","id1.RData",package="pscl")
+load(f)
 phat <- predict(id1)
 plot(phat,type="legis")
 plot(phat,type="votes")

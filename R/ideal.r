@@ -7,7 +7,6 @@ ideal <- function(object,
                   thin=100,
                   burnin=5000,
                   impute=FALSE,
-                  mda=FALSE,
                   normalize=FALSE,
                   meanzero=normalize,
                   priors=NULL,
@@ -35,14 +34,14 @@ ideal <- function(object,
     cl$burnin <- eval(burnin,parent.frame())
   if(is.null(cl$impute))
     cl$impute <- impute
-  if(is.null(cl$mda))
-    cl$mda <- mda
   if(is.null(cl$store.item) | is.symbol(cl$store.item))
     cl$store.item <- eval(store.item,parent.frame())
   if(is.null(cl$normalize))
     cl$normalize <- normalize
   if(is.null(cl$verbose))
     cl$verbose <- verbose
+  
+  mda <- FALSE
   
   ## check validity of user arguments
   if (!("rollcall" %in% class(object)))

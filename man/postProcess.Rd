@@ -155,34 +155,19 @@ Stanford University.
   
 \examples{
 data(s109)
-
-## short run for examples
-id1 <- ideal(s109,
-             d=1,
-             normalize=FALSE,     ## no identification...!
-             store.item=TRUE,
-             maxiter=500,
-             burnin=0,
-             thin=10)
+f = system.file("extdata",package="pscl","id1.RData")
+load(f)
 
 id1Local <- postProcess(id1)    ## default is to normalize
 summary(id1Local)
 
 id1pp <- postProcess(id1,
                      constraints=list(BOXER=-1,INHOFE=1))
-summary(id1Local)
+summary(id1pp)
 
-\dontrun{
-id2 <- ideal(s109,
-             d=2,
-             store.item=TRUE,
-             maxiter=1e4,
-             burnin=0,
-             thin=25)
-
-tracex(id2,d=1:2,
-       legis=c("BOXER","INHOFE","BYRD","CHAFEE","MCCAIN"),
-       showAll=TRUE)
+## two-dimensional fit
+f = system.file("extdata",package="pscl","id2.RData")
+load(f)
 
 id2pp <- postProcess(id2,
                      constraints=list(BOXER=c(-1,0),
@@ -191,8 +176,6 @@ id2pp <- postProcess(id2,
 
 tracex(id2pp,d=1:2,
        legis=c("BOXER","INHOFE","COLLINS","FEINGOLD","COLEMAN",
-         "CHAFEE","MCCAIN","KYL"),
-       showAll=TRUE)
-}
+         "CHAFEE","MCCAIN","KYL"))
 }
 \keyword{models}

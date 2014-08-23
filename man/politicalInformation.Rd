@@ -46,7 +46,6 @@ data(politicalInformation)
 
 table(politicalInformation$y,exclude=NULL)
 
-require(MASS)
 op <- polr(y ~ collegeDegree + female + log(age) + homeOwn + govt + log(length),
            data=politicalInformation,
            Hess=TRUE,

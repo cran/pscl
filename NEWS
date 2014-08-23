@@ -1,4 +1,15 @@
-1.04.4	* clean up partial matches to args, keeping R check happy
+1.4.6	* compliance with CRAN recss/reqs, vignettes sub-dir
+	* better Imports/Depends/Suggests etc
+	* dropped redundant "require" in examples etc
+	* fixed long-standing buglet in Vuong test, AIC type df adjustment to test statistic
+	* use format.pval for pvalues printing in Vuong output to screen
+
+1.4.5	* better compliance with CRAN reccs/reqs, R 3.0.0 etc
+	* drop leading zero in version number
+	* compress PDFs from vignettes
+	* lazy-loading, so um, lazy-load in readKH.r
+
+1.04.4	* presidentialElections includes 2012
 
 1.04.3	* bug in postProcess, not evaluating args in call of ideal object
 

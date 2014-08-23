@@ -29,6 +29,7 @@ export("hitmiss", "pR2")
 
 importFrom("MASS", "glm.nb")
 importFrom("stats", "logLik")
+importFrom("lattice", "xyplot")
 
 ## methods for class zeroinfl
   S3method("print", "zeroinfl")

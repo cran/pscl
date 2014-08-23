@@ -1,18 +1,18 @@
 \name{presidentialElections}
 \alias{presidentialElections}
 \docType{data}
-\title{elections for U.S. President, 1932-2008, by state}
+\title{elections for U.S. President, 1932-2012, by state}
 
 \description{
-  Data from states and the District of Columbia, Democratic share of the
-  presidential vote, 1932-2008.}
+  Democratic share of the
+  presidential vote, 1932-2012, in each state and the District of Columbia.}
 
 \usage{data(presidentialElections)}
 
 \format{
   \itemize{
-    \item{state}{name of state, character}
-    \item{demVote}{percent of the vote for president won by the
+    \item{state}{character, name of state}
+    \item{demVote}{numeric, percent of the vote for president won by the
       Democratic candidate}
     \item{year}{numeric, integer}
     \item{south}{logical, \code{TRUE} if state is one of the 11 states
@@ -20,9 +20,9 @@
   }
 }
 
-\note{996 observations, unbalanced panel data: (a) Hawaii and Alaska contribute data
-  from 1960 onwards; (b) the District of Columbia contributes data
-  from 1964 onward; (c) Alabama has missing data for 1948 and
+\note{1,047 observations, unbalanced panel data in long format. Hawaii and Alaska contribute data
+  from 1960 onwards the District of Columbia contributes data
+  from 1964 onward; Alabama has missing data for 1948 and
   1964.}
 
 \source{David Leip's Atlas of U.S. Presidential Elections \url{http://uselectionsatlas.org}
@@ -30,7 +30,6 @@
   
 \examples{
 data(presidentialElections)
-library(lattice)
 xyplot(demVote ~ year | state,
        panel=panel.lines,
        ylab="Democratic Vote for President (percent)",

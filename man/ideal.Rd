@@ -5,8 +5,7 @@
 
 \description{
   Analysis of \code{rollcall} data via the spatial voting model;
-  analogous to fitting educational testing data via an item-response
-  model.  Model fitting via Markov chain Monte Carlo (MCMC).
+  equivalent to a 2 parameter item-response model to educational testing data.  Model fitting via Markov chain Monte Carlo (MCMC).
 }
 
 \usage{
@@ -14,7 +13,6 @@ ideal(object, codes = object$codes,
       dropList = list(codes = "notInLegis", lop = 0),
       d = 1, maxiter = 10000, thin = 100, burnin = 5000,
       impute = FALSE,
-      mda = FALSE,
       normalize = FALSE,
       meanzero = normalize,
       priors = NULL, startvals = "eigen",
@@ -34,9 +32,9 @@ ideal(object, codes = object$codes,
     listing voting decisions, legislators and/or votes to be dropped
     from the analysis; see \code{\link{dropRollCall}} for details.}
   
-  \item{d}{numeric, (small) positive integer (defaults to 1).}
+  \item{d}{numeric, (small) positive integer (default = 1), dimensionality of the ability space (or "policy space" in the rollcall context).}
 
-  \item{maxiter}{numeric, positive integer, multiple of \code{thin}}
+  \item{maxiter}{numeric, positive integer, multiple of \code{thin}, number of MCMC iterations}
 
   \item{thin}{numeric, positive integer, thinning interval used for
     recording MCMC iterations.}
@@ -48,9 +46,6 @@ ideal(object, codes = object$codes,
   \item{impute}{\code{\link{logical}}, whether to treat missing entries
     of the rollcall matrix as missing at random, sampling from the
     predictive density of the missing entries at each MCMC iteration.}
-  
-  \item{mda}{\code{\link{logical}}, do parameter expansion/marginal data augmentation (see
-  Details); default is \code{FALSE} (experimental)}
   	    
   \item{normalize}{\code{\link{logical}}, impose identification with
     the constraint that the ideal points have mean zero and
@@ -66,12 +61,11 @@ ideal(object, codes = object$codes,
     precision 1 for the ideal points (ability parameters) and mean zero and
     precision .04 (variance 25) for the bill parameters (item discrimination and difficulty parameters).  If not \code{NULL}, \code{priors} must be a
     \code{list} with as many as four named components \code{xp, xpv, bp,
-      bpv}, where
+      bpv}:
     \describe{
     \item{\code{xp}}{a \code{n} by \code{d} matrix
       of prior \emph{means} for the legislators' ideal points;
-      or alternatively, a scalar, which will be replicated to fill a \code{n}
-      by \code{d} matrix.}
+      or alternatively, a scalar, which will be replicated to fill a \code{n} by \code{d} matrix.}
     \item{\code{xpv}}{a \code{n} by \code{d} matrix of prior
       \emph{precisions} (inverse variances);
       or alternatively, a scalar, which will be replicated to fill a \code{n}
@@ -91,8 +85,8 @@ ideal(object, codes = object$codes,
     values described above.}
 
   \item{startvals}{either a string naming a method for generating start
-    values, valid options are \code{"eigen"} (the default) or
-    \code{"random"}; or a \code{list} containing start values for
+    values, valid options are \code{"eigen"} (the default),
+    \code{"random"} or a \code{list} containing start values for
     legislators' ideal points and item parameters.  See Details.}
 
   \item{store.item}{\code{\link{logical}}, whether item discrimination
@@ -121,12 +115,14 @@ ideal(object, codes = object$codes,
     the ideal points are observationally equivalent, via offsetting
     transformations of the item parameters.  It is the user's
     responsibility to impose these identifying restrictions if
-    desired; the following brief discussion provides some guidance.
+    desired. The following brief discussion provides some guidance.
 
   For one-dimensional models (i.e., \code{d=1}), a simple route to
-  identification is the \code{normalize} option, which guarantees
+  identification is the \code{normalize} option, by imposing the restriction that the means of the posterior densities of the ideal points (ability parameters) have mean zero and standard deviation one, across legislators (test-takers).  This normalization supplies
   \emph{local} identification (identification up to a 180 rotation of
-  the recovered dimension). Near-degenerate \dQuote{spike} priors
+  the recovered dimension). 
+  
+  Near-degenerate \dQuote{spike} priors
   (priors with arbitrarily large precisions) or the
   \code{constrain.legis} option on any two legislators' ideal points
   ensures \emph{global} identification in one dimension.
@@ -363,9 +359,9 @@ ideal(object, codes = object$codes,
 }
 
 \examples{
+\dontrun{
+## long run, many iterations
 data(s109)
-
-## ridiculously short run for examples
 n <- dim(s109$legis.data)[1]
 x0 <- rep(0,n)
 x0[s109$legis.data$party=="D"] <- -1
@@ -373,26 +369,12 @@ x0[s109$legis.data$party=="R"] <- 1
 
 id1 <- ideal(s109,
              d=1,
-	     startvals=list(x=x0),
+             startvals=list(x=x0),
              normalize=TRUE,
              store.item=TRUE,
-             maxiter=100,
-             burnin=0,
-             thin=10,
-             verbose=TRUE)  
-summary(id1)
-
-\dontrun{
-## more realistic long run
-idLong <- ideal(s109,
-                d=1,
-                priors=list(xpv=1e-12,bpv=1e-12),
-                normalize=TRUE,
-                store.item=TRUE,
-                maxiter=260E3,
-                burnin=10E3,
-                thin=100)  
+             maxiter=260E3,
+             burnin=10E3,
+             thin=100)  
 }
 }
 \keyword{models}
-

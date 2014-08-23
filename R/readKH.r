@@ -43,7 +43,7 @@ readKH <- function(file,
   party <- as.numeric(substring(data,21,23))
   ## convert party to label
   partyfunc <- function(x){
-    data(partycodes)
+    ##data(partycodes)
     party <- partycodes$party[match(x,partycodes$code)]
     party[party=="Democrat"] <- "D"
     party[party=="Republican"] <- "R"
@@ -54,7 +54,7 @@ readKH <- function(file,
 
   ## convert state ICPSR code to abbreviation
   statename <- function(x){
-    data(state.info)
+    ##data(state.info)
     state.info$state[match(x,state.info$icpsr)]
   }
   state <- as.numeric(substring(data,9,10))  ## icpsr code

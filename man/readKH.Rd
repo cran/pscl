@@ -153,12 +153,6 @@ h107 <- readKH("ftp://voteview.com/hou107kh.ord",
 
 s107 <- readKH("ftp://voteview.com/sen107kh.ord",
                 desc="107th U.S. Senate")
-
-## Jeff Lewis has quasi-real-time roll call data on his site
-## in the Poole/Rosenthal format
-s110 <- readKH("http://adric.sscnet.ucla.edu/rollcall/static/S110.ord",
-               desc="110th U.S. Senate (2007-08)",
-               debug=TRUE)
 }
 }
 \author{Simon Jackman \email{jackman@stanford.edu}}

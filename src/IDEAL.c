@@ -28,9 +28,8 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
 	   int *burnin1, int *usefile, int *bsave, char **filename1, int *verbose1)
 {
   int e, xocursor, bocursor, xlength, blength, q, nm, iter;
-  int i, j, k;
   int inloop, **ok, burnin, n, m, d, maxiter, thin, impute, verbose;
-  double **ystar, **x, **xreg, **y, **beta, **bp, **bpv, iterPerCent, s, sd;
+  double **ystar, **x, **xreg, **y, **beta, **bp, **bpv, iterPerCent, sd;
   double **xp, **xpv, *xtemp, *btemp, nm_doub;
   FILE *ofp;
    // extern double **bpb, *xprior, **xpriormat, *xbar, **xvpost, *bpw, **w;

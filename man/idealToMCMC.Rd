@@ -39,15 +39,10 @@ idealToMCMC(object, burnin=NULL)
 
 \examples{
 data(s109)
-id1 <- ideal(s109,
-             d=1,
-             normalize=TRUE,
-             maxiter=1100,     ## short run for demo purposes
-             burnin=100,
-             thin=10)
+f = system.file("extdata",package="pscl","id1.RData")
+load(f)
 id1coda <- idealToMCMC(id1)
 summary(id1coda)  
 }
-
 \keyword{classes}
 

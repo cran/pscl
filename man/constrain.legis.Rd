@@ -112,14 +112,15 @@ cl <- constrain.legis(s109,
                         "ENZI"=1),
                       d=1)
 
-## short run for examples
+\dontrun{
+## too long for examples
 id1Constrained <- ideal(s109,
                        d=1,
                        priors=cl,      ## use cl
                        startvals=cl,   ## use cl
-                       maxiter=500,
-                       burnin=100,
-                       thin=10)
+                       maxiter=5000,
+                       burnin=500,
+                       thin=25)
 summary(id1Constrained)
 
 cl2 <- constrain.legis(s109,
@@ -128,8 +129,7 @@ cl2 <- constrain.legis(s109,
                          "CHAFEE"=c(0,-.5)),
                        d=2)
 
-\dontrun{
-## too long for examples
+
 id2Constrained <- ideal(s109,
                         d=2,
                         priors=cl2,      ## priors (w constraints)
@@ -138,17 +138,8 @@ id2Constrained <- ideal(s109,
                         maxiter=5000,
                         burnin=500,
                         thin=25)
-}
-## short run for examples
-id2Constrained <- ideal(s109,
-                        d=2,
-                        priors=cl2,      ## priors (w constraints)
-                        startvals=cl2,   ## start value (w constraints)
-                        store.item=TRUE,
-                        maxiter=500,
-                        burnin=100,
-                        thin=10)
 summary(id2Constrained,include.items=TRUE)
+}
 }
 \keyword{datagen}
 

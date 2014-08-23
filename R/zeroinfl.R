@@ -278,15 +278,15 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
 
       ll_new <- loglikfun(c(start$count, start$zero))
       ll_old <- 2 * ll_new      
-      if(!require("MASS")) {
-        ll_old <- ll_new
-	warning("EM estimation of starting values not available")
-      }
+      ##if(!require("MASS")) {
+      ##  ll_old <- ll_new
+      ##	warning("EM estimation of starting values not available")
+      ## }
     
       while(abs((ll_old - ll_new)/ll_old) > control$reltol) {
         ll_old <- ll_new
         model_count <- suppressWarnings(glm.fit(X, Y, weights = weights * (1-probi),
-	  offset = offsetx, family = negative.binomial(1), start = start$count))
+	  offset = offsetx, family = MASS::negative.binomial(1), start = start$count))
         model_zero <- suppressWarnings(glm.fit(Z, probi, weights = weights,
 	  offset = offsetz, family = binomial(link = linkstr), start = start$zero))
         start <- list(count = model_count$coefficients, zero = model_zero$coefficients)
@@ -306,10 +306,10 @@ zeroinfl <- function(formula, data, subset, na.action, weights, offset,
 
       ll_new <- loglikfun(c(start$count, start$zero, log(start$theta)))      
       ll_old <- 2 * ll_new      
-      if(!require("MASS")) {
-        ll_old <- ll_new
-	warning("EM estimation of starting values not available")
-      }
+      ## if(!require("MASS")) {
+      ##   ll_old <- ll_new
+      ##   warning("EM estimation of starting values not available")
+      ## }
       
       ## offset handling in glm.nb is sub-optimal, hence...
       offset <- offsetx
