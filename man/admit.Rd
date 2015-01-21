@@ -31,7 +31,7 @@
 data(admit)
 summary(admit)
 ## ordered probit model
-op1 <- polr(score ~ gre.quant + gre.verbal + ap + pt + female,
+op1 <- MASS::polr(score ~ gre.quant + gre.verbal + ap + pt + female,
             Hess=TRUE,
             data=admit,
             method="probit")

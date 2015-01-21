@@ -43,7 +43,7 @@
 
 \examples{
 data(s109)
-f = system.file("extdata","id1.RData",package="pscl")
+f = system.file("extdata","id1.rda",package="pscl")
 load(f)
 phat <- predict(id1)
 plot(phat,type="legis")

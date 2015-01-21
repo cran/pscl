@@ -194,7 +194,7 @@ void crosscheckx(double **beta, double **w, int **ok,
 		 int m, int d, int i, 
 		 double **bpb, double *bpw)
 {
-  int j,k,l, okij;
+  int j,k,l, okij=1;
   double *betarow, wij, bk;
 
   for(k=0;k<d;k++){

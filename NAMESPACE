@@ -28,8 +28,10 @@ export("seatsVotes", "plot.seatsVotes")
 export("hitmiss", "pR2")
 
 importFrom("MASS", "glm.nb")
+importFrom("MASS", "polr")
+importFrom("lattice","xyplot")
+importFrom("lattice","panel.lines")
 importFrom("stats", "logLik")
-importFrom("lattice", "xyplot")
 
 ## methods for class zeroinfl
   S3method("print", "zeroinfl")

@@ -81,7 +81,7 @@ constrain.items(obj, dropList = list(codes = "notInLegis", lop = 0),
 \examples{
 \dontrun{
 data(s109)
-f <- system.file("extdata","id1.Rdata",package="pscl")
+f <- system.file("extdata","id1.rda",package="pscl")
 load(f)
 id1sum <- summary(id1,include.beta=TRUE)
 suspect1 <- id1sum$bSig[[1]]=="95% CI overlaps 0"

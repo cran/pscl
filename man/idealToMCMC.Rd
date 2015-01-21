@@ -39,7 +39,7 @@ idealToMCMC(object, burnin=NULL)
 
 \examples{
 data(s109)
-f = system.file("extdata",package="pscl","id1.RData")
+f = system.file("extdata",package="pscl","id1.rda")
 load(f)
 id1coda <- idealToMCMC(id1)
 summary(id1coda)  

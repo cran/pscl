@@ -29,7 +29,7 @@ extractRollCallObject(object)
   details on the form of a \code{dropList}.}
 \examples{
 data(s109)
-f = system.file("extdata","id1.RData",package="pscl")
+f = system.file("extdata","id1.rda",package="pscl")
 load(f)
 tmp <- extractRollCallObject(id1)
 summary(tmp)

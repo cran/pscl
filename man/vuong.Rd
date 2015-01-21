@@ -27,13 +27,19 @@ vuong(m1, m2, digits = getOption("digits"))
   evidence of the superiority of model 2 over model 1.  Under the null
   that the models are indistinguishable, the test
   statistic is asymptotically distributed standard normal.
+  
+  Let \eqn{p_i = \hat{Pr}(y_i | M_1)} be the predicted probabilities from model 1, evaluated conditional on the estimated MLEs.   Let \eqn{q_i} be the corresponding probabilities from model 2.   Then the Vuong statistic is \eqn{\sqrt{N} \bar{m}/s_m} where \eqn{m_i = log(p_i) - log(q_i)} and \eqn{s_m} is the sample standard deviation of \eqn{m_i}.
+  
+  Two finite sample corrections are often considered, based on the Akaike (AIC) and Schwarz (BIC) penalty terms, based on the complexity of the two models. These corrections sometimes generate conflicting conclusions. 
 
   The function will fail if the models do not contain identical values
   in their respective components named \code{y} (the value of the
   response being modeled).
+  
+  
 }
 \value{
-  nothing returned, prints the test-statistic and \eqn{p} value and
+  nothing returned, prints 3 test statistics and \eqn{p} values and
   exits silently.
 }
 \references{Vuong, Q.H. 1989. Likelihood ratio tests for model

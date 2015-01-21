@@ -155,7 +155,7 @@ Stanford University.
   
 \examples{
 data(s109)
-f = system.file("extdata",package="pscl","id1.RData")
+f = system.file("extdata",package="pscl","id1.rda")
 load(f)
 
 id1Local <- postProcess(id1)    ## default is to normalize
@@ -166,7 +166,7 @@ id1pp <- postProcess(id1,
 summary(id1pp)
 
 ## two-dimensional fit
-f = system.file("extdata",package="pscl","id2.RData")
+f = system.file("extdata",package="pscl","id2.rda")
 load(f)
 
 id2pp <- postProcess(id2,

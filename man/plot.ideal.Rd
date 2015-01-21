@@ -99,6 +99,7 @@ plot2d(x, d1=1, d2=2, burnin=NULL,
 diagnosing convergence of the MCMC algorithms.} 
 
 \examples{
+\dontrun{
 data(s109)
 id1 <- ideal(s109,
              d=1,
@@ -110,7 +111,7 @@ id1 <- ideal(s109,
 
 plot(id1)
 
-\dontrun{
+
 id2 <- ideal(s109,
              d=2,
              store.item=TRUE,

@@ -68,23 +68,17 @@ tracex(object, legis=NULL, d=1, conf.int=0.95,
 
 \examples{
 data(s109)
-## short run for demo purposes only
-id1 <- ideal(s109,
-             normalize=TRUE,
-             maxiter=500,
-             burnin=100,thin=10,
-             verbose=TRUE)
+f <- system.file("extdata","id1.rda",package="pscl")
+load(f)
 tracex(id1,legis="KENN")
 
 ## n.b., no such legislator named Thomas Bayes
 tracex(id1,legis=c("KENN","BOX","KYL","Thomas Bayes"))
 
-\dontrun{
-id2 <- ideal(s109,
-             d=2,             ## unidentified!
-             maxiter=5000,   
-             burnin=0,
-             thin=50)
+
+f <- system.file("extdata","id2.rda",package="pscl")
+load(f)
+
 tracex(id2,d=1,legis=c("KENNEDY","BOXER","KYL","Thomas Bayes"))
 tracex(id2,d=2,legis=c("KENNEDY","BOXER","KYL","Thomas Bayes"))
 tracex(id2,d=1:2,
@@ -95,7 +89,6 @@ tracex(id2,d=1:2,
        legis=c("KENN","BOX","BID","SNO","SPEC","MCCA","KYL",
                "Thomas Bayes"),
        multi=TRUE)
-}
 }
 
 \keyword{hplot}

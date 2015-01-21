@@ -46,7 +46,7 @@ data(politicalInformation)
 
 table(politicalInformation$y,exclude=NULL)
 
-op <- polr(y ~ collegeDegree + female + log(age) + homeOwn + govt + log(length),
+op <- MASS::polr(y ~ collegeDegree + female + log(age) + homeOwn + govt + log(length),
            data=politicalInformation,
            Hess=TRUE,
            method="probit")

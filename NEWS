@@ -1,3 +1,10 @@
+1.4.8	* package dependcies handled better
+	* slight tweeks to ideal help
+	* CRAN compliance
+	* addressing memory leak issues revealed by valgrind in ideal's mallocs
+	
+1.4.7	* AIC and BIC in Vuong, better description and printing
+
 1.4.6	* compliance with CRAN recss/reqs, vignettes sub-dir
 	* better Imports/Depends/Suggests etc
 	* dropped redundant "require" in examples etc
@@ -41,7 +48,7 @@
 1.03.7	* small bug in constrain.item (reported by Paul Johnson)
 	* change normalization option in ideal to generate posterior means with mean 0, sd 1
 	* do normalization over all dimensions
-	* typos in documentation for pseudo-R2 (thanks to Henrik Pärn)
+	* typos in documentation for pseudo-R2 (thanks to Henrik P?rn)
  
 1.03.6	* made gam dependency explicit
 	* change linear.hypothesis to linearHypothesis
@@ -179,7 +186,7 @@
      * finally changed ideal model to have a negative intercept; required changes to 
        updatex.c, updatey.c, and xreg.c
 
-0.72 * fixed error in bioChemists data found by Bettina Grün
+0.72 * fixed error in bioChemists data found by Bettina Gr?n
        <gruen@ci.tuwien.ac.at>, variable kids5 was off by 1 unit, now runs
        from min of zero (no kids).
 
@@ -270,8 +277,8 @@
      add coda to list of required packages
      error in negative binomial hurdle model, added theta to coefficients dimnames 
      added TODO file to top-level directory of package
-     fixed bug in print.zeroinfl (thanks to Bettina Grün <gruen@ci.tuwien.ac.at>)
-     bugs in zeroinfl (Bettina Grün <gruen@ci.tuwien.ac.at>)
+     fixed bug in print.zeroinfl (thanks to Bettina Gr?n <gruen@ci.tuwien.ac.at>)
+     bugs in zeroinfl (Bettina Gr?n <gruen@ci.tuwien.ac.at>)
      corrected spelling of Ginsb*u*rg in sc9497 (Supreme Court sample data)
 
 0.55 added ideal point estimation (Alex Tahk)

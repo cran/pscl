@@ -21,8 +21,7 @@
   Keith Poole's web site:
   \url{http://voteview.com/senate109.htm}
 
-  Originally scraped from the Senate's web site by Jeff Lewis: see
-  \url{http://adric.sscnet.ucla.edu/rollcall/static/S109.ord}
+  Originally scraped from the Senate's web site by Jeff Lewis (UCLA).
   
   Information identifying the votes is available at
   \url{ftp://voteview.com/dtaord/s109desc_final.csv}

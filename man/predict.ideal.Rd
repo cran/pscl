@@ -84,20 +84,8 @@
 \examples{
 data(s109)
 
-\dontrun{
-id1 <- ideal(s109,
-             normalize=TRUE,
-             store.item=TRUE)      ## too long for examples
-}
-
-id1 <- ideal(s109,
-             d=1,
-             normalize=TRUE,
-             store.item=TRUE,  ## need this to be TRUE for predict
-             maxiter=500,
-             burnin=100,
-             thin=10)  
-
+f <- system.file("extdata","id1.rda",package="pscl")
+load(f)
 phat <- predict(id1)
 phat         ## print method
 }

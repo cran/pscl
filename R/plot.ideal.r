@@ -427,7 +427,7 @@ tracex <- function(object,
     if(!multi){                         ## plot all 2d traces at once
       xRange <- range(unlist(lapply(meat,function(x)x$x)),na.rm=TRUE)
       yRange <- range(unlist(lapply(meat,function(x)x$y)),na.rm=TRUE)
-      require(graphics)
+
       layout(mat=matrix(c(1,2),1,2,byrow=TRUE),
              widths=c(.7,.3))
       

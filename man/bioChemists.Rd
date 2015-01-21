@@ -17,7 +17,7 @@
     \item{\code{ment}}{count of articles produced by Ph.D. mentor during last 3 years}
     }
   }
-\source{found in Stata format at \url{http://www.indiana.edu/~jslsoc/stata/socdata/couart2.dta}}
+%%\source{found in Stata format at \url{http://www.indiana.edu/~jslsoc/stata/socdata/couart2.dta}}
 \references{Long, J. Scott. 1990.  The origins of sex differences in
   science. \emph{Social Forces}. 68(3):1297-1316.
 

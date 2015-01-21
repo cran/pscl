@@ -27,14 +27,8 @@
 \author{Simon Jackman \email{jackman@stanford.edu}}
 \seealso{\code{\link{ideal}}, \code{\link{predprob}}, \code{\link{predict.ideal}}}
 \examples{
-data(s109)
-id1 <- ideal(s109,
-             d=1,
-             normalize=TRUE,
-             store.item=TRUE,
-             maxiter=500,
-             burnin=100,
-             thin=10)  
+f <- system.file("extdata","id1.rda",package="pscl")
+load(f)
 phat <- predprob(id1)
 dim(phat)
 }

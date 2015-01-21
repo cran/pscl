@@ -22,20 +22,20 @@ double dtnorm(double *mu, double *sd, double *y)
 {
   double f, z;
   double norm=0;
-
+  
   if (*y==0.0){
     z = *mu/(*sd);
     if(z<1.6){
       /* try rejection sampling */
-	    do {
-		    norm = rnorm(*mu, *sd);
-	    } while (norm >= 0.0);
+      do {
+	norm = rnorm(*mu, *sd);
+      } while (norm >= 0.0);
     }
     else{
       /* otherwise use inverse-uniform method, z is always positive */
       /* work with natural logarithms to avoid underflows */
       f = -exp_rand();
-
+      
       pupper = pnorm(z,zero,one,0,1);
       arg = f + pupper;
       iarg = qnorm(arg,zero,one,1,1);

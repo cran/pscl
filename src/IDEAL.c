@@ -65,7 +65,6 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
   xpv = dmatrix(n,d);    /* initialize prior variances, latent traits */
 
   ok = imatrix(n,m);     /* initialize ok indicator matrix */  
- 
 
   if (*usefile == 1) {
     ofp = fopen(R_ExpandFileName(*filename1), "a");
@@ -196,13 +195,10 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
 
   bbp = dvector(q);
   bba = dmatrix(q,q);
-
-
   
   /**********************************************************************/
   /* C O M M E N C E   I T E R A T I O N S                              */
   /**********************************************************************/
-
                            
   while(iter<maxiter){                       /* Gibbs sampler loop */
     
@@ -243,8 +239,7 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
       R_CheckUserInterrupt();               /* check for user interrupt */
       
     }
-    
-  
+      
     /**********************************************************************/
     /*I N P U T I N G   N E W   V A L U E S  I N T O  E X P O R T  V E C S*/
     /**********************************************************************/ 
@@ -293,6 +288,49 @@ void IDEAL(int *n1, int *m1, int *d1, double *y1, int *maxiter1, int *thin1,
     fclose(ofp);
   }
 
+  /* free memory, good citizenship */
+  free_dmatrix(y,n);
+  free_dmatrix(ystar,n);
+  free_dmatrix(beta,m);
+  free_dmatrix(bp,m);
+  free_dmatrix(bpv,m);
+  free_dmatrix(x,n);
+  free_dmatrix(xreg,n);
+  free_dmatrix(xp,n);
+  free_dmatrix(xpv,n);
+  free_imatrix(ok,n);
+
+  free(xtemp);
+  free(btemp);
+  
+  free_dmatrix(bpb,d);
+  free(bpw);
+  free(xbar);
+  free_dmatrix(xvpost,d);
+  free(xprior);
+  free_dmatrix(xpriormat,d);
+  free_dmatrix(w,n);
+  free(xpy);
+  free_dmatrix(xpx,q);
+  free(bbar);
+  free(bprior);
+  free_dmatrix(bvpost,q);
+  free_dmatrix(bpriormat,q);
+
+  free(xz);
+  free(xxprod);
+  free_dmatrix(xxchol,d);
+
+  free(bz);
+  free(bxprod);
+  free_dmatrix(bchol,q);
+
+  free(xxp);
+  free_dmatrix(xxa,d);
+
+  free(bbp);
+  free_dmatrix(bba,q);
+  
   return;
   
 }

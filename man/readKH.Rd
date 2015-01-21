@@ -133,14 +133,15 @@ readKH(file,
   Political-Economic History of Roll Call Voting}.  New York: Oxford
   University Press.  
 
-Poole, Keith.  \url{http://voteview.ucsd.edu}
+Poole, Keith.  \url{http://votevieW.COM}
 
 Rosenthal, Howard L. and Keith T. Poole.  \emph{United States Congressional
 Roll Call Voting Records, 1789-1990: Reformatted Data [computer
 file].} 2nd ICPSR release. Pittsburgh, PA: Howard L. Rosenthal and Keith
 T. Poole, Carnegie Mellon University, Graduate School of Industrial
 Administration [producers], 1991. Ann Arbor, MI: Inter-university
-Consortium for Political and Social Research [distributor], 2000.  \url{http://webapp.icpsr.umich.edu/cocoon/ICPSR-STUDY/09822.xml}
+Consortium for Political and Social Research [distributor], 2000.  
+\url{http://www.icpsr.umich.edu/icpsrweb/ICPSR/studies/09822}
 }
 
 \seealso{\code{\link{rollcall}}
