@@ -21,8 +21,7 @@
   Keith Poole's web site:
   \url{http://voteview.com/senate110.htm}
 
-  Originally scraped from the Senate's web site by Jeff Lewis: see
-  \url{http://adric.sscnet.ucla.edu/rollcall/static/S110.ord}
+  Originally scraped from the Senate's web site by Jeff Lewis.
 
   Josh Clinton compiled the list of \emph{National Journal} key votes.  
 }

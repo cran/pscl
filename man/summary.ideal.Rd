@@ -89,21 +89,8 @@
 \author{Simon Jackman \email{jackman@stanford.edu}}
 
 \examples{
-## fake example
-set.seed(314159265)
-fakeData <- matrix(sample(x=c(0,1),size=1000,replace=TRUE),
-                   10,100)
-rc <- rollcall(fakeData)
-## short-run for demo purposes
-idFake <- ideal(rc,maxiter=500,burnin=100,thin=10)
-summary(idFake)
-
-## Supreme Court Example
-data(sc9497)
-rc <- rollcall(data=sc9497$votes,
-               legis.names=sc9497$legis.names,
-               desc=sc9497$desc)
-id1 <- ideal(rc)
+f <- system.file("extdata","id1.rda",package="pscl")
+load(f)
 summary(id1)
 
 \dontrun{

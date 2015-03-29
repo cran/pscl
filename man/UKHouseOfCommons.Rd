@@ -38,7 +38,7 @@
 \source{
    Jonathan Katz; Gary King. 1999. "Replication data for: A Statistical Model of Multiparty Electoral Data", \url{http://hdl.handle.net/1902.1/QIGTWZYTLZ}
   
-  Martin Baxter.  \url{http://www.electoralcalculus.co.uk/electdata_1992ob.txt}
+  %%Martin Baxter.  \url{http://www.electoralcalculus.co.uk/electdata_1992ob.txt}
 }
 \references{
   Katz, Jonathan and Gary King. 1999. ``A Statistical Model for

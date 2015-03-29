@@ -86,7 +86,7 @@ readKH(file,
       members of the Senate}    
     \item{\code{icpsrLegis}}{a unique numeric identifer for each
       legislator assigned by the ICPSR, as corrected by Poole and
-      Rosenthal, see \url{http://voteview.com/icpsr.htm}}
+      Rosenthal.}
     \item{\code{partyName}}{character string, the name of each legislator's
       political party}
     \item{\code{party}}{numeric, code for each legislator's political

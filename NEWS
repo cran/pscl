@@ -1,4 +1,6 @@
-1.4.8	* package dependcies handled better
+1.4.9	* fixed bug in AIC correct in Vuong test
+
+1.4.8	* package dependencies handled better
 	* slight tweeks to ideal help
 	* CRAN compliance
 	* addressing memory leak issues revealed by valgrind in ideal's mallocs
