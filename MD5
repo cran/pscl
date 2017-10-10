@@ -1,13 +1,13 @@
-a153874ef1ce5b75a2f7aa35767a1309 *DESCRIPTION
+fe29732196d58e3e6124c86dcbb5593a *DESCRIPTION
 6c1123f781dea012efbb95a8b8558496 *NAMESPACE
-d0a743f1534df4b07f33a40eba3b367a *NEWS
+3b641161076cc91a0c32c16779087e2d *NEWS
 e4141b58125086fe7a925a18a27fbf13 *R/betaHPD.r
 fa1ccedd12e25d0f4b57c837eee688c5 *R/dropRollCall.r
 9136707d4c7f8400c1581139132014eb *R/dropUnanimous.r
 2d2ad2f4dd964d982bfb1b039913a847 *R/extractVotes.r
 a68a2ed5e435379d9dbabf719ae32701 *R/hitmiss.R
 9ca24581779dbb144ae08119ccdc0a4f *R/hurdle.R
-12ffeca7d6969d8eda70cbac1e143d55 *R/ideal.r
+38096f0241f28d58d39c79a2ad6e935a *R/ideal.r
 24cfd3cf6b0498e16ab9a08a5ed63fd4 *R/idealHelper.r
 57c42afc03bc7b48bf57aad15e6b5696 *R/igamma.r
 1069285f3fe6835578a863a1d05ab8db *R/margins.rollcall.r
@@ -56,7 +56,7 @@ cfa71e205156ebb7482cd6ef99b305fb *inst/CITATION
 6e55e6571f5729f76216ca3212ad5686 *inst/COPYRIGHTS
 769b03482e35f9fc2c92ed82dd81c005 *inst/doc/countreg.R
 571dea92a33a40a3d1d37d5b3ab53f67 *inst/doc/countreg.Rnw
-0593d3fecf7db2c30d49c2b6ca4d735b *inst/doc/countreg.pdf
+754bb1aa18fcf2c23373c97e249253b4 *inst/doc/countreg.pdf
 6a339e8576cd23b19769209a0f46d0c6 *inst/extdata/id1.rda
 4c24fa4db587d5b00a0b7b935fda0dd6 *inst/extdata/id2.rda
 31ff3ec19da03100739d7a0f8d4420b4 *man/AustralianElectionPolling.Rd
