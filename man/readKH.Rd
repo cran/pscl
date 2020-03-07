@@ -84,7 +84,7 @@ readKH(file,
     \item{\code{cd}}{numeric, the number of each legislator's
       congressional district within each state; this is always 0 for
       members of the Senate}    
-    \item{\code{icpsrLegis}}{a unique numeric identifer for each
+    \item{\code{icpsrLegis}}{a unique numeric identifier for each
       legislator assigned by the ICPSR, as corrected by Poole and
       Rosenthal.}
     \item{\code{partyName}}{character string, the name of each legislator's
@@ -103,9 +103,9 @@ readKH(file,
   Congresses 1 through 106. These files contain information about the
   votes themselves, in a multiple-line per vote \code{ascii} format, and
   reside in the \code{dtl} director of Poole's web site, e.g.,
-  \url{ftp://pooleandrosenthal.com/dtl/102s.dtl} is the \code{dtl} file for
-  the 102nd Senate.  The default is to presume that no such file exists.
-  When a \code{dtl} file is available, and is read, the
+  \url{https://legacy.voteview.com/k7ftp/dtl/102s.dtl} is the \code{dtl}
+  file for the 102nd Senate.  The default is to presume that no such
+  file exists.  When a \code{dtl} file is available, and is read, the
   \code{votes.data} attribute of the resulting \code{\link{rollcall}}
   object is a \code{\link{data.frame}} with one record per vote, with
   the following variables:
@@ -123,7 +123,7 @@ readKH(file,
   the U.S. President as a pseudo-legislator, adding the announced
   positions of a president or the administration to the roll call
   matrix. This adds an extra \dQuote{legislator} to the data set and can
-  sometimes produce suprising results (e.g., a U.S. Senate of 101
+  sometimes produce surprising results (e.g., a U.S. Senate of 101
   senators), and a \dQuote{legislator} with a surprisingly low party loyalty
   score (since the President/administration only announces positions on
   a relatively small fraction of all Congressional roll calls).   
