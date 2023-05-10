@@ -1,5 +1,5 @@
 Package: pscl
-Version: 1.5.5
+Version: 1.5.5.1
 Date: 2020-02-25
 Title: Political Science Computational Laboratory
 Author: Simon Jackman, with contributions from
@@ -19,6 +19,6 @@ License: GPL-2
 URL: http://github.com/atahk/pscl
 NeedsCompilation: yes
 RoxygenNote: 6.0.1
-Packaged: 2020-02-27 03:32:23 UTC; jackman
+Packaged: 2023-05-10 07:34:13 UTC; ripley
 Repository: CRAN
-Date/Publication: 2020-03-07 12:00:02 UTC
+Date/Publication: 2023-05-10 08:04:51 UTC

@@ -1,4 +1,4 @@
-33dd76256f8e4885a01ca414de645427 *DESCRIPTION
+a89de1689696f0edb1efd315cae2ad5d *DESCRIPTION
 4ad0608e354a2f3541f47ff83c2dd8af *NAMESPACE
 25e7fe39697c687dbf53ed62d343b4d4 *NEWS
 e4141b58125086fe7a925a18a27fbf13 *R/betaHPD.r
@@ -141,7 +141,7 @@ dcd975bec5ddba470e1db440563859b5 *src/rigamma.c
 ca23e2ac6add4e277034d0e63ee02c14 *src/updateb.c
 dc84510ecda25f2d02511578e209f40c *src/updatex.c
 f3a178de4b8b4776852e7ce4de762e8a *src/updatey.c
-f0fa7ad3f866127695ddaa8dbb9256cc *src/util.c
+540ea2316b889d23e4ab51a9b72d1c55 *src/util.c
 4531f2dfbc17c8f2f692de0e7c97b7c7 *src/util.h
 5967f2c183b3301343fe317875a181bc *src/xchol.c
 21805fdd82f57d48144b119f84e73219 *src/xreg.c
