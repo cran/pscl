@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <R_ext/Print.h>
 #include <R_ext/Error.h>
+#include "util.h"
 
 void memallocerror(void)
 {
@@ -10,7 +11,7 @@ void memallocerror(void)
 
 void calcerror(char error_text[])
 {
-  error(error_text);
+  error("%s",error_text);
 }
 
 int *ivector(long n)

@@ -74,8 +74,8 @@ summary.ideal <- function(object,
   bsd <- NULL
   xHDR <- NULL
   bHDR <- NULL
-  xResults <- list()
-  bResults <- list()
+  ##xResults <- list()
+  ##bResults <- list()
   bSig <- list()
 
   myHPD <- function(x,prob){
@@ -179,9 +179,10 @@ summary.ideal <- function(object,
 }
 
 print.summary.ideal <- function(x, digits=3, ...){ 
-  if (!("summary.ideal" %in% class(x)))
+  if (!inherits(x, "summary.ideal")){
     stop("object passed to print.summary.ideal must be of class summary.ideal")
-
+  }
+  
   cat("Markov chain Monte Carlo Analysis of Roll Call Data\n")
   m <- eval(x$object)$m
   d <- eval(x$object)$d

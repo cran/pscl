@@ -298,7 +298,7 @@ hurdle <- function(formula, data, subset, na.action, weights, offset,
   method <- control$method
   hessian <- control$hessian
   separate <- control$separate
-  ocontrol <- control
+  ##ocontrol <- control
   control$method <- control$hessian <- control$separate <- control$start <- NULL
 
   ## ML estimation
@@ -470,7 +470,7 @@ vcov.hurdle <- function(object, model = c("full", "count", "zero"), ...) {
 
   cf <- object$coefficients[[model]]
   wi <- seq(along = object$coefficients$count)
-  rval <- if(model == "count") rval[wi, wi] else rval[-wi, -wi]
+  rval <- if(model == "count") rval[wi, wi, drop = FALSE] else rval[-wi, -wi, drop = FALSE]
   colnames(rval) <- rownames(rval) <- names(cf)
   return(rval)
 }
